@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+<div class="text-center">
+
+<div class="row">
+    <div class="col-md-12"><h3 class="text-center"> Image 检测 </h3></div>
+    <button class="btn" id="Submit"  >提交</button>
+    <button class="btn" id="removeAll"  >移除所有图片</button>
+</div>
+
+</div>
+
+<form action="/upload" id="my-dropzone" class="dropzone"></form>
+
+<div id="result">
+
+</div>
+
+
+<script>
+  Dropzone.options.myDropzone = {
+    method: "POST", // can be changed to "put" if necessary
+    // maxFilesize: 10, // in MB
+    paramName: "file", // The name that will be used to transfer the file
+    uploadMultiple: true, // This option will also trigger additional events (like processingmultiple).
+    headers: {
+      "My-Awesome-Header": "header value"
+    },
+    // maxFiles: 10,
+    parallelUploads: 300,
+    // cceptedFiles: "image/png, image/jpeg, image/gif", //This is a comma separated list of mime types or file extensions.Eg.: image/*,application/pdf,.psd.
+    autoProcessQueue: false, // When set to false you have to call myDropzone.processQueue() yourself in order to upload the dropped files. 
+    forceFallback: false,
+    init: function() {
+
+      this.on("addedfile", function(file) {
+
+        // Create the remove button
+        var removeButton = Dropzone.createElement("<button>移除</button>");
+
+
+        // Capture the Dropzone instance as closure.
+        var _this = this;
+
+        // Listen to the click event
+        removeButton.addEventListener("click", function(e) {
+          // Make sure the button click doesn't submit the form:
+          e.preventDefault();
+          e.stopPropagation();
+
+          // Remove the file preview.
+          _this.removeFile(file);
+          // If you want to the delete the file on the server as well,
+          // you can do the AJAX request here.
+        });
+
+        // Add the button to the file preview element.
+        file.previewElement.appendChild(removeButton);
+
+        myDropzone = this;
+        $('#Submit').click(function(){
+            myDropzone.processQueue(); //processes the queue
+        });
+
+        $('#removeAll').click(function(){
+            myDropzone.removeAllFiles(); //processes the queue
+        });
+      });
+
+
+      this.on("drop", function(event){
+        console.log(event.type);
+        console.log(event)
+      });
+
+
+      this.on("dragstart", function(event){ console.log(event.type); });
+      this.on("dragend", function(event){ console.log(event.type); });
+      this.on("dragenter", function(event){ console.log(event.type); });
+      this.on("dragover", function(event){ console.log(event.type); });
+      this.on("dragremove", function(event){ console.log(event.type); });
+
+
+      this.on("removedfile", function(file) { console.log("removedfile"); });
+      this.on("selectedfiles", function(file) { console.log("selectedfiles"); });
+      this.on("thumbnail", function(file) { console.log("thumbnail"); });
+      this.on("error", function(file) { console.log("error"); });
+      this.on("processing ", function(file) { console.log("processing "); });
+      this.on("uploadprogress", function(file) { console.log("uploadprogress"); });
+      this.on("sending", function(file) { console.log("sending"); });
+      this.on("success", function(file) { console.log("success"); });
+      this.on("complete", function(file) { console.log("complete"); });
+      this.on("canceled", function(file) { console.log("canceled"); });
+      this.on("maxfilesreached", function(file) { console.log("maxfilesreached"); });
+      this.on("maxfilesexceeded", function(file) { console.log("maxfilesexceeded"); });
+
+      /* receive a "list of files" as first parameter
+       * only called if the uploadMultiple option is true:
+       */
+      this.on("processingmultiple", function(files) { console.log("processingmultiple") });
+      this.on("sendingmultiple", function(files) { console.log("sendingmultiple") });
+      this.on("successmultiple", function(files, result) {
+        $("#result").html(result);
+        console.log("successmultiple")
+      });
+      this.on("completemultiple", function(files) {
+        console.log("completemultiple")
+      });
+      this.on("canceledmultiple", function(files) { console.log("canceledmultiple") });
+
+      /* Special events */
+      this.on("totaluploadprogress", function() { console.log("totaluploadprogress") });
+      this.on("reset", function() { console.log("reset") });
+    },
+
+  };
+</script>
+
+{% endblock %}

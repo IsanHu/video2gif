@@ -1,0 +1,19 @@
+<div class="row onePadding">
+    <div class="col-md-12 col-sm-12">
+        <div class="table-responsive">
+            <table class="table table-condensed">
+                <tr>
+                    <td>method</td>
+                    <td>result</td>
+                </tr>
+                {% for result in results %}
+                    <tr>
+                        <td>{{result['method']}}</td>
+                        <td><img class="previewImg" style="width: 200px; height: 200px;" src={{result["filePath"]}}></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
