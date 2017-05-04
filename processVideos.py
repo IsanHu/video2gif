@@ -10,6 +10,7 @@ You can get it from https://github.com/gyglim/Lasagne
 
 '''
 import Queue
+import threading
 
 score_function = video2gif.get_prediction_function()
 
@@ -53,7 +54,7 @@ def is_mp4(file):
 def add_video_to_queue(video_path, gif_path, zip_path, processed_path):
 	queue.put((video_path, gif_path, zip_path, processed_path))
 
-def process_video_queue():
+def did_process_video_queue():
 	# 遍历unprocessed目录
 	list_dirs = os.walk(config['UPLOAD_FOLDER']) 
 	for root, dirs, files in list_dirs:  
@@ -78,7 +79,10 @@ def process_video_queue():
 		video_name=os.path.splitext(os.path.split(video_path)[1])[0]
 		process_and_generate_gifs(video_path, video_name, gif_path, zip_path, processed_path)
 
-
+def process_video_queue():
+	thread = threading.Thread(target=did_process_video_queue)
+    thread.daemon = True
+    thread.start()
 
 
 def process_and_generate_gifs(video_path, video_name, gif_path, zip_path, processed_path):
