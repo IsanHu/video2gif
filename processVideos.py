@@ -118,7 +118,7 @@ def process_and_generate_gifs(video_path, video_name, gif_path, zip_path, proces
 	video2gif.generate_gifs(OUT_DIR,scores, video, video_name,top_k=topCount)
 
 	# 压缩图片
-	cmd = "zip -r " + zip_path + " " +  gif_path
+	cmd = "zip -rj " + zip_path + " " +  gif_path
 	print cmd
 	os.system(cmd)
 
