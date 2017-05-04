@@ -20,6 +20,14 @@ import sys
 import json
 import time
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+config['SECRET_KEY'] = 'hard to guess string'
+config['UPLOAD_FOLDER'] = basedir + '/unprocessed videos/'
+config['PROCESSED_FOLDER'] = basedir + '/processed videos/'
+config['THUMBNAIL_FOLDER'] = basedir + '/unprocessed videos/thumbnail/'
+config['GIF_FOLDER'] = basedir + '/gifs/'
+config['ZIPED_GIF_FOLDER'] = basedir + '/zipedgifs/'
+
 queue = Queue.Queue(maxsize=50)
 topCount = 10
 clipDuration = 2
@@ -31,7 +39,30 @@ def get_video_path():
         queue.task_done()
         item = queue.get()
 
+def is_mp4(file):
+    fileName, fileExtension = os.path.splitext(file.lower())
+
+    if fileExtension in ['mp4']:
+        return True
+    return False
+
+def add_video_to_queue(video_path, gif_path, zip_path):
+	queue.put((video_path, gif_path, zip_path))
+
 def process_video_queue():
+	# 遍历unprocessed目录
+	list_dirs = os.walk(config['UPLOAD_FOLDER']) 
+	for root, dirs, files in list_dirs:  
+  		for f in files:
+  			if is_mp4(f):
+  				video_path = os.path.join(config['UPLOAD_FOLDER'], f)
+  				file_name=os.path.splitext(os.path.split(f)[1])[0]
+                ziped_gif_file_name = file_name + ".zip"
+                ziped_gif_path = os.path.join(config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
+                gif_path = os.path.join(config['GIF_FOLDER'], file_name)
+  				add_video_to_queue(video_path, gif_path, ziped_gif_path)
+
+
 	for video_path, gif_path, zip_path in get_video_path():
 		print '从队列中读取数据'
 		print video_path
@@ -41,10 +72,6 @@ def process_video_queue():
 		process_and_generate_gifs(video_path, video_name, gif_path, zip_path)
 
 
-def add_video_to_queue(video_path, gif_path, zip_path):
-	queue.put((video_path, gif_path, zip_path))
-	print "queue count"
-	print len(queue)
 
 
 def process_and_generate_gifs(video_path, video_name, gif_path, zip_path):
@@ -78,4 +105,11 @@ def process_and_generate_gifs(video_path, video_name, gif_path, zip_path):
 	print "gifs count:"
 	print gifCount
 	video2gif.generate_gifs(OUT_DIR,scores, video, video_name,top_k=topCount)
+
+	# 压缩图片
+	cmd = "zip -r " + zip_path + " " +  gif_path
+	print cmd
+	os.system(cmd)
+
+
 	

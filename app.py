@@ -102,7 +102,7 @@ def upload():
                 ziped_gif_path = os.path.join(app.config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
                 gif_path = os.path.join(app.config['GIF_FOLDER'], file_name)
 
-                add_video_to_queue(uploaded_file_path, ziped_gif_path, gif_path)
+                add_video_to_queue(uploaded_file_path, gif_path, ziped_gif_path)
 
                 # create thumbnail after saving
                 if mime_type.startswith('image'):
