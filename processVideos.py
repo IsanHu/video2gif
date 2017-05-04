@@ -21,7 +21,7 @@ import json
 import time
 
 queue = Queue.Queue(maxsize=50)
-topCount = 100
+topCount = 10
 clipDuration = 2
 
 def get_video_path():
@@ -33,6 +33,10 @@ def get_video_path():
 
 def process_video_queue():
 	for video_path, gif_path, zip_path in get_video_path():
+		print '从队列中读取数据'
+		print video_path
+		print gif_path
+		print zip_path
 		video_name=os.path.splitext(os.path.split(video_path)[1])[0]
 		process_and_generate_gifs(video_path, video_name, gif_path, zip_path)
 
