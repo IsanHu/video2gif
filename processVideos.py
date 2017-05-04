@@ -47,8 +47,8 @@ def is_mp4(file):
         return True
     return False
 
-def add_video_to_queue(video_path, gif_path, zip_path):
-	queue.put((video_path, gif_path, zip_path))
+def add_video_to_queue(video_path, gif_path, zip_path, processed_path):
+	queue.put((video_path, gif_path, zip_path, processed_path))
 
 def process_video_queue():
 	# 遍历unprocessed目录
@@ -61,21 +61,22 @@ def process_video_queue():
 				ziped_gif_file_name = file_name + ".zip"
 				ziped_gif_path = os.path.join(config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
 				gif_path = os.path.join(config['GIF_FOLDER'], file_name)
-				add_video_to_queue(video_path, gif_path, ziped_gif_path)
+				processed_path = os.path.join(config['PROCESSED_FOLDER'], f)
+				add_video_to_queue(video_path, gif_path, ziped_gif_path, processed_path)
 
 
-	for video_path, gif_path, zip_path in get_video_path():
+	for video_path, gif_path, zip_path, processed_path in get_video_path():
 		print '从队列中读取数据'
 		print video_path
 		print gif_path
 		print zip_path
 		video_name=os.path.splitext(os.path.split(video_path)[1])[0]
-		process_and_generate_gifs(video_path, video_name, gif_path, zip_path)
+		process_and_generate_gifs(video_path, video_name, gif_path, zip_path, processed_path)
 
 
 
 
-def process_and_generate_gifs(video_path, video_name, gif_path, zip_path):
+def process_and_generate_gifs(video_path, video_name, gif_path, zip_path, processed_path):
 	video = VideoFileClip(video_path)
 	segmentsArray = []
 	for videoStart in range(0, clipDuration, 1):
@@ -111,6 +112,9 @@ def process_and_generate_gifs(video_path, video_name, gif_path, zip_path):
 	cmd = "zip -r " + zip_path + " " +  gif_path
 	print cmd
 	os.system(cmd)
+
+	# 转移视频
+	cmd1 = 'mv ' + video_path + " " + processed_path
 
 
 	
