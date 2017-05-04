@@ -45,7 +45,7 @@ def is_mp4(file):
     print fileName
     print fileExtension
     print "is mp4"
-    if fileExtension == 'mp4':
+    if fileExtension == '.mp4':
     	print "did is mp4"
         return True
     return False
