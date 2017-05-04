@@ -1,0 +1,77 @@
+#-*- coding:utf-8 -*-
+# Import the video2gif package
+import video2gif
+'''
+Compile the score function
+On the GPU, the network will be using cuDNN layer implementations available in the Lasagne master
+
+If the device is CPU, it will use the CPU version that requires my Lasagne fork with added 3D convolution and pooling.
+You can get it from https://github.com/gyglim/Lasagne
+
+'''
+import Queue
+
+score_function = video2gif.get_prediction_function()
+
+from IPython.display import Image, display
+import os
+from moviepy.editor import VideoFileClip
+import sys
+import json
+import time
+
+queue = Queue.Queue(maxsize=50)
+topCount = 100
+clipDuration = 2
+
+def get_video_path():
+    item = queue.get()
+    while item:
+        yield item
+        queue.task_done()
+        item = queue.get()
+
+def process_video_queue():
+	for video_path, gif_path, zip_path in get_video_path():
+		video_name=os.path.splitext(os.path.split(video_path)[1])[0]
+		process_and_generate_gifs(video_path, video_name, gif_path, zip_path)
+
+
+def add_video_to_queue(video_path, gif_path, zip_path):
+	queue.put((video_path, gif_path, zip_path))
+	print "queue count"
+	print len(queue)
+
+
+def process_and_generate_gifs(video_path, video_name, gif_path, zip_path):
+	video = VideoFileClip(video_path)
+	segmentsArray = []
+	for videoStart in range(0, clipDuration, 1):
+		print "videoStart:"
+		print videoStart
+		particalSegments = [(start, int(start+video.fps*clipDuration)) for start in range(int(videoStart*video.fps),int(video.duration*video.fps),int(video.fps*clipDuration))]
+		print "particalSegments count:"
+		print len(particalSegments)
+		segmentsArray.append(particalSegments)
+
+	print "segments count:"
+	print len(segmentsArray)
+
+	# Score the segments
+	scores = {}
+	for particalSegments in segmentsArray:
+		particalScores = video2gif.get_scores(score_function, particalSegments, video, stride=8)
+		scores.update(particalScores)
+		print "score count:"
+		print len(scores)
+
+	OUT_DIR=gif_path
+	if not os.path.exists(OUT_DIR):
+	    os.mkdir(OUT_DIR)
+
+	# Generate GIFs from the top scoring segments
+	gifCount = len(scores)
+	print "gifs count:"
+	print gifCount
+	video2gif.generate_gifs(OUT_DIR,scores, video, video_name,top_k=topCount)
+	

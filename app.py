@@ -18,6 +18,7 @@ from werkzeug import secure_filename
 
 from lib.upload_file import uploadfile, processedfile, zipedgiffile
 import sys
+from processVideos import process_video_queue, add_video_to_queue
 
 reload(sys)
 print sys.getdefaultencoding()
