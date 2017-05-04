@@ -28,9 +28,9 @@ sys.setdefaultencoding('utf8')
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SECRET_KEY'] = 'hard to guess string'
-app.config['UPLOAD_FOLDER'] = basedir + '/unprocessed videos/'
-app.config['PROCESSED_FOLDER'] = basedir + '/processed videos/'
-app.config['THUMBNAIL_FOLDER'] = basedir + '/unprocessed videos/thumbnail/'
+app.config['UPLOAD_FOLDER'] = basedir + '/unprocessedvideos/'
+app.config['PROCESSED_FOLDER'] = basedir + '/processedvideos/'
+app.config['THUMBNAIL_FOLDER'] = basedir + '/unprocessedvideos/thumbnail/'
 app.config['GIF_FOLDER'] = basedir + '/gifs/'
 app.config['ZIPED_GIF_FOLDER'] = basedir + '/zipedgifs/'
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024 * 1024
@@ -209,5 +209,6 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0 ', debug=True)
     process_video_queue()
+    app.run(host='0.0.0.0 ', debug=True)
+

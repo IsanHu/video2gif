@@ -23,9 +23,9 @@ import time
 basedir = os.path.abspath(os.path.dirname(__file__))
 config = {}
 config['SECRET_KEY'] = 'hard to guess string'
-config['UPLOAD_FOLDER'] = basedir + '/unprocessed videos/'
-config['PROCESSED_FOLDER'] = basedir + '/processed videos/'
-config['THUMBNAIL_FOLDER'] = basedir + '/unprocessed videos/thumbnail/'
+config['UPLOAD_FOLDER'] = basedir + '/unprocessedvideos/'
+config['PROCESSED_FOLDER'] = basedir + '/processedvideos/'
+config['THUMBNAIL_FOLDER'] = basedir + '/unprocessedvideos/thumbnail/'
 config['GIF_FOLDER'] = basedir + '/gifs/'
 config['ZIPED_GIF_FOLDER'] = basedir + '/zipedgifs/'
 
