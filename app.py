@@ -18,7 +18,8 @@ from werkzeug import secure_filename
 
 from lib.upload_file import uploadfile, processedfile, zipedgiffile
 import sys
-from processVideos import process_video_queue, add_video_to_queue
+import processVideos
+# from processVideos import process_video_queue, add_video_to_queue
 
 reload(sys)
 print sys.getdefaultencoding()
@@ -209,6 +210,6 @@ def index():
 
 
 if __name__ == '__main__':
-    process_video_queue()
+    processVideos.process_video_queue()
     app.run(host='0.0.0.0 ', debug=True)
 
