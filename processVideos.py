@@ -21,6 +21,7 @@ import json
 import time
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+config = {}
 config['SECRET_KEY'] = 'hard to guess string'
 config['UPLOAD_FOLDER'] = basedir + '/unprocessed videos/'
 config['PROCESSED_FOLDER'] = basedir + '/processed videos/'
@@ -53,14 +54,14 @@ def process_video_queue():
 	# 遍历unprocessed目录
 	list_dirs = os.walk(config['UPLOAD_FOLDER']) 
 	for root, dirs, files in list_dirs:  
-  		for f in files:
-  			if is_mp4(f):
-  				video_path = os.path.join(config['UPLOAD_FOLDER'], f)
-  				file_name=os.path.splitext(os.path.split(f)[1])[0]
-                ziped_gif_file_name = file_name + ".zip"
-                ziped_gif_path = os.path.join(config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
-                gif_path = os.path.join(config['GIF_FOLDER'], file_name)
-  				add_video_to_queue(video_path, gif_path, ziped_gif_path)
+		for f in files:
+			if is_mp4(f):
+				video_path = os.path.join(config['UPLOAD_FOLDER'], f)
+				file_name=os.path.splitext(os.path.split(f)[1])[0]
+				ziped_gif_file_name = file_name + ".zip"
+				ziped_gif_path = os.path.join(config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
+				gif_path = os.path.join(config['GIF_FOLDER'], file_name)
+				add_video_to_queue(video_path, gif_path, ziped_gif_path)
 
 
 	for video_path, gif_path, zip_path in get_video_path():
