@@ -115,6 +115,8 @@ def process_and_generate_gifs(video_path, video_name, gif_path, zip_path, proces
 
 	# 转移视频
 	cmd1 = 'mv ' + video_path + " " + processed_path
+	print cmd1
+	os.system(cmd1)
 
 
 	
