@@ -42,8 +42,9 @@ def get_video_path():
 
 def is_mp4(file):
     fileName, fileExtension = os.path.splitext(file.lower())
-
+    print "is mp4"
     if fileExtension in ['mp4']:
+    	print "did is mp4"
         return True
     return False
 
@@ -55,6 +56,7 @@ def process_video_queue():
 	list_dirs = os.walk(config['UPLOAD_FOLDER']) 
 	for root, dirs, files in list_dirs:  
 		for f in files:
+			print f
 			if is_mp4(f):
 				video_path = os.path.join(config['UPLOAD_FOLDER'], f)
 				file_name=os.path.splitext(os.path.split(f)[1])[0]
@@ -62,6 +64,7 @@ def process_video_queue():
 				ziped_gif_path = os.path.join(config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
 				gif_path = os.path.join(config['GIF_FOLDER'], file_name)
 				processed_path = os.path.join(config['PROCESSED_FOLDER'], f)
+				print 'add video to queue'
 				add_video_to_queue(video_path, gif_path, ziped_gif_path, processed_path)
 
 
