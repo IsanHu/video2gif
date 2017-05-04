@@ -95,6 +95,8 @@ def upload():
                 # save file to disk
                 uploaded_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 files.save(uploaded_file_path)
+                print "saved path:"
+                print uploaded_file_path
 
                 # create thumbnail after saving
                 if mime_type.startswith('image'):
@@ -201,3 +203,4 @@ def index():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0 ', debug=True)
+    process_video_queue()
