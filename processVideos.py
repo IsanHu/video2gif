@@ -42,8 +42,10 @@ def get_video_path():
 
 def is_mp4(file):
     fileName, fileExtension = os.path.splitext(file.lower())
+    print fileName
+    print fileExtension
     print "is mp4"
-    if fileExtension in ['mp4']:
+    if fileExtension == 'mp4':
     	print "did is mp4"
         return True
     return False
