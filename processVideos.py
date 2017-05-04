@@ -80,6 +80,7 @@ def did_process_video_queue():
 		process_and_generate_gifs(video_path, video_name, gif_path, zip_path, processed_path)
 
 def process_video_queue():
+	print "会不会执行两次啊"
 	thread = threading.Thread(target=did_process_video_queue)
 	thread.daemon = True
 	thread.start()
