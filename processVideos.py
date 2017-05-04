@@ -81,8 +81,8 @@ def did_process_video_queue():
 
 def process_video_queue():
 	thread = threading.Thread(target=did_process_video_queue)
-    thread.daemon = True
-    thread.start()
+	thread.daemon = True
+	thread.start()
 
 
 def process_and_generate_gifs(video_path, video_name, gif_path, zip_path, processed_path):
