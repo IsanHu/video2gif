@@ -150,9 +150,9 @@ def upload():
             file_display.append(file_info)
         # //获取硬件信息
         cpu_syl = "cpu 占用：%.2f" % hardwareInfo.cpu_syl()
-        disk_usage = "磁盘可用空间：%.2f G" % hardwareInfo.disk_usage("/home/3isan333")
+        free_disk = "磁盘可用空间：%.2f G" % hardwareInfo.free_disk("/home/3isan333")
         gpu_info = hardwareInfo.gpu_info()
-        return simplejson.dumps({"files": file_display, "cpu_syl": cpu_syl, "disk_usage": disk_usage, "gpu_info": gpu_info})
+        return simplejson.dumps({"files": file_display, "cpu_syl": cpu_syl, "free_disk": free_disk, "gpu_info": gpu_info})
 
     return redirect(url_for('index'))
 

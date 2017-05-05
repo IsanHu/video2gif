@@ -5,7 +5,7 @@ import psutil
 
 _ntuple_diskusage = namedtuple('usage', 'total used free')
 
-def disk_usage(path):
+def free_disk(path):
     """Return disk usage statistics about the given path.
 
     Returned valus is a named tuple with attributes 'total', 'used' and
