@@ -97,7 +97,7 @@ def upload():
             print mime_type
 
             if not allowed_file(files.filename):
-                result = uploadfile(name=filename, type=mime_type, size=0, not_allowed_msg="File type not allowed")
+                result = uploadfile(name=filename, type=mime_type, size=0, not_allowed_msg="请上传MP4文件")
 
             else:
                 # save file to disk
