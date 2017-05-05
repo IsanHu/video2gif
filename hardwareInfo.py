@@ -28,7 +28,7 @@ def gpu_info():
 def cpu_usage():
 	total_cpu=psutil.cpu_times().user+psutil.cpu_times().idle
 	user_cpu=psutil.cpu_times().user
-	cpu_syl=user_cpu/total_cpu*100
+	cpu_syl=float(user_cpu/total_cpu*100)
 	 
 	# mem = psutil.virtual_memory()   #使用psutil.virtual_memory方法获取内存完整信息
 	# mem_total=mem.total
@@ -36,4 +36,4 @@ def cpu_usage():
 	# mem_syl=mem_used/float(mem_total)*100
 	 
 	# dis_syl= psutil.disk_usage('/').used/float (psutil.disk_usage('/').total)*100
-	print cpu_syl
+	return cpu_syl

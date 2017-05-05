@@ -76,6 +76,16 @@ def create_thumbnail(image):
         print traceback.format_exc()
         return False
 
+@app.route("/hInfo", methods=['GET'])
+def hInfo():
+    # //获取硬件信息
+    cpu_syl = "cpu 占用：%.2f" % hardwareInfo.cpu_usage()
+    free_disk = "磁盘可用空间：%.2f G" % hardwareInfo.free_disk("/Users/isan")
+    print free_disk
+    gpu_info = hardwareInfo.gpu_info()
+    # gpu_info = "ddd"
+    hinfo = {"cpu_syl": cpu_syl, "free_disk": free_disk, "gpu_info": gpu_info}
+    return simplejson.dumps(hinfo)
 
 @app.route("/upload", methods=['GET', 'POST'])
 def upload():
@@ -148,11 +158,9 @@ def upload():
                 file_info['ziped_gif_info'] = ziped_gif_saved.get_file()
 
             file_display.append(file_info)
-        # //获取硬件信息
-        cpu_syl = "cpu 占用：%.2f" % hardwareInfo.cpu_syl()
-        free_disk = "磁盘可用空间：%.2f G" % hardwareInfo.free_disk("/home/3isan333")
-        gpu_info = hardwareInfo.gpu_info()
-        return simplejson.dumps({"files": file_display, "cpu_syl": cpu_syl, "free_disk": free_disk, "gpu_info": gpu_info})
+        
+
+        return simplejson.dumps({"files": file_display})
 
     return redirect(url_for('index'))
 
