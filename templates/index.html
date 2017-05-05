@@ -191,7 +191,7 @@
             data: params,
             url: url,
             success: function(data) {
-                info = data['free_disk'] + " " + data['cpu_syl'] + " " + data["gpu_info"]
+                info = data['free_disk']
                 $("#hInfo").text(info)
             },
             error: function(data) {

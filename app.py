@@ -79,10 +79,9 @@ def create_thumbnail(image):
 @app.route("/hInfo", methods=['GET'])
 def hInfo():
     # //获取硬件信息
-    cpu_syl = "cpu 占用：%.2f" % hardwareInfo.cpu_usage()
     free_disk = "磁盘可用空间：%.2fG" % hardwareInfo.free_disk("/home/3isan333")
     # gpu_info = hardwareInfo.gpu_info()
-    hinfo = {"cpu_syl": cpu_syl, "free_disk": free_disk}
+    hinfo = {"free_disk": free_disk}
     return simplejson.dumps(hinfo)
 
 @app.route("/upload", methods=['GET', 'POST'])
