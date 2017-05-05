@@ -4,10 +4,6 @@
 {% block page_content %}
 <div class="container">
     <h1>上传视频</h1>
-    {% if (o.free_disk) { %}
-        <p>{%=o.free_disk%}</p>
-    {% } %}
-
     <br>
     <br>
     <!-- The file upload form used as target for the file upload widget -->
@@ -96,6 +92,10 @@
 <script id="template-download" type="text/x-tmpl">
 {% for (var i=0, file; file=o.files[i]; i++) { %}
     <tr class="template-download fade">
+        {% if (o.free_disk) { %}
+            <td>{%=o.free_disk%}</td>
+        {% } %}
+
         <td>
             <span class="preview">
                 {% if (file.thumbnailUrl) { %}
