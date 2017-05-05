@@ -149,7 +149,7 @@
                     <td>
                         <span class="size">{%=o.formatFileSize(file.ziped_gif_info.size)%}</span>
                     </td>
-                    <td>
+<!--                     <td>
                         {% if (file.ziped_gif_info.deleteUrl) { %}
                             <button class="btn btn-danger delete" data-type="{%=file.ziped_gif_info.deleteType%}" data-url="{%=file.ziped_gif_info.deleteUrl%}" data-xhr-fields='{"withCredentials":true}'>
                                 <i class="glyphicon glyphicon-trash"></i>
@@ -161,18 +161,18 @@
                                 <span>Cancel</span>
                             </button>
                         {% } %}
-                    </td>
+                    </td> -->
                 {% } else { %}
                     <td>生成的图片已删除</td>
                     <td></td>
-                    <td></td>
+                    <!-- <td></td> -->
                 {% } %}
 
                 
             {% } else { %}
                 <td></td>
                 <td></td>
-                <td></td>
+                <!-- <td></td> -->
             {% } %}
     </tr>
 {% } %}
