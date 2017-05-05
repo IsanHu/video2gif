@@ -80,7 +80,7 @@ def create_thumbnail(image):
 def hInfo():
     # //获取硬件信息
     cpu_syl = "cpu 占用：%.2f" % hardwareInfo.cpu_usage()
-    free_disk = "磁盘可用空间：%.2f G" % hardwareInfo.free_disk("/Users/isan")
+    free_disk = "磁盘可用空间：%.2f G" % hardwareInfo.free_disk("/home/3isan333")
     print free_disk
     gpu_info = hardwareInfo.gpu_info()
     # gpu_info = "ddd"
