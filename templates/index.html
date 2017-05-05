@@ -4,6 +4,12 @@
 {% block page_content %}
 <div class="container">
     <h1>上传视频</h1>
+    {% if (o.cpu_syl) { %}
+        <p>{%=o.cpu_syl%}</p>
+    {% } else { %}
+        
+    {% } %}
+
     <br>
     <br>
     <!-- The file upload form used as target for the file upload widget -->

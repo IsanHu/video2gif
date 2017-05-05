@@ -19,7 +19,7 @@ from werkzeug import secure_filename
 from lib.upload_file import uploadfile, processedfile, zipedgiffile
 import sys
 import processVideos
-# from processVideos import process_video_queue, add_video_to_queue
+import hardwareInfo
 
 reload(sys)
 print sys.getdefaultencoding()
@@ -148,8 +148,11 @@ def upload():
                 file_info['ziped_gif_info'] = ziped_gif_saved.get_file()
 
             file_display.append(file_info)
-
-        return simplejson.dumps({"files": file_display})
+        # //获取硬件信息
+        cpu_syl = "cpu 占用：%.2f" % hardwareInfo.cpu_syl()
+        disk_usage = "磁盘可用空间：%.2f G" % hardwareInfo.disk_usage("/home/3isan333")
+        gpu_info = hardwareInfo.gpu_info()
+        return simplejson.dumps({"files": file_display, "cpu_syl": cpu_syl, "disk_usage": disk_usage, "gpu_info": gpu_info})
 
     return redirect(url_for('index'))
 
