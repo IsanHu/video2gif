@@ -374,7 +374,7 @@ def add_video_to_process(fileName, tags, caption):
 	
 	gif_path = os.path.join(config['GIF_FOLDER'], file_name)
 	processed_path = os.path.join(config['PROCESSED_FOLDER'], fileName)
-	if caption == "True":
+	if caption == "true":
 		info['status'] = "排队处理中（字幕）"
 		audio_name = file_name + ".mp3"
 		audio_path = os.path.join(config['BOTTLENECK'], audio_name)
