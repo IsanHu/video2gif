@@ -31,8 +31,8 @@ config['BOTTLENECK'] = basedir + '/bottleneck/'
 config['ZIPED_GIF_FOLDER'] = basedir + '/zipedgifs/'
 
 config['XUNFEI_JAR'] = basedir + '/LfasrDemo.jar'
-config['XUNFEI_APPID'] = '5913fb49'
-config['XUNFEI_KEY'] = 'd7e25c19f760ccb292b904da08b125ed'
+config['XUNFEI_APPID'] = '5913fa87'
+config['XUNFEI_KEY'] = '6c48f072a4ecf750538f2d073051a5b0'
 
 # 排队处理中
 # 排队处理中（字幕）
@@ -134,14 +134,15 @@ def did_start_get_audio_queue():
 		start = time.time()
 		has_audio = False
 		if os.path.isfile(audio_path):
-			audio = AudioFileClip(audio_path)
-			video = VideoFileClip(video_path)
-			if audio.duration == video.duration:
-				has_audio = True
-				print "音视频一般长"
-			else:
-				print "音视频不一样长"
-				os.remove(audio_path)
+			has_audio = True
+			# audio = AudioFileClip(audio_path)
+			# video = VideoFileClip(video_path)
+			# if audio.duration == video.duration:
+			# 	has_audio = True
+			# 	print "音视频一般长"
+			# else:
+			# 	print "音视频不一样长"
+			# 	os.remove(audio_path)
 
 		if not has_audio:
 			try:
@@ -211,6 +212,7 @@ def start_get_caption_loop():
 	print 'get_caption_from_xunfei'
 
 def get_caption_from_xunfei():
+	print 'get_caption_from_xunfei'
 	for key in videos:
 		print key
 		vi = videos[key]

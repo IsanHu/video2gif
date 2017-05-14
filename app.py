@@ -252,7 +252,8 @@ def getalldata():
         size = round(float(os.path.getsize(os.path.join(app.config['UPLOAD_FOLDER'], f))) / 1024.0 / 1024.0, 2)
         file_saved = uploadfile(name=f, size=size)
         file_info = file_saved.get_file()
-        status, op = processVideos.get_file_status_info(f)
+        file_name = os.path.splitext(os.path.split(f)[1])[0]
+        status, op = processVideos.get_file_status_info(file_name)
         file_info['status'] = status
         if op != "":
             file_info['op'] = op
