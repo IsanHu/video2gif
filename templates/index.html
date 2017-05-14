@@ -112,68 +112,12 @@
             <span class="size">{%=o.formatFileSize(file.size)%}</span>
         </td>
         <td>
-            {% if (file.deleteUrl) { %}
-                <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}" data-xhr-fields='{"withCredentials":true}'>
-                    <i class="glyphicon glyphicon-trash"></i>
-                    <span>删除</span>
-                </button>
-            {% } else { %}
-                <button class="btn btn-warning cancel">
-                    <i class="glyphicon glyphicon-ban-circle"></i>
-                    <span>Cancel</span>
-                </button>
-            {% } %}
-        </td>
-        <td>
             {% if (file.processed) { %}
                 已处理
             {% } else { %}
                 排队处理中...
             {% } %}
         </td>
-
-        {% if (file.processed) { %}
-                {% if (file.ziped_gif_info) { %}
-                    <td>
-                        <p class="name">
-                            {% if (file.ziped_gif_info.url) { %}
-                                <a href="{%=file.ziped_gif_info.url%}" title="{%=file.ziped_gif_info.name%}" download="{%=file.ziped_gif_info.name%}" {%=file.ziped_gif_info.thumbnailUrl?'data-gallery':''%}>{%=file.ziped_gif_info.name%}</a>
-                            {% } else { %}
-                                <span>{%=file.ziped_gif_info.name%}</span>
-                            {% } %}
-                        </p>
-                        {% if (file.ziped_gif_info.error) { %}
-                            <div><span class="label label-danger">Error</span> {%=file.ziped_gif_info.error%}</div>
-                        {% } %}
-                    </td>
-                    <td>
-                        <span class="size">{%=o.formatFileSize(file.ziped_gif_info.size)%}</span>
-                    </td>
-<!--                     <td>
-                        {% if (file.ziped_gif_info.deleteUrl) { %}
-                            <button class="btn btn-danger delete" data-type="{%=file.ziped_gif_info.deleteType%}" data-url="{%=file.ziped_gif_info.deleteUrl%}" data-xhr-fields='{"withCredentials":true}'>
-                                <i class="glyphicon glyphicon-trash"></i>
-                                <span>删除</span>
-                            </button>
-                        {% } else { %}
-                            <button class="btn btn-warning cancel">
-                                <i class="glyphicon glyphicon-ban-circle"></i>
-                                <span>Cancel</span>
-                            </button>
-                        {% } %}
-                    </td> -->
-                {% } else { %}
-                    <td>生成的图片已删除</td>
-                    <td></td>
-                    <!-- <td></td> -->
-                {% } %}
-
-                
-            {% } else { %}
-                <td></td>
-                <td></td>
-                <!-- <td></td> -->
-            {% } %}
     </tr>
 {% } %}
 </script>

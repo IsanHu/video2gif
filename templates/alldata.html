@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}处理{% endblock %}
+
+{% block page_content %}
+<script type="text/javascript">
+function addToProcessButtonClicked() {
+  console.log("videoName")
+  var videoName = $('#videoToProcess').text()
+  console.log(videoName)
+  var tagString = $("#tag").val().trim();
+  var tags = $("#tag").val().trim().split("\n");
+  captionChecked = $("#captionCheckbox").prop('checked')
+
+  addToProcess(videoName, JSON.stringify(tags), captionChecked, function(data){
+
+  })
+
+}
+</script>
+<div class="container" id="task_page">
+    <div class="row">
+        <div id="left" class="col-md-5">
+          <table class="table" id="unprocessed">
+              <tr>
+                <th>视频</th>
+                <th>视频大小</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+              <tr is="unprocessedtr" v-for="data in unprocessedData" v-bind:data="data"></tr>
+              </unprocessedtr>
+          </table>
+        </div>
+        <div id="right" class="col-md-6 col-md-offset-1">
+          <table class="table" id="processed">
+              <tr>
+                <th>视频</th>
+                <th>视频大小</th>
+                <th>图片</th>
+              </tr>
+              <tr is="processedtr" v-for="data in processedData" v-bind:data="data"></tr>
+              </processedtr>
+          </table>
+        </div>
+    </div>
+    <div id="addToProcessModal" class="modal fade" tabindex="-1" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 id="videoToProcess" class="modal-title"></h4>
+              </div>
+              <div class="modal-body">
+                  <input type="checkbox" id="captionCheckbox"><span> 是否生成字幕</span>
+                  <br>
+                  <p>tag,换行</p>
+                  <textarea id="tag" class="form-control" rows="10" placeholder="tag,用逗号隔开"></textarea>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="AddToProcessButton" onClick="javascript:addToProcessButtonClicked()">处理</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+  </div>
+{% endblock %}
+
+{% block scripts %}
+
+<script type="text/javascript">
+$(document).ready(function(){
+  function videoList(callback) {
+        var params = {
+        
+        };
+        url = "/getalldata"
+        $.ajax({
+            type: "GET",
+            data: params,
+            url: url,
+            success: function(data) {
+                waitingDialog.hide();
+                console.log("成功");
+                callback(data);
+            },
+            error: function(data) {
+                waitingDialog.hide();
+            },
+            dataType: "json"
+        });
+    }
+
+    var tasks = new Vue({
+    el: '#task_page',
+      data: {
+          message: 'You loaded this page on ' + new Date(),
+          processedData: [],
+          unprocessedData: [],
+      }
+    })
+
+  waitingDialog.show('处理中...');
+  videoList(function(data){
+      console.log(data['processed_files'])
+      tasks.processedData = data['processed_files']
+      tasks.unprocessedData = data['unprocessed_files']
+  })
+})
+</script>
+{% endblock %}
