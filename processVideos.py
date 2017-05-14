@@ -138,7 +138,9 @@ def did_start_get_audio_queue():
 			video = VideoFileClip(video_path)
 			if audio.duration == video.duration:
 				has_audio = True
+				print "音视频一般长"
 			else:
+				print "音视频不一样长"
 				os.remove(audio_path)
 
 		if not has_audio:
@@ -154,7 +156,7 @@ def did_start_get_audio_queue():
 				getAudioQueue.put((file_name, video_path, gif_path, audio_path, caption_path, processed_path))
 				continue
 		print("提取音频用时: %.2fs" % (time.time() - start))
-		uploadAudioQueue.put(file_name, video_path, gif_path, audio_path, caption_path, processed_path)
+		uploadAudioQueue.put((file_name, video_path, audio_path))
 
 
 def get_video_to_audio_path():
@@ -173,14 +175,14 @@ def start_upload_audio_queue():
 	thread.start()
 
 def did_start_upload_audio_queue():
-	for file_name, video_path, gif_path, audio_path, caption_path, processed_path in get_audio_path():
+	for file_name, video_path, audio_path in get_audio_path():
 		start = time.time()
 		cmd = "java -jar %s 0 %s %s %s" % (config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], audio_path)
 		try:
 			result = json.loads(os.popen(cmd).read())
 		except:
 			# 上传失败,重新加入上传音频队列
-			uploadAudioQueue.put((file_name, video_path, gif_path, audio_path, caption_path, processed_path))
+			uploadAudioQueue.put((file_name, video_path, audio_path))
 			continue
 
 		print result
@@ -190,7 +192,7 @@ def did_start_upload_audio_queue():
 			info['xunfei_id'] = xunfei_id
 		else:
 			# 上传失败,重新加入上传音频队列
-			uploadAudioQueue.put((file_name, video_path, gif_path, audio_path, caption_path, processed_path))
+			uploadAudioQueue.put((file_name, video_path, audio_path))
 			continue
 		print("上传音频用时: %.2fs" % (time.time() - start))
 
@@ -372,7 +374,7 @@ def add_video_to_process(fileName, tags, caption):
 	
 	gif_path = os.path.join(config['GIF_FOLDER'], file_name)
 	processed_path = os.path.join(config['PROCESSED_FOLDER'], fileName)
-	if caption:
+	if caption == "True":
 		info['status'] = "排队处理中（字幕）"
 		audio_name = file_name + ".mp3"
 		audio_path = os.path.join(config['BOTTLENECK'], audio_name)
