@@ -294,8 +294,9 @@ def addVideoToProcess():
     videoName = params['videoName']
     tags = params['tags']
     captionChecked = params['captionChecked']
+    print captionChecked
     processVideos.add_video_to_process(videoName, tags, captionChecked)
-
+    return simplejson.dumps({"result": 1})
 
 if __name__ == '__main__':
     processVideos.start_all_queues()
