@@ -247,8 +247,9 @@ def get_caption_from_xunfei():
 				print "%s 写文件失败" % xunfei_id
 
 			# 加入字幕视屏队列
-			video_path = os.path.join(config['UPLOAD_FOLDER'], key)
+			video_path = os.path.join(config['UPLOAD_FOLDER'], key + ".mp4")
 			gif_path = os.path.join(config['GIF_FOLDER'], vi['file_name'])
+			print gif_path
 			processed_path = os.path.join(config['PROCESSED_FOLDER'], vi['file_name'])
 			audio_name = vi['file_name'] + ".mp3"
 			audio_path = os.path.join(config['BOTTLENECK'], audio_name)
