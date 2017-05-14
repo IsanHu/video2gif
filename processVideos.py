@@ -178,23 +178,29 @@ def start_upload_audio_queue():
 def did_start_upload_audio_queue():
 	for file_name, video_path, audio_path in get_audio_path():
 		start = time.time()
-		cmd = "java -jar %s 0 %s %s %s" % (config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], audio_path)
-		try:
-			result = json.loads(os.popen(cmd).read())
-		except:
-			# 上传失败,重新加入上传音频队列
-			uploadAudioQueue.put((file_name, video_path, audio_path))
-			continue
+		# cmd = "java -jar %s 0 %s %s %s" % (config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], audio_path)
+		# try:
+		# 	result = json.loads(os.popen(cmd).read())
+		# except:
+		# 	# 上传失败,重新加入上传音频队列
+		# 	uploadAudioQueue.put((file_name, video_path, audio_path))
+		# 	continue
+        #
+		# print result
+		# if result['ok'] == 0:
+		# 	xunfei_id = result['data']
+		# 	info = videos[file_name]
+		# 	info['xunfei_id'] = xunfei_id
+		# else:
+		# 	# 上传失败,重新加入上传音频队列
+		# 	uploadAudioQueue.put((file_name, video_path, audio_path))
+		# 	continue
 
-		print result
-		if result['ok'] == 0:
-			xunfei_id = result['data']
-			info = videos[file_name]
-			info['xunfei_id'] = xunfei_id
-		else:
-			# 上传失败,重新加入上传音频队列
-			uploadAudioQueue.put((file_name, video_path, audio_path))
-			continue
+		# 临时
+		xunfei_id = '60f40821e06942949ab714fe1ddc9ab1'
+		info = videos[file_name]
+		info['xunfei_id'] = xunfei_id
+
 		print("上传音频用时: %.2fs" % (time.time() - start))
 
 def get_audio_path():
