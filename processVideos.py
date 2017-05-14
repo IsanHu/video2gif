@@ -297,7 +297,10 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 	for ca in captions:
 		start_frame = int(float(ca['bg']) / float(1000) * fps)
 		end_frame = int(float(ca['ed']) / float(1000) * fps)
-		segments.append((start_frame, end_frame, ca['onebest']))
+		if end_frame - 16 > start_frame:
+			segments.append((start_frame, end_frame, ca['onebest']))
+		else:
+			print "不足16帧"
 
 	scores = video2gif.get_scores(score_function, segments, video, stride=8)
 	count = len(scores)
