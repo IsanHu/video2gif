@@ -213,9 +213,9 @@ def get_audio_path():
 
 ## 周期性遍历videos，去讯飞获取字幕，同时将获取成功的video添加进字幕video队列
 def start_get_caption_loop():
-	t = Timer(20, get_caption_from_xunfei)
+	t = Timer(20, start_get_caption_loop)
 	t.start()
-	print 'get_caption_from_xunfei'
+	get_caption_from_xunfei()
 
 def get_caption_from_xunfei():
 	print 'get_caption_from_xunfei'
