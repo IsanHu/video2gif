@@ -76,7 +76,7 @@ def get_no_caption_video_path():
 def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_path, processed_path):
 	if not videos.has_key(file_name):
 		return
-	start = time.time()
+	process_start = time.time()
 	info = videos[file_name]
 	info['status'] = '处理中'
 	video = VideoFileClip(video_path)
@@ -118,7 +118,7 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 	os.system(cmd1)
 
 	del videos[file_name]
-	print("处理无字幕视频用时: %.2fs" % (time.time() - start))
+	print("处理无字幕视频用时: %.2fs" % (time.time() - process_start))
 
 
 ## 初始化提取 audio 队列
@@ -219,6 +219,7 @@ def get_caption_from_xunfei():
 		if vi.has_key('xunfei_id'):
 			xunfei_id = vi['xunfei_id']
 			cmd = "java -jar %s 1 %s %s %s" % (config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], xunfei_id)
+			print cmd
 			try:
 				result = json.loads(os.popen(cmd).read())
 			except:
