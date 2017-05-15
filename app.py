@@ -246,8 +246,13 @@ def alldata():
 
 @app.route('/getalldata', methods=['GET', 'POST'])
 def getalldata():
+    processed_files, unprocessed_files = did_get_all_data()
+    return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files':unprocessed_files})
+
+def did_get_all_data():
     # get all file in ./data directory
-    files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'],f)) and f not in IGNORED_FILES ]
+    files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if
+             os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], f)) and f not in IGNORED_FILES]
     file_display = []
     unprocessed_files = []
     for f in files:
@@ -262,14 +267,15 @@ def getalldata():
         unprocessed_files.append(file_info)
 
     processed_files = []
-    processed = [f for f in os.listdir(app.config['PROCESSED_FOLDER']) if os.path.isfile(os.path.join(app.config['PROCESSED_FOLDER'],f)) and f not in IGNORED_FILES ]
+    processed = [f for f in os.listdir(app.config['PROCESSED_FOLDER']) if
+                 os.path.isfile(os.path.join(app.config['PROCESSED_FOLDER'], f)) and f not in IGNORED_FILES]
     for f in processed:
         print f
         size = round(float(os.path.getsize(os.path.join(app.config['PROCESSED_FOLDER'], f))) / 1024.0 / 1024.0, 2)
         file_saved = processedfile(name=f, size=size)
         file_info = file_saved.get_file()
 
-        file_name=os.path.splitext(os.path.split(f)[1])[0]
+        file_name = os.path.splitext(os.path.split(f)[1])[0]
         # ziped_gif_file_name = file_name + ".zip"
         # ziped_gif_path = os.path.join(app.config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
 
@@ -289,9 +295,7 @@ def getalldata():
                     gif_count += 1
         file_info['gif_count'] = gif_count
         processed_files.append(file_info)
-
-
-    return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files':unprocessed_files})
+        return processed_files, unprocessed_files
 
 @app.route("/addVideoToProcess", methods=['POST'])
 def addVideoToProcess():
@@ -301,7 +305,8 @@ def addVideoToProcess():
     captionChecked = params['captionChecked']
     print captionChecked
     processVideos.add_video_to_process(videoName, tags, captionChecked)
-    return simplejson.dumps({"result": 1})
+    processed_files, unprocessed_files = did_get_all_data()
+    return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files': unprocessed_files})
 
 if __name__ == '__main__':
     processVideos.start_all_queues()

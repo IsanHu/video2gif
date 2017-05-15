@@ -12,7 +12,7 @@
           </tr>
         {% for gif in gifs %}
             <tr>
-                <th><img class="previewImg" style="width: 200px; height: 200px;" src={{gif.url}}></th>
+                <th><img class="previewImg" style="max-width: 300px;" src={{gif.url}}></th>
                 <th>{{ gif.tags }}</th>
                 <th>{{ gif.caption }}</th>
             </tr>

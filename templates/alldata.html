@@ -4,15 +4,15 @@
 {% block page_content %}
 <script type="text/javascript">
 function addToProcessButtonClicked() {
-  console.log("videoName")
   var videoName = $('#videoToProcess').text()
-  console.log(videoName)
   var tagString = $("#tag").val().trim();
   var tags = $("#tag").val().trim().split("\n");
   captionChecked = $("#captionCheckbox").prop('checked')
 
   addToProcess(videoName, JSON.stringify(tags), captionChecked, function(data){
-
+      $('#addToProcessModal').modal('hide');
+      tasks.processedData = data['processed_files']
+      tasks.unprocessedData = data['unprocessed_files']
   })
 
 }
@@ -53,8 +53,7 @@ function addToProcessButtonClicked() {
               <div class="modal-body">
                   <input type="checkbox" id="captionCheckbox"><span> 是否生成字幕</span>
                   <br>
-                  <p>tag,换行</p>
-                  <textarea id="tag" class="form-control" rows="10" placeholder="tag,用逗号隔开"></textarea>
+                  <textarea id="tag" class="form-control" rows="10" placeholder="tag,用换行隔开"></textarea>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="AddToProcessButton" onClick="javascript:addToProcessButtonClicked()">处理</button>

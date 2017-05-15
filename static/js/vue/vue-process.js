@@ -5,7 +5,7 @@
 //     tasks.unprocessedData = data['unprocessed_files']
 // })
 function addToProcess(videoName, tags, captionChecked, callback) {
-      waitingDialog.show('处理中...');
+      waitingDialog.show('添加" + videoName + "处理');
       var params = {
         "videoName": videoName,
         'tags': tags,
@@ -69,7 +69,7 @@ Vue.component('processedtr', {
           '<td><span class="size">{{data.size}}M</span></td>' +
           '<td>' +
           '<p v-if="data.gifs_dir">' +
-          '<a v-bind:href="data.gifs_dir">{{data.gif_count}}张</a>' +
+          '<a v-bind:href="data.gifs_dir" v-bind:target="_blank">{{data.gif_count}}张</a>' +
           '</p>' + '</td>' + 
           // '<td>' +
           // '<p v-if="data.deleteUrl">' +
