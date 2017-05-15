@@ -306,8 +306,8 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 	segments = []
 	fps = video.fps
 	for ca in captions:
-		start_frame = int(float(ca['bg']) / float(1000) * fps)
-		end_frame = int(float(ca['ed']) / float(1000) * fps)
+		start_frame = int(float(int(ca['bg'])) / float(1000) * fps)
+		end_frame = int(float(int(ca['ed'])) / float(1000) * fps)
 		if end_frame - 16 > start_frame:
 			segments.append((start_frame, end_frame, ca['onebest']))
 		else:
