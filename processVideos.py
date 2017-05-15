@@ -430,7 +430,7 @@ def add_video_to_process(fileName, tags, caption):
 
 	videos[file_name] = info
 	print "添加的video"
-	print videos[file_name.decode('utf-8')]
+	print videos[file_name.encode('utf-8')]
 	print file_name
 
 
