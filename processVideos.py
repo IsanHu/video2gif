@@ -245,7 +245,7 @@ def get_caption_from_xunfei():
 			content['tags'] = vi['tags']
 			content['xunfei_id'] = xunfei_id
 			caption_string = result['data']
-			content['caption'] = json.load(caption_string)
+			content['caption'] = json.loads(caption_string)
 			print result
 
 			caption_file_name = vi['file_name'] + '.txt'
