@@ -224,7 +224,6 @@ def gifs(filename):
         if os.path.isdir(gifs_dir):
             # files.sort(key=lambda x: int(x[:-4]))
             for f in sorted(os.listdir(gifs_dir)):
-                print f
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     gifs.append({'url': path + f, 'tags': tags, 'caption': gif_caption[index]['caption']})
                     index += 1
@@ -295,7 +294,7 @@ def did_get_all_data():
                     gif_count += 1
         file_info['gif_count'] = gif_count
         processed_files.append(file_info)
-        return processed_files, unprocessed_files
+    return processed_files, unprocessed_files
 
 @app.route("/addVideoToProcess", methods=['POST'])
 def addVideoToProcess():
