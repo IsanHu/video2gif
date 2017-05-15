@@ -245,6 +245,7 @@ def get_caption_from_xunfei():
 			content['tags'] = vi['tags']
 			content['xunfei_id'] = xunfei_id
 			content['caption'] = result['data']
+			print result['data']
 
 			caption_file_name = vi['file_name'] + '.txt'
 			caption_file_path = os.path.join(config['BOTTLENECK'], caption_file_name)
@@ -301,6 +302,7 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 		return
 
 	captions = info['caption']
+	print captions
 	segments = []
 	fps = video.fps
 	for ca in captions:
@@ -428,6 +430,9 @@ def add_video_to_process(fileName, tags, caption):
 		noCaptionQueue.put((file_name, video_path, gif_path, info_file_path, processed_path))
 
 	videos[file_name] = info
+	print "添加的video"
+	print videos[file_name]
+	print file_name
 
 
 	
