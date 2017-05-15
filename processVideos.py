@@ -38,6 +38,7 @@ config['XUNFEI_KEY'] = '6c48f072a4ecf750538f2d073051a5b0'
 # 排队处理中（字幕）
 # 处理中
 # 生成字幕中
+# 生成字幕成功
 # 处理中（字幕）
 
 # status
@@ -46,7 +47,7 @@ config['XUNFEI_KEY'] = '6c48f072a4ecf750538f2d073051a5b0'
 # file_name
 # xunfei_id
 
-videos = {'择天记_时间.mp4': {'status': "处理中"}, '择天记_时间2.mp4': {'status': "排队处理中"}, '择天记_字幕.mp4': {'status': "生成字幕中"}, '择天记_字幕2.mp4': {'status': "排队处理中（字幕）"}, '择天记_字幕3.mp4': {'status': "处理中（字幕）"}}
+# videos = {'择天记_时间.mp4': {'status': "处理中"}, '择天记_时间2.mp4': {'status': "排队处理中"}, '择天记_字幕.mp4': {'status': "生成字幕中"}, '择天记_字幕2.mp4': {'status': "排队处理中（字幕）"}, '择天记_字幕3.mp4': {'status': "处理中（字幕）"}}
 videos = {}
 noCaptionQueue = Queue.Queue(maxsize=50)
 captionQueue = Queue.Queue(maxsize=50)
@@ -200,6 +201,7 @@ def did_start_upload_audio_queue():
 		xunfei_id = '60f40821e06942949ab714fe1ddc9ab1'
 		info = videos[file_name]
 		info['xunfei_id'] = xunfei_id
+		info['status'] = "生成字幕中"
 
 		print("上传音频用时: %.2fs" % (time.time() - start))
 
@@ -222,7 +224,7 @@ def get_caption_from_xunfei():
 	for key in videos:
 		print key
 		vi = videos[key]
-		if vi.has_key('xunfei_id'):
+		if vi.has_key('xunfei_id') and vi['status'] != "生成字幕成功":
 			xunfei_id = vi['xunfei_id']
 			cmd = "java -jar %s 1 %s %s %s" % (config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], xunfei_id)
 			print cmd
@@ -231,6 +233,7 @@ def get_caption_from_xunfei():
 			except:
 				continue
 			print "%s 获取字幕成功" % xunfei_id
+			vi['status'] = "生成字幕成功"
 			content = {}
 			content['file_name'] = vi['file_name']
 			content['tags'] = vi['tags']
@@ -366,7 +369,7 @@ def get_file_status_info(fileName):
 		info = videos[fileName]
 		if info.has_key('status'):
 			status = info['status']
-		if status == "生成字幕中" or status == "排队处理中（字幕）" or status == "处理中" or status == "处理中（字幕）":
+		if status == "生成字幕中" or status == "生成字幕成功" or status == "排队处理中（字幕）" or status == "处理中" or status == "处理中（字幕）":
 			op = ""
 		elif status == "排队处理中":
 			op = "" ##TODO
