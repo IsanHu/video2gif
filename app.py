@@ -299,7 +299,7 @@ def did_get_all_data():
 @app.route("/addVideoToProcess", methods=['POST'])
 def addVideoToProcess():
     params = request.form
-    videoName = params['videoName']
+    videoName = params['videoName'].encode('utf-8')
     tags = params['tags']
     captionChecked = params['captionChecked']
     print captionChecked
