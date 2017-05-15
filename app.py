@@ -278,9 +278,11 @@ def getalldata():
         # gif图片目录
         gifs_dir = app.config['GIF_FOLDER'] + file_name
         gif_count = 0
+        print gifs_dir
         if os.path.isdir(gifs_dir):
             file_info['gifs_dir'] = "gifs/%s" % file_name
             for f in os.listdir(gifs_dir):
+                print f
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     gif_count += 1
         file_info['gif_count'] = gif_count
