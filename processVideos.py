@@ -30,7 +30,7 @@ config['GIF_FOLDER'] = basedir + '/static/gifs/'
 config['BOTTLENECK'] = basedir + '/bottleneck/'
 config['ZIPED_GIF_FOLDER'] = basedir + '/zipedgifs/'
 
-config['XUNFEI_JAR'] = basedir + '/LfasrDemo.jar'
+config['XUNFEI_JAR'] = basedir + '/Lfasr.jar'
 config['XUNFEI_APPID'] = '5913fa87'
 config['XUNFEI_KEY'] = '6c48f072a4ecf750538f2d073051a5b0'
 
@@ -234,9 +234,9 @@ def get_caption_from_xunfei():
 			except:
 				continue
 
-			# if result['ok'] != 0:
-			# 	print result
-			# 	continue
+			if result['ok'] != 0:
+				print result
+				continue
 
 			print "%s 获取字幕成功" % xunfei_id
 			vi['status'] = "生成字幕成功"
@@ -244,7 +244,8 @@ def get_caption_from_xunfei():
 			content['file_name'] = vi['file_name']
 			content['tags'] = vi['tags']
 			content['xunfei_id'] = xunfei_id
-			content['caption'] = result
+			caption_string = result['data']
+			content['caption'] = json.load(caption_string)
 			print result
 
 			caption_file_name = vi['file_name'] + '.txt'
@@ -306,8 +307,8 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 	segments = []
 	fps = video.fps
 	for ca in captions:
-		start_frame = int(float(int(ca['bg'])) / float(1000) * fps)
-		end_frame = int(float(int(ca['ed'])) / float(1000) * fps)
+		start_frame = int(float(ca['bg']) / float(1000) * fps)
+		end_frame = int(float(ca['ed']) / float(1000) * fps)
 		if end_frame - 16 > start_frame:
 			segments.append((start_frame, end_frame, ca['onebest']))
 		else:
