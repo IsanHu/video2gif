@@ -262,6 +262,7 @@ def getalldata():
     processed_files = []
     processed = [f for f in os.listdir(app.config['PROCESSED_FOLDER']) if os.path.isfile(os.path.join(app.config['PROCESSED_FOLDER'],f)) and f not in IGNORED_FILES ]
     for f in processed:
+        print f
         size = round(float(os.path.getsize(os.path.join(app.config['PROCESSED_FOLDER'], f))) / 1024.0 / 1024.0, 2)
         file_saved = processedfile(name=f, size=size)
         file_info = file_saved.get_file()
@@ -282,7 +283,6 @@ def getalldata():
         if os.path.isdir(gifs_dir):
             file_info['gifs_dir'] = "gifs/%s" % file_name
             for f in os.listdir(gifs_dir):
-                print f
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     gif_count += 1
         file_info['gif_count'] = gif_count
