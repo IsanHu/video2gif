@@ -69,7 +69,7 @@ Vue.component('processedtr', {
           '<td><span class="size">{{data.size}}M</span></td>' +
           '<td>' +
           '<p v-if="data.gifs_dir">' +
-          '<a v-bind:href="data.gifs_dir" v-bind:target="_blank">{{data.gif_count}}张</a>' +
+          '<a v-bind:href="data.gifs_dir" target="_blank">{{data.gif_count}}张</a>' +
           '</p>' + '</td>' + 
           // '<td>' +
           // '<p v-if="data.deleteUrl">' +
