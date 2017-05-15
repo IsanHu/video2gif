@@ -222,7 +222,9 @@ def gifs(filename):
     if info.has_key('gif_caption'):
         gif_caption = info['gif_caption']
         if os.path.isdir(gifs_dir):
-            for f in os.listdir(gifs_dir):
+            # files.sort(key=lambda x: int(x[:-4]))
+            for f in sorted(os.listdir(gifs_dir)):
+                print f
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     gifs.append({'url': path + f, 'tags': tags, 'caption': gif_caption[index]['caption']})
                     index += 1
