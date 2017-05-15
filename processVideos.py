@@ -303,7 +303,6 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 		return
 
 	captions = info['caption']
-	print captions
 	segments = []
 	fps = video.fps
 	for ca in captions:
@@ -341,7 +340,6 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 
 	info['gif_caption'] = result
 	print "处理带字幕的视频完成完成"
-	print result
 	try:
 		with open(caption_path, 'w') as f:
 			print '打开info,写入result'
