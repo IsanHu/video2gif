@@ -246,7 +246,6 @@ def get_caption_from_xunfei():
 			content['xunfei_id'] = xunfei_id
 			caption_string = result['data']
 			content['caption'] = json.loads(caption_string)
-			print result
 
 			caption_file_name = vi['file_name'] + '.txt'
 			caption_file_path = os.path.join(config['BOTTLENECK'], caption_file_name)
