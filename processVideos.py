@@ -428,7 +428,7 @@ def add_video_to_process(fileName, tags, caption):
 			return
 		noCaptionQueue.put((file_name, video_path, gif_path, info_file_path, processed_path))
 
-	videos[file_name] = info
+	videos[file_name.encode('utf-8')] = info
 	print "添加的video"
 	print videos[file_name.encode('utf-8')]
 	print file_name
