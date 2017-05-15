@@ -250,7 +250,7 @@ def get_caption_from_xunfei():
 			video_path = os.path.join(config['UPLOAD_FOLDER'], key + ".mp4")
 			gif_path = os.path.join(config['GIF_FOLDER'], vi['file_name'])
 			print gif_path
-			processed_path = os.path.join(config['PROCESSED_FOLDER'], vi['file_name'])
+			processed_path = os.path.join(config['PROCESSED_FOLDER'], vi['file_name'] + 'mp4')
 			audio_name = vi['file_name'] + ".mp3"
 			audio_path = os.path.join(config['BOTTLENECK'], audio_name)
 			caption_path = caption_file_path
@@ -328,12 +328,15 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 		nr += 1
 
 	info['gif_caption'] = result
-
+	print "处理带字幕的视频完成完成"
+	print result
 	try:
 		with open(caption_path, 'w') as f:
+			print '打开info,写入result'
 			f.write(json.dumps(info))
 	except:
 		print "%s 依据字幕生成gif后,记录gif对应字幕失败" % file_name
+	print '准备转移视频'
 	# 转移视频
 	cmd1 = 'mv ' + video_path + " " + processed_path
 	print cmd1
