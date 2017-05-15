@@ -81,7 +81,7 @@ def create_thumbnail(image):
 @app.route("/hInfo", methods=['GET'])
 def hInfo():
     # //获取硬件信息
-    free_disk = "磁盘可用空间：%.2fG" % hardwareInfo.free_disk("/Users/isan")
+    free_disk = "磁盘可用空间：%.2fG" % hardwareInfo.free_disk("/home/3isan333")
     # gpu_info = hardwareInfo.gpu_info()
     hinfo = {"free_disk": free_disk}
     return simplejson.dumps(hinfo)
@@ -234,6 +234,8 @@ def gifs(filename):
             result = json.loads(response.content)
             if result['error_code'] == 0:
                 segments_array = result['data']
+
+            print segments_array
 
             for f in sorted(os.listdir(gifs_dir)):
                 if f.rsplit(".", 1)[1].lower() == "gif":
