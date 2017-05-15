@@ -15,6 +15,7 @@ import traceback
 from flask import Flask, request, render_template, redirect, url_for, send_from_directory
 from flask_bootstrap import Bootstrap
 from werkzeug import secure_filename
+import requests
 
 from lib.upload_file import uploadfile, processedfile, zipedgiffile
 import sys
@@ -222,16 +223,31 @@ def gifs(filename):
     if info.has_key('gif_caption'):
         gif_caption = info['gif_caption']
         if os.path.isdir(gifs_dir):
-            # files.sort(key=lambda x: int(x[:-4]))
+            # 获取字幕分词
+            captions = []
+            for ca in gif_caption:
+                captions.append(ca['caption'])
+
+            apiUrl = "http://120.27.214.63:8080/open-api/word/segments"
+            headers = {'Content-Type': 'application/json;charset:UTF-8'}
+            response = requests.post(url=apiUrl, data=json.dumps(captions), headers=headers)
+            result = json.loads(response.content)
+            if result['error_code'] == 0:
+                segments_array = result['data']
+
             for f in sorted(os.listdir(gifs_dir)):
                 if f.rsplit(".", 1)[1].lower() == "gif":
-                    gifs.append({'url': path + f, 'tags': tags, 'caption': gif_caption[index]['caption']})
+                    if index < len(segments_array):
+                        gifs.append({'url': path + f, 'tags': tags, 'caption': gif_caption[index]['caption'], 'segments':segments_array[index]})
+                    else:
+                        gifs.append({'url': path + f, 'tags': tags, 'caption': gif_caption[index]['caption'],
+                                     'segments': ''})
                     index += 1
     else:
         if os.path.isdir(gifs_dir):
             for f in os.listdir(gifs_dir):
                 if f.rsplit(".", 1)[1].lower() == "gif":
-                    gifs.append({'url': path + f, 'tags': tags, 'caption': ''})
+                    gifs.append({'url': path + f, 'tags': tags, 'caption': '', 'segments':''})
     return render_template('gifs.html', gifs=gifs, result=0)
 
 
