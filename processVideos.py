@@ -30,7 +30,7 @@ config['GIF_FOLDER'] = basedir + '/static/gifs/'
 config['BOTTLENECK'] = basedir + '/bottleneck/'
 config['ZIPED_GIF_FOLDER'] = basedir + '/zipedgifs/'
 
-config['XUNFEI_JAR'] = basedir + '/LfasrDemo.jar'
+config['XUNFEI_JAR'] = basedir + '/Lfasr.jar'
 config['XUNFEI_APPID'] = '5913fa87'
 config['XUNFEI_KEY'] = '6c48f072a4ecf750538f2d073051a5b0'
 
@@ -233,6 +233,11 @@ def get_caption_from_xunfei():
 				result = json.loads(os.popen(cmd).read())
 			except:
 				continue
+
+			if result['ok'] != 0:
+				print result
+				continue
+
 			print "%s 获取字幕成功" % xunfei_id
 			vi['status'] = "生成字幕成功"
 			content = {}
@@ -368,6 +373,7 @@ def get_file_status_info(fileName):
 	status = "尚未处理"
 	if videos.has_key(fileName):
 		info = videos[fileName]
+		print info
 		if info.has_key('status'):
 			status = info['status']
 		if status == "生成字幕中" or status == "生成字幕成功" or status == "排队处理中（字幕）" or status == "处理中" or status == "处理中（字幕）":
