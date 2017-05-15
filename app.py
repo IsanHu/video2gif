@@ -249,7 +249,7 @@ def gifs(filename):
         if os.path.isdir(gifs_dir):
             for f in os.listdir(gifs_dir):
                 if f.rsplit(".", 1)[1].lower() == "gif":
-                    gifs.append({'url': path + f, '','.join(tags)': tags, 'caption': '', 'segments':''})
+                    gifs.append({'url': path + f, tags: ','.join(tags), 'caption': '', 'segments':''})
     return render_template('gifs.html', gifs=gifs, result=0)
 
 
