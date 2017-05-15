@@ -250,7 +250,7 @@ def get_caption_from_xunfei():
 			video_path = os.path.join(config['UPLOAD_FOLDER'], key + ".mp4")
 			gif_path = os.path.join(config['GIF_FOLDER'], vi['file_name'])
 			print gif_path
-			processed_path = os.path.join(config['PROCESSED_FOLDER'], vi['file_name'] + 'mp4')
+			processed_path = os.path.join(config['PROCESSED_FOLDER'], vi['file_name'] + '.mp4')
 			audio_name = vi['file_name'] + ".mp3"
 			audio_path = os.path.join(config['BOTTLENECK'], audio_name)
 			caption_path = caption_file_path
