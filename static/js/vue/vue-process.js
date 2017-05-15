@@ -19,6 +19,7 @@ function addToProcess(videoName, tags, captionChecked, callback) {
           success: function(data) {
               waitingDialog.hide();
               console.log("成功");
+              console.log(tasks)
               callback(data);
           },
           error: function(data) {
