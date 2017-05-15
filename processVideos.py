@@ -234,9 +234,9 @@ def get_caption_from_xunfei():
 			except:
 				continue
 
-			if result['ok'] != 0:
-				print result
-				continue
+			# if result['ok'] != 0:
+			# 	print result
+			# 	continue
 
 			print "%s 获取字幕成功" % xunfei_id
 			vi['status'] = "生成字幕成功"
