@@ -30,7 +30,7 @@ config['GIF_FOLDER'] = basedir + '/static/gifs/'
 config['BOTTLENECK'] = basedir + '/bottleneck/'
 config['ZIPED_GIF_FOLDER'] = basedir + '/zipedgifs/'
 
-config['XUNFEI_JAR'] = basedir + '/Lfasr.jar'
+config['XUNFEI_JAR'] = basedir + '/LfasrDemo.jar'
 config['XUNFEI_APPID'] = '5913fa87'
 config['XUNFEI_KEY'] = '6c48f072a4ecf750538f2d073051a5b0'
 
@@ -244,8 +244,8 @@ def get_caption_from_xunfei():
 			content['file_name'] = vi['file_name']
 			content['tags'] = vi['tags']
 			content['xunfei_id'] = xunfei_id
-			content['caption'] = result['data']
-			print result['data']
+			content['caption'] = result
+			print result
 
 			caption_file_name = vi['file_name'] + '.txt'
 			caption_file_path = os.path.join(config['BOTTLENECK'], caption_file_name)
@@ -373,6 +373,7 @@ def is_mp4(file):
 def get_file_status_info(fileName):
 	op = "处理"
 	status = "尚未处理"
+	print videos
 	print "获取所有数据"
 	print fileName
 	if videos.has_key(fileName):
