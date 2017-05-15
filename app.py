@@ -240,16 +240,16 @@ def gifs(filename):
             for f in sorted(os.listdir(gifs_dir)):
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     if index < len(segments_array):
-                        gifs.append({'url': path + f, 'tags': tags, 'caption': gif_caption[index]['caption'], 'segments':segments_array[index]})
+                        gifs.append({'url': path + f, 'tags': ','.join(tags), 'caption': gif_caption[index]['caption'], 'segments': ','.join(segments_array[index])})
                     else:
-                        gifs.append({'url': path + f, 'tags': tags, 'caption': gif_caption[index]['caption'],
+                        gifs.append({'url': path + f, 'tags': ','.join(tags), 'caption': gif_caption[index]['caption'],
                                      'segments': ''})
                     index += 1
     else:
         if os.path.isdir(gifs_dir):
             for f in os.listdir(gifs_dir):
                 if f.rsplit(".", 1)[1].lower() == "gif":
-                    gifs.append({'url': path + f, 'tags': tags, 'caption': '', 'segments':''})
+                    gifs.append({'url': path + f, '','.join(tags)': tags, 'caption': '', 'segments':''})
     return render_template('gifs.html', gifs=gifs, result=0)
 
 
