@@ -74,6 +74,9 @@ def get_no_caption_video_path():
         noCaptionQueue.task_done()
         item = noCaptionQueue.get()
 
+def is_overlapping(x1,x2,y1,y2):
+    return max(x1,y1) < min(x2,y2)
+
 def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_path, processed_path):
 	if not videos.has_key(file_name):
 		return
@@ -106,7 +109,35 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 	    os.mkdir(OUT_DIR)
 
 	# Generate GIFs from the top scoring segments
-	video2gif.generate_gifs(OUT_DIR,scores, video, file_name,top_k=topCount)
+
+	nr=0
+	totalCount = len(scores)
+	top_k=min(topCount, totalCount)
+	occupiedTime = []
+	height = videos[file_name]['height']
+	print height
+	for segment in sorted(scores, key=lambda x: -scores.get(x))[0:totalCount]:
+	    if nr >= top_k:
+	        break
+		overlaping = 0
+		for seg in occupiedTime:
+			if is_overlapping(seg[0], seg[1], segment[0], segment[1]):
+				overlaping = 1
+		        print "skip overlapping"
+		        break
+
+	    occupiedTime.append(segment)
+
+	    if overlaping == 0:
+			clip = video.subclip(segment[0]/float(video.fps), segment[1]/float(video.fps))
+			out_gif = "%s/%s_%.2d.gif" % (OUT_DIR.decode('utf-8'),video_id.decode('utf-8'),nr)
+			## resize
+			if height > 0:
+				clip = clip.resize(height=height)
+			else:
+				clip = clip.resize(width=320)
+			clip.write_gif(out_gif,fps=10)
+			nr += 1
 
 	# 压缩图片
 	# cmd = "zip -rj " + zip_path + " " +  gif_path
@@ -336,6 +367,8 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 	nr = 0
 	top_k = min(topCount, count)
 	result = []
+	height = videos[file_name]['height']
+	print height
 	for segment in sorted(scores, key=lambda x: -scores.get(x))[0:count]:
 		if nr >= top_k:
 			break
@@ -344,7 +377,10 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 		out_gif = "%s/%s_%.2d.gif" % (gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
 		gif_name = "%s_%.2d.gif" % (file_name, nr)
 		## resize
-		clip = clip.resize(width=320)
+		if height > 0:
+			clip = clip.resize(height=height)
+		else:
+			clip = clip.resize(width=320)
 		clip.write_gif(out_gif, fps=10)
 		result.append({"gif": gif_name, 'caption': segment[2]})
 		nr += 1
@@ -409,6 +445,7 @@ def start_all_queues():
 
 def add_video_to_process(fileName, tags, caption):
 	info = {}
+	info['height'] = height
 	info['tags'] = tags
 	info['caption'] = caption
 	file_name=os.path.splitext(os.path.split(fileName)[1])[0]

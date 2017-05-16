@@ -318,10 +318,11 @@ def did_get_all_data():
 def addVideoToProcess():
     params = request.form
     videoName = params['videoName'].encode('utf-8')
+    height = int(params['height'])
     tags = params['tags']
     captionChecked = params['captionChecked']
     print captionChecked
-    processVideos.add_video_to_process(videoName, tags, captionChecked)
+    processVideos.add_video_to_process(videoName, height, tags, captionChecked)
     processed_files, unprocessed_files = did_get_all_data()
     return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files': unprocessed_files})
 

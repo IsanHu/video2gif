@@ -4,10 +4,11 @@
 //     tasks.processedData = data['processed_files']
 //     tasks.unprocessedData = data['unprocessed_files']
 // })
-function addToProcess(videoName, tags, captionChecked, callback) {
+function addToProcess(videoName, height, tags, captionChecked, callback) {
       waitingDialog.show('添加" + videoName + "处理');
       var params = {
         "videoName": videoName,
+        'height':height,
         'tags': tags,
         "captionChecked": captionChecked
       };
