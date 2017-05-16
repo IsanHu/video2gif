@@ -8,8 +8,17 @@ function addToProcessButtonClicked() {
   var tagString = $("#tag").val().trim();
   var tags = $("#tag").val().trim().split("\n");
   captionChecked = $("#captionCheckbox").prop('checked')
-
-  addToProcess(videoName, JSON.stringify(tags), captionChecked, function(data){
+  var height = 0
+  height_str = $("#img-height").val()
+  if (height_str != "") {
+      height = parseInt(height_str)
+      if (isNaN(height) || height < 200 || height > 500) {
+        alert("请填写符合要求的高度")
+        return
+      }
+  }
+  
+  addToProcess(videoName, height, JSON.stringify(tags), captionChecked, function(data){
       $('#addToProcessModal').modal('hide');
       tasks.processedData = data['processed_files']
       tasks.unprocessedData = data['unprocessed_files']
@@ -51,7 +60,10 @@ function addToProcessButtonClicked() {
                 <h4 id="videoToProcess" class="modal-title"></h4>
               </div>
               <div class="modal-body">
-                  <input type="checkbox" id="captionCheckbox"><span> 是否生成字幕</span>
+                  <input type="checkbox" id="captionCheckbox"><span> 是否生成字幕</span>&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
+                  截图高度：<input type="" id='img-height' name="" placeholder="可选">   
+                  
+                  <br>
                   <br>
                   <textarea id="tag" class="form-control" rows="10" placeholder="tag,用换行隔开"></textarea>
               </div>
