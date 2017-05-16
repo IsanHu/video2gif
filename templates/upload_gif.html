@@ -262,7 +262,6 @@
             var reader = new FileReader();
             reader.readAsDataURL(request.response);
             reader.onload =  function(e){
-                console.log('DataURL:', e.target.result);
                 sticker.store_url = e.target.result;
                 tasks.stickers.push(sticker);
                 tasks.task_count = tasks.stickers.length
