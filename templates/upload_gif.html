@@ -237,17 +237,13 @@
         <script src="{{ url_for('static', filename='js/upload_gif/gifmaker-upload.js') }} "></script>
     </body>
 <script type="text/javascript">
-    var gifs = {{ gifs|safe }}
-    var domain = "http://35.185.162.196:5000"
-    for (var i = 0; i < gifs.length; i++) {
-        var gif = gifs[i]
-        var url = domain + gif['url']
-        console.log(url)
-        // 从图片url获取base64
+
+    function downloadImage(url) {
         var request = new XMLHttpRequest();
         request.open('GET', url, true);
         request.responseType = 'blob';
-        request.onload = function() {
+        request.onload = function(e) {
+            console.log(e)
             console.log("下载图片成功")
             var sticker = {
                         selected: false,
@@ -262,6 +258,7 @@
             var reader = new FileReader();
             reader.readAsDataURL(request.response);
             reader.onload =  function(e){
+                console.log("读取图片成功")
                 sticker.store_url = e.target.result;
                 tasks.stickers.push(sticker);
                 tasks.task_count = tasks.stickers.length
@@ -269,6 +266,15 @@
         };
         request.send();
         console.log("下载图片")
+    }
+
+    var gifs = {{ gifs|safe }}
+    var domain = "http://35.185.162.196:5000"
+    for (var i = 0; i < gifs.length; i++) {
+        var gif = gifs[i]
+        var url = domain + gif['url']
+        url = 'http://t12.baidu.com/it/u=1613426663,3260446361&fm=58&s=51575896F68A9AB85E91D5A60100A0A0'
+        downloadImage(url)
     }
     
 </script>
