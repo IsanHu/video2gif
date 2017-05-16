@@ -1,13 +1,6 @@
 <!DOCTYPE HTML>
 <html lang="zh-CN">
-
     <style type="text/css">
-        .drag-area {
-
-        }
-        .drag-area.is-dragover, .drag-area:hover {
-            background-color: #d1e8f5;
-        }
         .sticker {
 
         }
@@ -43,12 +36,6 @@
         <div class="container" id="main">
             <!-- file-drop-area 有一个“gotiles”事件，它的参数是用户上传的文件列表 -->
             <div style="position: fixed;z-index: 99;background:rgba(255, 255, 255, 0.9)">
-                <div class="container text-center"></div>
-                <div style="height: 88px; border:4px solid #428bca;border-radius: 8px;">
-                    <file-drop-area  @gotfiles="addFile"></file-drop-area>
-                </div>
-
-                <br/>
                 <form class="form-inline" style="padding-left: 0px;">
                     <button id="id-btn-edit-all" type="button" class="btn btn-lg btn-default" style="margin-right: 10px">总编辑</button>
                     <button id="id-btn-sort-top" type="button" class="btn btn-lg btn-default" style="margin-right: 10px">将置顶</button>
@@ -238,13 +225,11 @@
     </body>
 <script type="text/javascript">
 
-    function downloadImage(url) {
+    function downloadImage(url, tags, info) {
         var request = new XMLHttpRequest();
         request.open('GET', url, true);
         request.responseType = 'blob';
         request.onload = function(e) {
-            console.log(e)
-            console.log("下载图片成功")
             var sticker = {
                         selected: false,
                         textinfo: "",
@@ -258,23 +243,26 @@
             var reader = new FileReader();
             reader.readAsDataURL(request.response);
             reader.onload =  function(e){
-                console.log("读取图片成功")
                 sticker.store_url = e.target.result;
+                sticker.tag = tags
+                sticker.textinfo = info
                 tasks.stickers.push(sticker);
                 tasks.task_count = tasks.stickers.length
             };
         };
         request.send();
-        console.log("下载图片")
     }
 
     var gifs = {{ gifs|safe }}
     var domain = "http://35.185.162.196:5000"
+
     for (var i = 0; i < gifs.length; i++) {
         var gif = gifs[i]
         var url = domain + gif['url']
         // url = 'http://t12.baidu.com/it/u=1613426663,3260446361&fm=58&s=51575896F68A9AB85E91D5A60100A0A0'
-        downloadImage(url)
+        tags = gif['tags'].concat(gif['segments'])
+        info = gif['caption']
+        downloadImage(url, tags, info)
     }
     
 </script>

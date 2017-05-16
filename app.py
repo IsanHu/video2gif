@@ -219,7 +219,7 @@ def gifs(filename):
     except:
         return render_template('gifs.html', gifs="", result=0)
     index = 0
-    tags = info['tags']
+    tags = json.loads(info['tags'])
     if info.has_key('gif_caption'):
         gif_caption = info['gif_caption']
         if os.path.isdir(gifs_dir):
@@ -240,7 +240,7 @@ def gifs(filename):
             for f in sorted(os.listdir(gifs_dir)):
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     if index < len(segments_array):
-                        gifs.append({'url': path + f, 'tags':tags, 'caption': gif_caption[index]['caption'], 'segments': ','.join(segments_array[index])})
+                        gifs.append({'url': path + f, 'tags':tags, 'caption': gif_caption[index]['caption'], 'segments': segments_array[index]})
                     else:
                         gifs.append({'url': path + f, 'tags': tags, 'caption': gif_caption[index]['caption'],
                                      'segments': ''})
