@@ -217,7 +217,7 @@ def gifs(filename):
         with open(info_path, 'r') as f:
             info = json.loads(f.read())
     except:
-        return render_template('gifs.html', gifs="", result=0)
+        return render_template('upload_gif.html', gifs="", result=0)
     index = 0
     tags = json.loads(info['tags'])
     if info.has_key('gif_caption'):
