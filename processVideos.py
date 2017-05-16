@@ -304,13 +304,16 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 	captions = info['caption']
 	segments = []
 	fps = video.fps
+	durations = []
 	for ca in captions:
 		bg = int(ca['bg'])
 		ed = int(ca['ed'])
 		start_frame = int(float(bg) / float(1000) * fps)
 		end_frame = int(float(ed) / float(1000) * fps)
+
 		duration = float(ed - bg) / 1000.0
-		print 'gif时长: %.2fs' % duration
+		durations.append(duration)
+
 		if duration > 5:
 			print "大于5秒"
 			continue
@@ -318,6 +321,8 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 			segments.append((start_frame, end_frame, ca['onebest']))
 		else:
 			print "不足16帧"
+	print sorted(durations)
+	print durations
 
 	scores = video2gif.get_scores(score_function, segments, video, stride=8)
 	count = len(scores)
