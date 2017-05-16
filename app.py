@@ -217,7 +217,7 @@ def gifs(filename):
         with open(info_path, 'r') as f:
             info = json.loads(f.read())
     except:
-        return render_template('gifs.html', result=1)
+        return render_template('gifs.html', gifs="", result=0)
     index = 0
     tags = info['tags']
     if info.has_key('gif_caption'):
@@ -250,7 +250,8 @@ def gifs(filename):
             for f in os.listdir(gifs_dir):
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     gifs.append({'url': path + f, tags: tags, 'caption': '', 'segments':''})
-    return render_template('gifs.html', gifs=gifs, result=0)
+    gifs_str = json.dumps(gifs)
+    return render_template('upload_gif.html', gifs=gifs_str, result=1)
 
 
 @app.route('/', methods=['GET', 'POST'])

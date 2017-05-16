@@ -1,0 +1,276 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+    <style type="text/css">
+        .drag-area {
+
+        }
+        .drag-area.is-dragover, .drag-area:hover {
+            background-color: #d1e8f5;
+        }
+        .sticker {
+
+        }
+        .thumbnail.is-selected {
+            background-color:#d1e8f5;
+        }
+
+    </style>
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>表情制作</title>
+        
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <script src="{{ url_for('static', filename='js/upload_gif/jquery-2.1.3.min.js') }} "></script>
+        <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/bootstrap_loading.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/vue/jquery.jsonview.min.js') }} "></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/vue/vue.js') }} "></script>
+    
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        
+        
+        
+        <script src="{{ url_for('static', filename='js/upload_gif/bootstrapMenu.min.js') }} "></script>
+        <script src="{{ url_for('static', filename='js/upload_gif/gifmaker-upload-vue-file-drop-area.js') }} "></script>
+        <script src="{{ url_for('static', filename='js/upload_gif/gifmaker-upload-vue-sticker.js') }} "></script>
+
+    </head>
+    <body>
+        <div class="container" id="main">
+            <!-- file-drop-area 有一个“gotiles”事件，它的参数是用户上传的文件列表 -->
+            <div style="position: fixed;z-index: 99;background:rgba(255, 255, 255, 0.9)">
+                <div class="container text-center"></div>
+                <div style="height: 88px; border:4px solid #428bca;border-radius: 8px;">
+                    <file-drop-area  @gotfiles="addFile"></file-drop-area>
+                </div>
+
+                <br/>
+                <form class="form-inline" style="padding-left: 0px;">
+                    <button id="id-btn-edit-all" type="button" class="btn btn-lg btn-default" style="margin-right: 10px">总编辑</button>
+                    <button id="id-btn-sort-top" type="button" class="btn btn-lg btn-default" style="margin-right: 10px">将置顶</button>
+                    <button id="id-btn-remove" type="button" class="btn btn-lg btn-default" style="margin-right: 10px">删除</button>
+                    <button id="id-btn-to-hot" type="button" class="btn btn-lg btn-default" style="margin-right: 10px">入流行表情</button>
+                    <button id="id-btn-upload" type="button" class="btn btn-lg btn-danger" style="margin-right: 10px">上传</button>
+                    <button id="id-btn-uploadonline" type="button" class="btn btn-lg btn-danger" style="margin-right: 10px">上传并上线</button>
+                    
+                </form> 
+                <form class="form-inline" style="padding-left: 0px;margin-top: 10px">
+
+                    <button id="id-btn-select-all" type="button" class="btn btn-default" style="margin-right: 10px">全选</button>
+                    <button id="id-btn-unselect-all" type="button" class="btn btn-default" style="margin-right: 10px">全不选</button>
+                    <button id="id-btn-reverse-select" type="button" class="btn btn-default" style="margin-right: 10px">反选</button>
+                    <div class="form-group" style="display: inline-block;padding-top: 10px">
+                        <span>{{task_count}}张图片</span>
+                        <span style="font-size: 18px">选中</span>
+                        <span style="color: #d9534f; font-size: 18px">{{selected_count}}</span>
+                        <span style="font-size: 18px">张</span>
+                        <span style="color: #d9534f; font-size: 18px">{{uploadInfo}}</span>
+                        <a class='link text-center' href="postupload.html" style="color: #5cb85c; font-size: 18px;margin-left: 20px">去上线图片</a>
+                        <a class='link text-center' href="gifmaker.html" style="color: #d9534f; font-size: 18px;margin-left: 20px">去给图片添加文字</a>
+                    </div>
+                </form> 
+            </div>
+        
+            <div style="height: 220px; width: 100%"></div>
+            
+            <div class="row">
+                <sticker v-for="image in stickers" v-bind:src="image">
+                </sticker>
+            </div>
+
+
+            <div class="modal fade" id="edit-tag-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                            </button>
+                            <h4 class="modal-title" id="myModalLabel">
+                                编辑关键字
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <taginput></taginput>
+                            <div style="border: 1px solid #000;min-height: 100px">
+                                <form class="form-inline">
+                                    <tagedittaghas v-for="tag in modal_data_tags" v-bind:tag="tag"></tagedittaghas>
+                                </form>
+                            </div>
+                            <div style="border: 1px solid #000;min-height: 100px;margin-top: -1px">
+                                <form class="form-inline">
+                                    <tagedittagadd v-for="tag in modal_tags_toadd" v-bind:tag="tag"></tagedittagadd>
+                                    <tagedittagdelete v-for="tag in modal_tags_todel" v-bind:tag="tag"></tagedittagdelete>
+                                </form>
+                            </div>
+                            <div style="border: 1px solid #000;min-height: 100px;margin-top: -1px">
+                                <form class="form-inline">
+                                    <taggrouptopadd v-for="tag in modal_toptag_toadd" v-bind:tag="tag"></taggrouptopadd>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <tagsubmit></tagsubmit>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="edit-copyright-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                            </button>
+                            <h4 class="modal-title" id="myModalLabel">
+                                编辑版权
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div>
+                                <copyrightmodalbody v-bind:cro="modal_copyright"></copyrightmodalbody>    
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <copyrightsubmit></copyrightsubmit>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="edit-textinfo-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                            </button>
+                            <h4 class="modal-title" id="myModalLabel">
+                                编辑文案
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div>
+                                <textinfomodal v-bind:src="modal_textinfo"></textinfomodal> 
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <textinfosubmit></textinfosubmit>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="edit-toptag-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                            </button>
+                            <h4 class="modal-title" id="myModalLabel">
+                                在关键词下置顶
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div style="border: 1px solid #000;min-height: 100px">
+                                <form class="form-inline">
+                                    <taggrouptaghas v-for="tag in modal_data_tags" v-bind:tag="tag"></taggrouptaghas>
+                                    <taggrouptophas v-for="tag in modal_data_toptags" v-bind:tag="tag"></taggrouptophas>
+                                </form>
+                            </div>
+                            <div style="border: 1px solid #000;min-height: 100px;margin-top: -1px">
+                                <form class="form-inline">
+                                    <taggrouptopadd v-for="tag in modal_toptag_toadd" v-bind:tag="tag"></taggrouptopadd>
+                                    <taggrouptopdelete v-for="tag in modal_toptag_todel" v-bind:tag="tag"></taggrouptopdelete>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <toptagsubmit></toptagsubmit>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="modal fade" id="edit-all-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+                            </button>
+                            <h4 class="modal-title" id="myModalLabel">
+                                编辑所有信息
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <taginput></taginput>
+                            <div style="border: 1px solid #000;min-height: 100px">
+                                <form class="form-inline">
+                                    <tagedittaghas v-for="tag in modal_data_tags" v-bind:tag="tag"></tagedittaghas>
+                                </form>
+                            </div>
+                            <div style="border: 1px solid #000;min-height: 100px;margin-top: -1px">
+                                <form class="form-inline">
+                                    <tagedittagadd v-for="tag in modal_tags_toadd" v-bind:tag="tag"></tagedittagadd>
+                                    <tagedittagdelete v-for="tag in modal_tags_todel" v-bind:tag="tag"></tagedittagdelete>
+                                </form>
+                            </div>
+                            <div style="border: 1px solid #000;min-height: 100px;margin-top: -1px">
+                                <form class="form-inline">
+                                    <taggrouptopadd v-for="tag in modal_toptag_toadd" v-bind:tag="tag"></taggrouptopadd>
+                                </form>
+                            </div>
+                            <copyrightmodalbody v-bind:cro="modal_copyright"></copyrightmodalbody>
+                            <textinfomodal v-bind:src="modal_textinfo"></textinfomodal>
+                        </div>
+                        <div class="modal-footer">
+                            <allsubmit></allsubmit>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <script src="{{ url_for('static', filename='js/upload_gif/gifmaker-upload.js') }} "></script>
+    </body>
+<script type="text/javascript">
+    var gifs = {{ gifs|safe }}
+    var domain = "http://192.168.17.193:5000"
+    for (var i = 0; i < gifs.length; i++) {
+        var gif = gifs[i]
+        var url = domain + gif['url']
+        console.log(url)
+        // 从图片url获取base64
+        var request = new XMLHttpRequest();
+        request.open('GET', url, true);
+        request.responseType = 'blob';
+        request.onload = function() {
+            console.log("下载图片成功")
+            var sticker = {
+                        selected: false,
+                        textinfo: "",
+                        hascopyright: 0,
+                        copyright: "",
+                        tag: [],
+                        np_id: "",
+                        hot: false,
+                        toptag: []
+                    };
+            var reader = new FileReader();
+            reader.readAsDataURL(request.response);
+            reader.onload =  function(e){
+                console.log('DataURL:', e.target.result);
+                sticker.store_url = e.target.result;
+                tasks.stickers.push(sticker);
+                tasks.task_count = tasks.stickers.length
+            };
+        };
+        request.send();
+        console.log("下载图片")
+    }
+    
+</script>
+</html>
