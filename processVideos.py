@@ -339,7 +339,7 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 		out_gif = "%s/%s_%.2d.gif" % (gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
 		gif_name = "%s_%.2d.gif" % (file_name, nr)
 		## resize
-		# clip = clip.resize(width=500)   TODO
+		clip = clip.resize(width=320)
 		clip.write_gif(out_gif, fps=10)
 		result.append({"gif": gif_name, 'caption': segment[2]})
 		nr += 1
