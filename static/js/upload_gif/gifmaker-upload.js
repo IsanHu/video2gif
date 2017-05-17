@@ -226,7 +226,7 @@ function setRightMenu() {
             }
             if (image != null) {
                 tasks.editing_images = [image]    
-                tasks.current_original_gif = temp.original_url
+                tasks.current_original_gif = image.original_url
             }
             return image
         },
