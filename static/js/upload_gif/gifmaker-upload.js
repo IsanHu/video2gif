@@ -231,7 +231,6 @@ function setRightMenu() {
             return image
         },
         actionsGroups: [
-            ['originalGif'],
             ['remove'],
             ['sortTop', 'toHot']
         ],
