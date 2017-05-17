@@ -263,6 +263,7 @@
         tags = gif['tags'].concat(gif['segments'])
         info = gif['caption']
         original_gif = domain + gif['original_gif_url']
+        console.log(original_gif)
         downloadImage(url, tags, info, original_gif)
     }
     
