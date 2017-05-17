@@ -8,6 +8,7 @@ var tasks = new Vue({
         task_count: 0,
         selected_count: 0,
         uploadInfo: '',
+        current_original_gif:'',
 
         editing_images: [],
         modal_data_tags: [],
@@ -225,14 +226,25 @@ function setRightMenu() {
             }
             if (image != null) {
                 tasks.editing_images = [image]    
+                tasks.current_original_gif = temp.original_url
             }
             return image
         },
         actionsGroups: [
+            ['originalGif'],
             ['remove'],
             ['sortTop', 'toHot']
         ],
         actions: {
+            originalGif: {
+                name: "查看原尺寸gif",
+                onClick: function(image) {
+                    checkOriginalGif()
+                },
+                isEnabled: function (image) {
+                    return true
+                }
+            },
             editAll: {
                 name: "总编辑",
                 onClick: function(image) {
@@ -298,6 +310,11 @@ function setRightMenu() {
             },
         }
     });
+}
+
+function checkOriginalGif() {
+    url= tasks.current_original_gif;
+    window.open(url,'_blank');
 }
 
 function editAllAction() {

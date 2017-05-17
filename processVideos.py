@@ -27,6 +27,7 @@ config['UPLOAD_FOLDER'] = basedir + '/unprocessedvideos/'
 config['PROCESSED_FOLDER'] = basedir + '/processedvideos/'
 config['THUMBNAIL_FOLDER'] = basedir + '/unprocessedvideos/thumbnail/'
 config['GIF_FOLDER'] = basedir + '/static/gifs/'
+config['ORIGINAL_GIF_FOLDER'] = basedir + '/static/original_gifs/'
 config['BOTTLENECK'] = basedir + '/bottleneck/'
 config['ZIPED_GIF_FOLDER'] = basedir + '/zipedgifs/'
 
@@ -107,6 +108,11 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 	OUT_DIR=gif_path
 	if not os.path.exists(OUT_DIR):
 	    os.mkdir(OUT_DIR)
+	ogiginal_gif_path = os.path.join(config['ORIGINAL_GIF_FOLDER'], file_name)
+	print 'original path:'
+	print ogiginal_gif_path
+	if not os.path.exists(ogiginal_gif_path):
+	    os.mkdir(ogiginal_gif_path)
 
 	# Generate GIFs from the top scoring segments
 
@@ -116,6 +122,8 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 	occupiedTime = []
 	height = videos[file_name]['height']
 	print height
+
+
 	for segment in sorted(scores, key=lambda x: -scores.get(x))[0:totalCount]:
 	    if nr >= top_k:
 	        break
@@ -129,20 +137,24 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 	    occupiedTime.append(segment)
 
 	    if overlaping == 0:
-			clip = video.subclip(segment[0]/float(video.fps), segment[1]/float(video.fps))
+			clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
+			original_clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
 			out_gif = "%s/%s_%.2d.gif" % (OUT_DIR.decode('utf-8'),video_id.decode('utf-8'),nr)
+			origianl_gif = "%s/%s_%.2d.gif" % (ogiginal_gif_path.decode('utf-8'), video_id.decode('utf-8'), nr)
 			## resize
 			if height > 0:
 				clip = clip.resize(height=height)
 			else:
 				clip = clip.resize(width=320)
 			clip.write_gif(out_gif,fps=10)
+			original_clip.write_gif(origianl_gif, fps=10)
 			nr += 1
 
-	# 压缩图片
-	# cmd = "zip -rj " + zip_path + " " +  gif_path
-	# print cmd
-	# os.system(cmd)
+	# 压缩原尺寸图片
+	zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], file_name)
+	cmd = "zip -rj " + zip_path + " " +  ogiginal_gif_path
+	print cmd
+	os.system(cmd)
 
 	# 转移视频
 	cmd1 = 'mv ' + video_path + " " + processed_path
@@ -180,7 +192,7 @@ def did_start_get_audio_queue():
 			try:
 				video = VideoFileClip(video_path)
 				clip = video.subclip(0)
-				clip.audio.write_audiofile(audio_path)
+				clip.audio.write_audiofile(audio_path, bitrate="128k")
 			except:
 				print "%s提取音频失败" % file_name
 				if os.path.isfile(audio_path):
@@ -362,6 +374,11 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 
 	if not os.path.exists(gif_path):
 		os.mkdir(gif_path)
+	ogiginal_gif_path = os.path.join(config['ORIGINAL_GIF_FOLDER'], file_name)
+	print 'original path:'
+	print ogiginal_gif_path
+	if not os.path.exists(ogiginal_gif_path):
+		os.mkdir(ogiginal_gif_path)
 
 	# Generate GIFs from the top scoring segments
 	nr = 0
@@ -372,9 +389,10 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 	for segment in sorted(scores, key=lambda x: -scores.get(x))[0:count]:
 		if nr >= top_k:
 			break
-
+		original_clip = video.subclip(segment[0] / float(fps), segment[1] / float(fps))
 		clip = video.subclip(segment[0] / float(fps), segment[1] / float(fps))
 		out_gif = "%s/%s_%.2d.gif" % (gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
+		original_gif = "%s/%s_%.2d.gif" % (ogiginal_gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
 		gif_name = "%s_%.2d.gif" % (file_name, nr)
 		## resize
 		if height > 0:
@@ -382,6 +400,7 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 		else:
 			clip = clip.resize(width=320)
 		clip.write_gif(out_gif, fps=10)
+		original_clip.write_gif(ogiginal_gif_path, fps=10)
 		result.append({"gif": gif_name, 'caption': segment[2]})
 		nr += 1
 
@@ -393,6 +412,13 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 			f.write(json.dumps(info))
 	except:
 		print "%s 依据字幕生成gif后,记录gif对应字幕失败" % file_name
+
+	# 压缩原尺寸图片
+	zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], file_name)
+	cmd = "zip -rj " + zip_path + " " + ogiginal_gif_path
+	print cmd
+	os.system(cmd)
+
 	print '准备转移视频'
 	# 转移视频
 	cmd1 = 'mv ' + video_path + " " + processed_path

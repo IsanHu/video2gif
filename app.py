@@ -33,6 +33,7 @@ app.config['UPLOAD_FOLDER'] = basedir + '/unprocessedvideos/'
 app.config['PROCESSED_FOLDER'] = basedir + '/processedvideos/'
 app.config['THUMBNAIL_FOLDER'] = basedir + '/unprocessedvideos/thumbnail/'
 app.config['GIF_FOLDER'] = basedir + '/static/gifs/'
+app.config['ORIGINAL_GIF_FOLDER'] = basedir + '/static/original_gifs/'
 app.config['BOTTLENECK'] = basedir + '/bottleneck/'
 app.config['ZIPED_GIF_FOLDER'] = basedir + '/zipedgifs/'
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024 * 1024
@@ -94,7 +95,7 @@ def upload():
         if files:
             print "files.filename"
             print files.filename
-            filename = secure_filename(files.filename)
+            filename = files.filename.encode('utf-8')
             print filename
             filename = gen_file_name(filename)
             print filename
@@ -211,6 +212,7 @@ def gifs(filename):
     gifs_dir = app.config['GIF_FOLDER'] + filename
     gifs = []
     path = "/static/gifs/%s" % filename + "/"
+    original_gif_path = "/static/original_gifs/%s" % filename + "/"
     info_path = os.path.join(app.config['BOTTLENECK'], filename + '.txt')
     info = {}
     try:
@@ -240,27 +242,27 @@ def gifs(filename):
             for f in sorted(os.listdir(gifs_dir)):
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     if index < len(segments_array):
-                        gifs.append({'url': path + f, 'tags':tags, 'caption': gif_caption[index]['caption'], 'segments': segments_array[index]})
+                        gifs.append({'url': path + f, 'original_gif_url':original_gif_path + f, 'tags':tags, 'caption': gif_caption[index]['caption'], 'segments': segments_array[index]})
                     else:
-                        gifs.append({'url': path + f, 'tags': tags, 'caption': gif_caption[index]['caption'],
+                        gifs.append({'url': path + f, 'original_gif_url':original_gif_path + f, 'tags': tags, 'caption': gif_caption[index]['caption'],
                                      'segments': ''})
                     index += 1
     else:
         if os.path.isdir(gifs_dir):
             for f in os.listdir(gifs_dir):
                 if f.rsplit(".", 1)[1].lower() == "gif":
-                    gifs.append({'url': path + f, tags: tags, 'caption': '', 'segments':''})
+                    gifs.append({'url': path + f, 'original_gif_url':original_gif_path + f, tags: tags, 'caption': '', 'segments':''})
     gifs_str = json.dumps(gifs)
     return render_template('upload_gif.html', gifs=gifs_str, result=1)
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    return render_template('index.html', tab='upload')
 
 @app.route('/alldata', methods=['GET', 'POST'])
 def alldata():
-    return render_template('alldata.html')
+    return render_template('alldata.html', tab='process')
 
 @app.route('/getalldata', methods=['GET', 'POST'])
 def getalldata():
@@ -294,13 +296,13 @@ def did_get_all_data():
         file_info = file_saved.get_file()
 
         file_name = os.path.splitext(os.path.split(f)[1])[0]
-        # ziped_gif_file_name = file_name + ".zip"
-        # ziped_gif_path = os.path.join(app.config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
+        ziped_gif_file_name = file_name + ".zip"
+        ziped_gif_path = os.path.join(app.config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
 
-        # if os.path.isfile(ziped_gif_path):
-        #     ziped_gif_size = round(float(os.path.getsize(ziped_gif_path)) / 1024.0 / 1024.0, 2)
-        #     ziped_gif_saved = zipedgiffile(name=ziped_gif_file_name, size=ziped_gif_size)
-        #     file_info['ziped_gif_info'] = ziped_gif_saved.get_file()
+        if os.path.isfile(ziped_gif_path):
+            ziped_gif_size = round(float(os.path.getsize(ziped_gif_path)) / 1024.0 / 1024.0, 2)
+            ziped_gif_saved = zipedgiffile(name=ziped_gif_file_name, size=ziped_gif_size)
+            file_info['ziped_gif_info'] = ziped_gif_saved.get_file()
 
         # gif图片目录
         gifs_dir = app.config['GIF_FOLDER'] + file_name
@@ -312,6 +314,7 @@ def did_get_all_data():
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     gif_count += 1
         file_info['gif_count'] = gif_count
+
         processed_files.append(file_info)
     return processed_files, unprocessed_files
 

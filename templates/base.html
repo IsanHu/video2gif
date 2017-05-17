@@ -40,8 +40,16 @@
 	  </div>
 	  <div id="navbar" class="navbar-collapse collapse">
 	    <ul class="nav navbar-nav">
-	      <li class="active"><a href="#">上传</a></li>
-	      <li><a href="/alldata">处理</a></li>
+            {% if tab == "upload" %}
+              <li class="active"><a href="#">上传</a></li>
+            {% else %}
+              <li><a href="/">上传</a></li>
+             {% endif %}
+            {% if tab == "process" %}
+              <li class="active"><a href="#">处理</a></li>
+            {% else %}
+              <li><a href="/alldata">处理</a></li>
+             {% endif %}
 	    </ul>
 	  </div>
 	</div>

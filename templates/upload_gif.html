@@ -56,8 +56,8 @@
                         <span style="color: #d9534f; font-size: 18px">{{selected_count}}</span>
                         <span style="font-size: 18px">张</span>
                         <span style="color: #d9534f; font-size: 18px">{{uploadInfo}}</span>
-                        <a class='link text-center' href="postupload.html" style="color: #5cb85c; font-size: 18px;margin-left: 20px">去上线图片</a>
-                        <a class='link text-center' href="gifmaker.html" style="color: #d9534f; font-size: 18px;margin-left: 20px">去给图片添加文字</a>
+<!--                         <a class='link text-center' href="postupload.html" style="color: #5cb85c; font-size: 18px;margin-left: 20px">去上线图片</a>
+                        <a class='link text-center' href="gifmaker.html" style="color: #d9534f; font-size: 18px;margin-left: 20px">去给图片添加文字</a> -->
                     </div>
                 </form> 
             </div>
@@ -224,7 +224,7 @@
         <script src="{{ url_for('static', filename='js/upload_gif/gifmaker-upload.js') }} "></script>
     </body>
 <script type="text/javascript">
-
+    var domain = "http://35.185.162.196:5000"
     function downloadImage(url, tags, info) {
         var request = new XMLHttpRequest();
         request.open('GET', url, true);
@@ -233,6 +233,7 @@
             var sticker = {
                         selected: false,
                         textinfo: "",
+                        original_url: "",
                         hascopyright: 0,
                         copyright: "",
                         tag: [],
@@ -245,6 +246,7 @@
             reader.onload =  function(e){
                 sticker.store_url = e.target.result;
                 sticker.tag = tags
+                sticker.original_url = domain + gif['original_gif_url']
                 sticker.textinfo = info
                 tasks.stickers.push(sticker);
                 tasks.task_count = tasks.stickers.length
@@ -254,8 +256,6 @@
     }
 
     var gifs = {{ gifs|safe }}
-    var domain = "http://35.185.162.196:5000"
-
     for (var i = 0; i < gifs.length; i++) {
         var gif = gifs[i]
         var url = domain + gif['url']

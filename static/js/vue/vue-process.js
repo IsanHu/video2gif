@@ -72,7 +72,12 @@ Vue.component('processedtr', {
           '<td>' +
           '<p v-if="data.gifs_dir">' +
           '<a v-bind:href="data.gifs_dir" target="_blank">{{data.gif_count}}张</a>' +
-          '</p>' + '</td>' + 
+          '</p>' + '</td>' +
+          '<td>' +
+          '<p v-if="data.ziped_gif_info">' +
+          '<a v-bind:href="data.ziped_gif_info.url" target="_blank">原尺寸图{{data.ziped_gif_info.size}}M</a>' +
+          '</p>' + '</td>' +
+
           // '<td>' +
           // '<p v-if="data.deleteUrl">' +
           // '<button v-bind:class="btn btn-danger delete" v-bind:data-type="data.deleteType" v-bind:data-url="data.deleteUrl">' +
