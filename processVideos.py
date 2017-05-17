@@ -400,7 +400,7 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 		else:
 			clip = clip.resize(width=320)
 		clip.write_gif(out_gif, fps=10)
-		original_clip.write_gif(ogiginal_gif_path, fps=10)
+		original_clip.write_gif(original_gif, fps=10)
 		result.append({"gif": gif_name, 'caption': segment[2]})
 		nr += 1
 
