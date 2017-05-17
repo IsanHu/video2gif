@@ -225,7 +225,7 @@
     </body>
 <script type="text/javascript">
     var domain = "http://35.185.162.196:5000"
-    function downloadImage(url, tags, info, original_gif) {
+    function downloadImage(url, tags, info, original_gif, np_id) {
         var request = new XMLHttpRequest();
         request.open('GET', url, true);
         request.responseType = 'blob';
@@ -248,6 +248,7 @@
                 sticker.tag = tags
                 sticker.original_url = original_gif
                 sticker.textinfo = info
+                sticker.np_id = np_id
                 tasks.stickers.push(sticker);
                 tasks.task_count = tasks.stickers.length
             };
@@ -263,8 +264,9 @@
         tags = gif['tags'].concat(gif['segments'])
         info = gif['caption']
         original_gif = domain + gif['original_gif_url']
+        np_id = gif['original_gif_url']
         console.log(original_gif)
-        downloadImage(url, tags, info, original_gif)
+        downloadImage(url, tags, info, original_gif, np_id)
     }
     
 </script>
