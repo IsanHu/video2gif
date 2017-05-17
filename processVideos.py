@@ -140,8 +140,8 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 			occupiedTime.append(segment)
 			clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
 			original_clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
-			out_gif = "%s/%s_%.2d.gif" % (OUT_DIR.decode('utf-8'),video_id.decode('utf-8'),nr)
-			origianl_gif = "%s/%s_%.2d.gif" % (ogiginal_gif_path.decode('utf-8'), video_id.decode('utf-8'), nr)
+			out_gif = "%s/%s_%.2d.gif" % (OUT_DIR.decode('utf-8'),file_name.decode('utf-8'),nr)
+			origianl_gif = "%s/%s_%.2d.gif" % (ogiginal_gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
 			## resize
 			if height > 0:
 				clip = clip.resize(height=height)
