@@ -251,7 +251,7 @@ def gifs(filename):
         if os.path.isdir(gifs_dir):
             for f in os.listdir(gifs_dir):
                 if f.rsplit(".", 1)[1].lower() == "gif":
-                    gifs.append({'url': path + f, 'original_gif_url':original_gif_path + f, tags: tags, 'caption': '', 'segments':''})
+                    gifs.append({'url': path + f, 'original_gif_url':original_gif_path + f, 'tags': tags, 'caption': '', 'segments': ''})
     gifs_str = json.dumps(gifs)
     return render_template('upload_gif.html', gifs=gifs_str, result=1)
 
