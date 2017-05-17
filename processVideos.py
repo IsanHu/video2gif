@@ -122,12 +122,9 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 	occupiedTime = []
 	height = videos[file_name]['height']
 	print height
-
-	print totalCount
-	print top_k
 	for segment in sorted(scores, key=lambda x: -scores.get(x))[0:totalCount]:
-	    if nr >= top_k:
-	        break
+		if nr >= top_k:
+			break
 
 
 		overlaping = 0
@@ -135,8 +132,8 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 		for seg in occupiedTime:
 			if is_overlapping(seg[0], seg[1], segment[0], segment[1]):
 				overlaping = 1
-		        print "skip overlapping"
-		        break
+				print "skip overlapping"
+				break
 		print 'overlapping'
 		print overlaping
 		if overlaping == 0:
