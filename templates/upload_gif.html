@@ -225,7 +225,7 @@
     </body>
 <script type="text/javascript">
     var domain = "http://35.185.162.196:5000"
-    function downloadImage(url, tags, info) {
+    function downloadImage(url, tags, info, original_gif) {
         var request = new XMLHttpRequest();
         request.open('GET', url, true);
         request.responseType = 'blob';
@@ -246,7 +246,7 @@
             reader.onload =  function(e){
                 sticker.store_url = e.target.result;
                 sticker.tag = tags
-                sticker.original_url = domain + gif['original_gif_url']
+                sticker.original_url = original_gif
                 sticker.textinfo = info
                 tasks.stickers.push(sticker);
                 tasks.task_count = tasks.stickers.length
@@ -262,7 +262,8 @@
         // url = 'http://t12.baidu.com/it/u=1613426663,3260446361&fm=58&s=51575896F68A9AB85E91D5A60100A0A0'
         tags = gif['tags'].concat(gif['segments'])
         info = gif['caption']
-        downloadImage(url, tags, info)
+        original_gif = domain + gif['original_gif_url']
+        downloadImage(url, tags, info, original_gif)
     }
     
 </script>
