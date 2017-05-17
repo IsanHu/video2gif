@@ -231,6 +231,7 @@ function setRightMenu() {
             return image
         },
         actionsGroups: [
+            ['editAll', 'editTag', 'editIp', 'editTextinfo'],
             ['remove'],
             ['sortTop', 'toHot']
         ],
