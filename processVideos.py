@@ -130,13 +130,14 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 
 
 		overlaping = 0
+
 		for seg in occupiedTime:
 			if is_overlapping(seg[0], seg[1], segment[0], segment[1]):
 				overlaping = 1
 		        print "skip overlapping"
 		        break
 
-	    if overlaping == 0:
+		if overlaping == 0:
 			occupiedTime.append(segment)
 			clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
 			original_clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
