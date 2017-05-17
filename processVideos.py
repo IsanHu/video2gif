@@ -127,6 +127,8 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 	for segment in sorted(scores, key=lambda x: -scores.get(x))[0:totalCount]:
 	    if nr >= top_k:
 	        break
+
+
 		overlaping = 0
 		for seg in occupiedTime:
 			if is_overlapping(seg[0], seg[1], segment[0], segment[1]):
@@ -134,9 +136,8 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 		        print "skip overlapping"
 		        break
 
-	    occupiedTime.append(segment)
-
 	    if overlaping == 0:
+			occupiedTime.append(segment)
 			clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
 			original_clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
 			out_gif = "%s/%s_%.2d.gif" % (OUT_DIR.decode('utf-8'),video_id.decode('utf-8'),nr)
