@@ -313,7 +313,7 @@ function setRightMenu() {
 }
 
 function checkOriginalGif() {
-    url= tasks.current_original_gif;
+    url= tasks.editing_images[0].current_original_gif
     window.open(url,'_blank');
 }
 
