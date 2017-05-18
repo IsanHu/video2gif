@@ -223,28 +223,28 @@ def start_upload_audio_queue():
 def did_start_upload_audio_queue():
 	for file_name, video_path, audio_path in get_audio_path():
 		start = time.time()
-		cmd = "java -jar %s 0 %s %s %s" % (config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], audio_path)
-		try:
-			result = json.loads(os.popen(cmd).read())
-		except:
-			# 上传失败,重新加入上传音频队列
-			uploadAudioQueue.put((file_name, video_path, audio_path))
-			continue
+		# cmd = "java -jar %s 0 %s %s %s" % (config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], audio_path)
+		# try:
+		# 	result = json.loads(os.popen(cmd).read())
+		# except:
+		# 	# 上传失败,重新加入上传音频队列
+		# 	uploadAudioQueue.put((file_name, video_path, audio_path))
+		# 	continue
 
-		print result
-		if result['ok'] == 0:
-			xunfei_id = result['data']
-			info = videos[file_name]
-			info['xunfei_id'] = xunfei_id
-		else:
-			# 上传失败,重新加入上传音频队列
-			uploadAudioQueue.put((file_name, video_path, audio_path))
-			continue
+		# print result
+		# if result['ok'] == 0:
+		# 	xunfei_id = result['data']
+		# 	info = videos[file_name]
+		# 	info['xunfei_id'] = xunfei_id
+		# else:
+		# 	# 上传失败,重新加入上传音频队列
+		# 	uploadAudioQueue.put((file_name, video_path, audio_path))
+		# 	continue
 
 		# 临时
-		# xunfei_id = '9c6a5a03d8d4400bb8decd523b6536f3'
-		# info = videos[file_name]
-		# info['xunfei_id'] = xunfei_id
+		xunfei_id = '7939073352bb4adfb684fb207b9a718e'
+		info = videos[file_name]
+		info['xunfei_id'] = xunfei_id
 
 		info['status'] = "生成字幕中"
 
@@ -267,9 +267,9 @@ def start_get_caption_loop():
 def get_caption_from_xunfei():
 	print 'get_caption_from_xunfei'
 	for key in videos:
-		print key
 		vi = videos[key]
 		if vi.has_key('xunfei_id') and vi['status'] != "生成字幕成功":
+			print key
 			xunfei_id = vi['xunfei_id']
 			cmd = "java -jar %s 1 %s %s %s" % (config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], xunfei_id)
 			print cmd
