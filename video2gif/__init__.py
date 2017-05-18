@@ -94,7 +94,8 @@ def get_scores(predict, segments, video, stride=8, with_features=False):
 
                 snip = model.get_snips(frames,snipplet_mean,0,True)
                 queue.put((segments[seg_nr],snip))
-                print "添加数据"
+                print "添加数据:"
+                print seg_nr
                 frames=[]
 
             frames.append(f)
