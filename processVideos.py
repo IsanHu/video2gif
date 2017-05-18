@@ -365,8 +365,6 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 			segments.append((start_frame, end_frame, ca['onebest']))
 		else:
 			print "不足16帧"
-	print sorted(durations)
-	print durations
 
 	scores = video2gif.get_scores(score_function, segments, video, stride=8)
 	count = len(scores)
@@ -446,20 +444,14 @@ def is_mp4(file):
 def get_file_status_info(fileName):
 	op = "处理"
 	status = "尚未处理"
-	print videos
-	print "获取所有数据"
-	print fileName
 	if videos.has_key(fileName):
 		info = videos[fileName]
-		print info
 		if info.has_key('status'):
 			status = info['status']
 		if status == "生成字幕中" or status == "生成字幕成功" or status == "排队处理中（字幕）" or status == "处理中" or status == "处理中（字幕）":
 			op = ""
 		elif status == "排队处理中":
 			op = "" ##TODO
-	else:
-		print "居然没有数据"
 			
 	return status, op
 
@@ -506,7 +498,6 @@ def add_video_to_process(fileName, height, tags, caption):
 
 	videos[file_name] = info
 	print "添加的video"
-	print videos[file_name]
 	print file_name
 
 
