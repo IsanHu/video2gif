@@ -242,7 +242,7 @@ def did_start_upload_audio_queue():
 		# 	continue
 
 		# 临时
-		xunfei_id = 'feddf1cfe7c14a4fb14596efdd6fe725'
+		xunfei_id = 'd2931698fdf8413f8b496de400025295'
 		info = videos[file_name]
 		info['xunfei_id'] = xunfei_id
 
