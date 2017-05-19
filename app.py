@@ -127,7 +127,7 @@ def upload():
         
         file_display = []
 
-        for f in files:
+        for f in sorted(files):
             size = os.path.getsize(os.path.join(app.config['UPLOAD_FOLDER'], f))
             file_saved = uploadfile(name=f, size=size)
             file_info = file_saved.get_file()
@@ -135,7 +135,7 @@ def upload():
             file_display.append(file_info)
 
         processed_files = [f for f in os.listdir(app.config['PROCESSED_FOLDER']) if os.path.isfile(os.path.join(app.config['PROCESSED_FOLDER'],f)) and f not in IGNORED_FILES ]
-        for f in processed_files:
+        for f in sorted(processed_files):
             size = os.path.getsize(os.path.join(app.config['PROCESSED_FOLDER'], f))
             file_saved = processedfile(name=f, size=size)
             file_info = file_saved.get_file()
