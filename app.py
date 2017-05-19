@@ -275,7 +275,7 @@ def did_get_all_data():
              os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], f)) and f not in IGNORED_FILES]
     file_display = []
     unprocessed_files = []
-    for f in files:
+    for f in sorted(files):
         size = round(float(os.path.getsize(os.path.join(app.config['UPLOAD_FOLDER'], f))) / 1024.0 / 1024.0, 2)
         file_saved = uploadfile(name=f, size=size)
         file_info = file_saved.get_file()
@@ -289,7 +289,7 @@ def did_get_all_data():
     processed_files = []
     processed = [f for f in os.listdir(app.config['PROCESSED_FOLDER']) if
                  os.path.isfile(os.path.join(app.config['PROCESSED_FOLDER'], f)) and f not in IGNORED_FILES]
-    for f in processed:
+    for f in sorted(processed):
         print f
         size = round(float(os.path.getsize(os.path.join(app.config['PROCESSED_FOLDER'], f))) / 1024.0 / 1024.0, 2)
         file_saved = processedfile(name=f, size=size)
