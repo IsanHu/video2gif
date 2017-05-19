@@ -32,8 +32,8 @@ config['BOTTLENECK'] = basedir + '/bottleneck/'
 config['ZIPED_GIF_FOLDER'] = basedir + '/zipedgifs/'
 
 config['XUNFEI_JAR'] = basedir + '/Lfasr.jar'
-config['XUNFEI_APPID'] = '591c2c4d'
-config['XUNFEI_KEY'] = 'c238e91e995ae7b31d313caba8ce28a5'
+config['XUNFEI_APPID'] = '591eae07'
+config['XUNFEI_KEY'] = '08d5287ec77c65b58f9eb18b168cad4d'
 
 # 排队处理中
 # 排队处理中（字幕）
