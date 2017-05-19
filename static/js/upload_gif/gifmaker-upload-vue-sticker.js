@@ -18,6 +18,7 @@ Vue.component('sticker', {
               '</dd>' +
               '<dt>版权：</dt>' +
               '<dd>{{src.copyright}}</dd>' + 
+              '<dt><a v-bind:href="src.original_gif_url">下载：</a></dt>' +
           '</dl>' +
       '</div>',
     methods: {
