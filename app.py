@@ -232,7 +232,9 @@ def gifs(filename):
 
             apiUrl = "http://120.27.214.63:8080/open-api/word/segments"
             headers = {'Content-Type': 'application/json;charset:UTF-8'}
+            print '分词访问前'
             response = requests.post(url=apiUrl, data=json.dumps(captions), headers=headers)
+            print '分词请求发送'
             result = json.loads(response.content)
             if result['error_code'] == 0:
                 segments_array = result['data']
@@ -257,6 +259,7 @@ def gifs(filename):
                     full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, f))) / 1024.0 / 1024.0, 2)
                     gifs.append({'url': path + f, 'name':f, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags': tags, 'caption': '', 'segments': ''})
     gifs_str = json.dumps(gifs)
+    print 'gifs 接口返回前'
     return render_template('upload_gif.html', gifs=gifs_str, result=1)
 
 
