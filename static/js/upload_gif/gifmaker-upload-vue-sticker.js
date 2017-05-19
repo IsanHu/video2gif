@@ -4,6 +4,7 @@ Vue.component('sticker', {
       '<div @click="toggleSelection" class="thumbnail col-xs-5 col-sm-5 col-md-4 col-lg-3" v-bind:class="{\'is-selected\': src.selected}">' +
           '<img id="sticker" class="thumbnail sticker" style="width: 100%;margin-bottom:4px" v-bind:src="src.store_url" v-bind:imageid="src.np_id" ></img>' +
           '<dl>' + 
+              '<dt>图片大小：{{src.gif_info.size}KB}</dt>' +
               '<dt v-if="src.hot" style="color:#f0ad4e;font-size:18px;">流行表情(直接上线)</dt>' +
               '<dt>关键字：</dt>' +
               '<dd>' +  
@@ -18,7 +19,7 @@ Vue.component('sticker', {
               '</dd>' +
               '<dt>版权：</dt>' +
               '<dd>{{src.copyright}}</dd>' + 
-              '<dt><a v-bind:href="src.original_gif_url">下载：</a></dt>' +
+              '<dt><a v-bind:href="src.original_url" v-bind:download="src.gif_info.name">下载原图（{{src.gif_info.full_size}}MB）</a></dt>' +
           '</dl>' +
       '</div>',
     methods: {
