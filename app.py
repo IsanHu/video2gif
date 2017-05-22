@@ -338,6 +338,8 @@ def addVideoToProcess():
     return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files': unprocessed_files})
 
 if __name__ == '__main__':
+    print('初始化线程')
     processVideos.start_all_queues()
+    print('初始化线程借宿')
     app.run(host='0.0.0.0')
 

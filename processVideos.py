@@ -260,6 +260,7 @@ def get_audio_path():
 
 ## 周期性遍历videos，去讯飞获取字幕，同时将获取成功的video添加进字幕video队列
 def start_get_caption_loop():
+	print('初始化start_get_caption_loop')
 	t = Timer(20, start_get_caption_loop)
 	t.start()
 	get_caption_from_xunfei()
