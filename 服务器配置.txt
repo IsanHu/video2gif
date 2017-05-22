@@ -1,0 +1,53 @@
+https://www.douban.com/group/topic/88724267/
+
+[uwsgi] 
+
+# uwsgi 启动时所使用的地址与端口 
+
+socket = 0.0.0.0:6001
+
+
+
+# 指向网站目录 
+
+chdir=/home/3isan333/code/video2gif
+
+
+
+# python 启动程序文件 
+
+wsgi-file = app.py 
+
+# python 程序内用以启动的 application 变量名 
+
+callable = app 
+
+
+
+# 处理器数 
+
+processes = 2
+
+# 线程数 
+
+threads = 4 
+
+
+
+#状态检测地址 
+
+stats = 0.0.0.0:9191 
+
+# pid 
+
+pidfile = /tmp/recsys_uwsgi.pid 
+
+
+
+
+
+include uwsgi_params; 
+uwsgi_pass127.0.0.1:6001; # 指向uwsgi 所应用的内部地址,所有请求将转发给uwsgi 处理 
+#uwsgi_param UWSGI_PYHOME /home/work/venv; # 指向虚拟环境目录 
+uwsgi_param UWSGI_CHDIR /home/3isan333/code/video2gif; # 指向网站根目录 
+uwsgi_param UWSGI_SCRIPT manage:app; # 指定启动程序 
