@@ -339,6 +339,7 @@ def addVideoToProcess():
 
 print('测试nginx会不会走app.py222222')
 
+print __name__
 if __name__ == '__main__':
     print('初始化线程')
     processVideos.start_all_queues()
