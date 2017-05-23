@@ -171,12 +171,14 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 ## 初始化提取 audio 队列
 def start_get_audio_queue():
 	print "初始化提取音频队列"
+	print threading.current_thread
 	thread = threading.Thread(target=did_start_get_audio_queue)
 	thread.daemon = True
 	thread.start()
 
 def did_start_get_audio_queue():
 	print 'did_start_get_audio_queue'
+	print threading.current_thread
 	for file_name, video_path, gif_path, audio_path, caption_path, processed_path in get_video_to_audio_path():
 		# 先检查audio_path是否有文件了
 		# 如果有检查audio的时长跟video的时长是否一样，不一样的话删除audio，重新提取audio
@@ -272,6 +274,7 @@ def start_get_caption_loop():
 
 def get_caption_from_xunfei():
 	print 'get_caption_from_xunfei'
+	print threading.current_thread
 	for key in videos:
 		vi = videos[key]
 		if vi.has_key('xunfei_id') and vi['status'] != "生成字幕成功":
@@ -463,6 +466,7 @@ def get_file_status_info(fileName):
 
 def start_all_queues():
 	print "初始化队列"
+	print threading.current_thread
 	start_nocaption_video_queue()
 	start_get_audio_queue()
 	start_upload_audio_queue()
@@ -490,6 +494,7 @@ def add_video_to_process(fileName, height, tags, caption):
 		caption_path = os.path.join(config['BOTTLENECK'], caption_name)
 		getAudioQueue.put((file_name, video_path, gif_path, audio_path, caption_path, processed_path))
 		print "添加item到音频队列"
+		print threading.current_thread
 	else:
 		info['status'] = "排队处理中"
 		content = {}
