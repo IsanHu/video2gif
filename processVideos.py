@@ -174,6 +174,7 @@ def start_get_audio_queue():
 	thread.start()
 
 def did_start_get_audio_queue():
+	print 'did_start_get_audio_queue'
 	for file_name, video_path, gif_path, audio_path, caption_path, processed_path in get_video_to_audio_path():
 		# 先检查audio_path是否有文件了
 		# 如果有检查audio的时长跟video的时长是否一样，不一样的话删除audio，重新提取audio
@@ -207,6 +208,7 @@ def did_start_get_audio_queue():
 
 
 def get_video_to_audio_path():
+	print 'get_video_to_audio_path'
 	item = getAudioQueue.get()
 	while item:
 		yield item
