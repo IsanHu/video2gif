@@ -462,7 +462,6 @@ def get_file_status_info(fileName):
 	return status, op
 
 def start_all_queues():
-	sleep(30)
 	print "初始化队列"
 	start_nocaption_video_queue()
 	start_get_audio_queue()
