@@ -21,6 +21,9 @@ import sys
 import json
 import time
 
+
+print "这里走了吗"
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 config = {}
 config['UPLOAD_FOLDER'] = basedir + '/unprocessedvideos/'
@@ -49,6 +52,7 @@ config['XUNFEI_KEY'] = '08d5287ec77c65b58f9eb18b168cad4d'
 # xunfei_id
 
 # videos = {'择天记_时间.mp4': {'status': "处理中"}, '择天记_时间2.mp4': {'status': "排队处理中"}, '择天记_字幕.mp4': {'status': "生成字幕中"}, '择天记_字幕2.mp4': {'status': "排队处理中（字幕）"}, '择天记_字幕3.mp4': {'status': "处理中（字幕）"}}
+print "这里走了吗111"
 videos = {}
 noCaptionQueue = Queue.Queue(maxsize=50)
 captionQueue = Queue.Queue(maxsize=50)
@@ -56,6 +60,7 @@ uploadAudioQueue = Queue.Queue(maxsize=50)
 getAudioQueue = Queue.Queue(maxsize=50)
 topCount = 100
 clipDuration = 2
+print "这里走了吗222"
 
 
 ## nocaption video 队列
