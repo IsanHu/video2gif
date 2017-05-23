@@ -87,6 +87,7 @@ def hInfo():
 
 @app.route("/upload", methods=['GET', 'POST'])
 def upload():
+    time.sleep(0.01)
     if request.method == 'POST':
         files = request.files['file']
 
@@ -192,18 +193,22 @@ def get_thumbnail(filename):
 
 @app.route("/processed/<string:filename>", methods=['GET'])
 def get_processed_file(filename):
+    time.sleep(0.01)
     return send_from_directory(os.path.join(app.config['PROCESSED_FOLDER']), filename=filename)
 
 @app.route("/unprocessed/<string:filename>", methods=['GET'])
 def get_unprocessed_file(filename):
+    time.sleep(0.01)
     return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER']), filename=filename)
 
 @app.route("/zipedgif/<string:filename>", methods=['GET'])
 def get_ziped_gif_file(filename):
+    time.sleep(0.01)
     return send_from_directory(os.path.join(app.config['ZIPED_GIF_FOLDER']), filename=filename)
 
 @app.route("/gifs/<string:filename>", methods=['GET'])
 def gifs(filename):
+    time.sleep(0.01)
     gifs_dir = app.config['GIF_FOLDER'] + filename
     gifs = []
     path = "/static/gifs/%s" % filename + "/"
@@ -258,6 +263,7 @@ def gifs(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    time.sleep(0.01)
     return render_template('index.html', tab='upload')
 
 @app.route('/alldata', methods=['GET', 'POST'])
@@ -320,6 +326,7 @@ def did_get_all_data():
 
 @app.route("/addVideoToProcess", methods=['POST'])
 def addVideoToProcess():
+    time.sleep(0.01)
     params = request.form
     videoName = params['videoName'].encode('utf-8')
     height = int(params['height'])
