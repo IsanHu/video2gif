@@ -92,8 +92,6 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 	video = VideoFileClip(video_path)
 	segmentsArray = []
 	for videoStart in range(0, clipDuration, 1):
-		print "videoStart:"
-		print videoStart
 		particalSegments = [(start, int(start+video.fps*clipDuration)) for start in range(int(videoStart*video.fps),int(video.duration*video.fps),int(video.fps*clipDuration))]
 		print "particalSegments count:"
 		print len(particalSegments)
@@ -139,8 +137,6 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 				overlaping = 1
 				print "skip overlapping"
 				break
-		print 'overlapping'
-		print overlaping
 		if overlaping == 0:
 			occupiedTime.append(segment)
 			clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))

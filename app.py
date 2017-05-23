@@ -90,10 +90,7 @@ def upload():
         files = request.files['file']
 
         if files:
-            print "files.filename"
-            print files.filename
             filename = files.filename.encode('utf-8')
-            print filename
             filename = gen_file_name(filename)
             print filename
             mime_type = files.content_type
@@ -236,7 +233,6 @@ def gifs(filename):
             if result['error_code'] == 0:
                 segments_array = result['data']
 
-            print segments_array
 
             for f in sorted(os.listdir(gifs_dir)):
                 if f.rsplit(".", 1)[1].lower() == "gif":
@@ -256,7 +252,6 @@ def gifs(filename):
                     full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, f))) / 1024.0 / 1024.0, 2)
                     gifs.append({'url': path + f, 'name':f, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags': tags, 'caption': '', 'segments': ''})
     gifs_str = json.dumps(gifs)
-    print 'gifs 接口返回前'
     return render_template('upload_gif.html', gifs=gifs_str, result=1)
 
 
@@ -294,7 +289,6 @@ def did_get_all_data():
     processed = [f for f in os.listdir(app.config['PROCESSED_FOLDER']) if
                  os.path.isfile(os.path.join(app.config['PROCESSED_FOLDER'], f)) and f not in IGNORED_FILES]
     for f in sorted(processed):
-        print f
         size = round(float(os.path.getsize(os.path.join(app.config['PROCESSED_FOLDER'], f))) / 1024.0 / 1024.0, 2)
         file_saved = processedfile(name=f, size=size)
         file_info = file_saved.get_file()
@@ -311,7 +305,6 @@ def did_get_all_data():
         # gif图片目录
         gifs_dir = app.config['GIF_FOLDER'] + file_name
         gif_count = 0
-        print gifs_dir
         if os.path.isdir(gifs_dir):
             file_info['gifs_dir'] = "gifs/%s" % file_name
             for f in os.listdir(gifs_dir):
@@ -329,7 +322,6 @@ def addVideoToProcess():
     height = int(params['height'])
     tags = params['tags']
     captionChecked = params['captionChecked']
-    print captionChecked
     processVideos.add_video_to_process(videoName, height, tags, captionChecked)
     processed_files, unprocessed_files = did_get_all_data()
     return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files': unprocessed_files})
