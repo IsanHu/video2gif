@@ -219,7 +219,14 @@ def gifs(filename):
         with open(info_path, 'r') as f:
             info = json.loads(f.read())
     except:
-        return render_template('upload_gif.html', gifs="", result=0)
+        if os.path.isdir(gifs_dir):
+            for f in os.listdir(gifs_dir):
+                if f.rsplit(".", 1)[1].lower() == "gif":
+                    size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
+                    full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, f))) / 1024.0 / 1024.0, 2)
+                    gifs.append({'url': path + f, 'name':f, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags': '', 'caption': '', 'segments': ''})
+        gifs_str = json.dumps(gifs)
+        return render_template('upload_gif.html', gifs=gifs_str, result=1)
     index = 0
     tags = json.loads(info['tags'])
     if info.has_key('gif_caption'):
