@@ -168,6 +168,7 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 
 ## 初始化提取 audio 队列
 def start_get_audio_queue():
+	print "初始化提取音频队列"
 	thread = threading.Thread(target=did_start_get_audio_queue)
 	thread.daemon = True
 	thread.start()
@@ -456,12 +457,13 @@ def get_file_status_info(fileName):
 	return status, op
 
 def start_all_queues():
-	print "初始化个队列"
+	print "初始化队列"
 	start_nocaption_video_queue()
 	start_get_audio_queue()
 	start_upload_audio_queue()
 	start_get_caption_loop()
 	start_caption_video_queue()
+	print "初始化队列完成"
 
 def add_video_to_process(fileName, height, tags, caption):
 	info = {}
