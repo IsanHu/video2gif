@@ -22,6 +22,7 @@ import sys
 import processVideos
 import hardwareInfo
 import json
+import time
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -261,10 +262,12 @@ def index():
 
 @app.route('/alldata', methods=['GET', 'POST'])
 def alldata():
+    time.sleep(0.01)
     return render_template('alldata.html', tab='process')
 
 @app.route('/getalldata', methods=['GET', 'POST'])
 def getalldata():
+    time.sleep(0.01)
     processed_files, unprocessed_files = did_get_all_data()
     return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files':unprocessed_files})
 
