@@ -229,7 +229,12 @@ def gifs(filename):
         return render_template('upload_gif.html', gifs=gifs_str, result=1)
     index = 0
     tags = json.loads(info['tags'])
-    if info.has_key('gif_caption'):
+
+    generare_caption = False
+    if info.has_key('gif_caption') and ((info.has_key('is_chinese') and info['is_chinese'] == "true") or not info.has_key('is_chinese')):
+        generare_caption = True
+
+    if generare_caption:
         gif_caption = info['gif_caption']
         if os.path.isdir(gifs_dir):
             # 获取字幕分词
@@ -339,7 +344,8 @@ def addVideoToProcess():
     height = int(params['height'])
     tags = params['tags']
     captionChecked = params['captionChecked']
-    processVideos.add_video_to_process(videoName, height, tags, captionChecked)
+    isChinese = params['isChinese']
+    processVideos.add_video_to_process(videoName, height, tags, captionChecked, isChinese)
     processed_files, unprocessed_files = did_get_all_data()
     return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files': unprocessed_files})
 

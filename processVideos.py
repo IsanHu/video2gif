@@ -474,11 +474,15 @@ def start_all_queues():
 	start_caption_video_queue()
 	print "初始化队列完成"
 
-def add_video_to_process(fileName, height, tags, caption):
+def add_video_to_process(fileName, height, tags, caption, isChinese):
 	info = {}
 	info['height'] = height
 	info['tags'] = tags
 	info['caption'] = caption
+	info['is_chinese'] = isChinese
+	print "is chinese"
+	print isChinese
+
 	file_name=os.path.splitext(os.path.split(fileName)[1])[0]
 	info['file_name'] = file_name
 	video_path = os.path.join(config['UPLOAD_FOLDER'], fileName)
@@ -493,8 +497,6 @@ def add_video_to_process(fileName, height, tags, caption):
 		caption_name = file_name + ".txt"
 		caption_path = os.path.join(config['BOTTLENECK'], caption_name)
 		getAudioQueue.put((file_name, video_path, gif_path, audio_path, caption_path, processed_path))
-		print "添加item到音频队列"
-		print threading.currentThread()
 	else:
 		info['status'] = "排队处理中"
 		content = {}

@@ -8,6 +8,7 @@ function addToProcessButtonClicked() {
   var tagString = $("#tag").val().trim();
   var tags = $("#tag").val().trim().split("\n");
   captionChecked = $("#captionCheckbox").prop('checked')
+  isChinese = $("#isChinese").prop('checked')
   // captionChecked = 'true'
   var height = 0
   height_str = $("#img-height").val()
@@ -19,7 +20,7 @@ function addToProcessButtonClicked() {
       }
   }
   
-  addToProcess(videoName, height, JSON.stringify(tags), captionChecked, function(data){
+  addToProcess(videoName, height, JSON.stringify(tags), captionChecked, isChinese, function(data){
       $('#addToProcessModal').modal('hide');
       tasks.processedData = data['processed_files']
       tasks.unprocessedData = data['unprocessed_files']
@@ -62,6 +63,7 @@ function addToProcessButtonClicked() {
                 <h4 id="videoToProcess" class="modal-title"></h4>
               </div>
               <div class="modal-body">
+                  <input type="checkbox" id="isChinese" checked><span> 是否是中文视频
                   <input type="checkbox" id="captionCheckbox" checked><span> 是否生成字幕</span>&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
                   截图高度：<input type="" id='img-height' name="" placeholder="可选">   
                   
