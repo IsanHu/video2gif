@@ -28,7 +28,6 @@ except (ImportError,AssertionError) as e:
 
 
 reload(sys)
-print sys.getdefaultencoding()
 
 # Load the configuration
 config=ConfigParser.SafeConfigParser()
