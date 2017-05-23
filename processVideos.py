@@ -20,7 +20,7 @@ from moviepy.editor import VideoFileClip, AudioFileClip
 import sys
 import json
 import time
-
+from time import sleep
 
 print "这里走了吗"
 
@@ -37,6 +37,7 @@ config['ZIPED_GIF_FOLDER'] = basedir + '/zipedgifs/'
 config['XUNFEI_JAR'] = basedir + '/Lfasr.jar'
 config['XUNFEI_APPID'] = '591eae07'
 config['XUNFEI_KEY'] = '08d5287ec77c65b58f9eb18b168cad4d'
+
 
 # 排队处理中
 # 排队处理中（字幕）
@@ -461,6 +462,7 @@ def get_file_status_info(fileName):
 	return status, op
 
 def start_all_queues():
+	sleep(30)
 	print "初始化队列"
 	start_nocaption_video_queue()
 	start_get_audio_queue()
@@ -477,6 +479,7 @@ def add_video_to_process(fileName, height, tags, caption):
 	file_name=os.path.splitext(os.path.split(fileName)[1])[0]
 	info['file_name'] = file_name
 	video_path = os.path.join(config['UPLOAD_FOLDER'], fileName)
+	print video_path
 	
 	gif_path = os.path.join(config['GIF_FOLDER'], file_name)
 	processed_path = os.path.join(config['PROCESSED_FOLDER'], fileName)
