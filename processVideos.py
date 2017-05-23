@@ -216,6 +216,7 @@ def get_video_to_audio_path():
 	print 'get_video_to_audio_path'
 	item = getAudioQueue.get()
 	while item:
+		print "获取到了item"
 		yield item
 		getAudioQueue.task_done()
 		item = getAudioQueue.get()
@@ -490,6 +491,7 @@ def add_video_to_process(fileName, height, tags, caption):
 		caption_name = file_name + ".txt"
 		caption_path = os.path.join(config['BOTTLENECK'], caption_name)
 		getAudioQueue.put((file_name, video_path, gif_path, audio_path, caption_path, processed_path))
+		print "添加item到音频队列"
 	else:
 		info['status'] = "排队处理中"
 		content = {}
