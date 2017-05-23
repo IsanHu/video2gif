@@ -251,18 +251,36 @@
                 sticker.textinfo = info
                 sticker.np_id = np_id
                 sticker.gif_info = gif_info
-                tasks.stickers.push(sticker);
-                tasks.task_count = tasks.stickers.length
+                tasks.stickers[parseInt(gif_info['index'])] = stickers
+                // tasks.stickers.push(sticker);
+                // tasks.task_count = tasks.stickers.length
             };
         };
         request.send();
     }
 
     var gifs = {{ gifs|safe }}
+    var count = gifs.length 
+    for (var i = 0; i < gifs.length; i++) {
+        var sticker = {
+                        selected: false,
+                        textinfo: "",
+                        original_url: "",
+                        hascopyright: 0,
+                        copyright: "",
+                        tag: [],
+                        np_id: "",
+                        hot: false,
+                        toptag: [],
+                        gif_info:{}
+                    };
+        tasks.stickers.push(sticker);
+        tasks.task_count = tasks.stickers.length
+    }
+
     for (var i = 0; i < gifs.length; i++) {
         var gif = gifs[i]
         var url = domain + gif['url']
-        // url = 'http://t12.baidu.com/it/u=1613426663,3260446361&fm=58&s=51575896F68A9AB85E91D5A60100A0A0'
         tags = gif['tags'].concat(gif['segments'])
         info = gif['caption']
         original_gif = domain + gif['original_gif_url']

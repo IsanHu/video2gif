@@ -220,11 +220,14 @@ def gifs(filename):
             info = json.loads(f.read())
     except:
         if os.path.isdir(gifs_dir):
-            for f in os.listdir(gifs_dir):
+            index = 0
+            for f in sorted(os.listdir(gifs_dir)):
+
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
                     full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, f))) / 1024.0 / 1024.0, 2)
-                    gifs.append({'url': path + f, 'name':f, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags': '', 'caption': '', 'segments': ''})
+                    gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags': '', 'caption': '', 'segments': ''})
+                    index = index + 1
         gifs_str = json.dumps(gifs)
         return render_template('upload_gif.html', gifs=gifs_str, result=1)
     index = 0
@@ -257,18 +260,20 @@ def gifs(filename):
                     size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
                     full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, f))) / 1024.0 / 1024.0, 2)
                     if index < len(segments_array):
-                        gifs.append({'url': path + f, 'name':f, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags':tags, 'caption': gif_caption[index]['caption'], 'segments': segments_array[index]})
+                        gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags':tags, 'caption': gif_caption[index]['caption'], 'segments': segments_array[index]})
                     else:
-                        gifs.append({'url': path + f, 'name':f, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags': tags, 'caption': gif_caption[index]['caption'],
+                        gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags': tags, 'caption': gif_caption[index]['caption'],
                                      'segments': ''})
                     index += 1
     else:
         if os.path.isdir(gifs_dir):
-            for f in os.listdir(gifs_dir):
+            index = 0
+            for f in sorted(os.listdir(gifs_dir)):
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
                     full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, f))) / 1024.0 / 1024.0, 2)
-                    gifs.append({'url': path + f, 'name':f, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags': tags, 'caption': '', 'segments': ''})
+                    gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags': tags, 'caption': '', 'segments': ''})
+                    index = index + 1
     gifs_str = json.dumps(gifs)
     return render_template('upload_gif.html', gifs=gifs_str, result=1)
 
