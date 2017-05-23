@@ -154,7 +154,7 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 			nr += 1
 
 	# 压缩原尺寸图片
-	zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], file_name)
+	zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], file_name + '.zip')
 	cmd = "zip -rj " + zip_path + " " +  ogiginal_gif_path
 	print cmd
 	os.system(cmd)
@@ -422,7 +422,7 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 		print "%s 依据字幕生成gif后,记录gif对应字幕失败" % file_name
 
 	# 压缩原尺寸图片
-	zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], file_name)
+	zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], file_name + '.zip')
 	cmd = "zip -rj " + zip_path + " " + ogiginal_gif_path
 	print cmd
 	os.system(cmd)
