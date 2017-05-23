@@ -23,10 +23,8 @@ import processVideos
 import hardwareInfo
 import json
 reload(sys)
-print sys.getdefaultencoding()
 sys.setdefaultencoding('utf8')
 
-print('测试nginx会不会走app.py')
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['UPLOAD_FOLDER'] = basedir + '/unprocessedvideos/'
@@ -42,7 +40,6 @@ ALLOWED_EXTENSIONS = set(['mp4', 'zip'])
 IGNORED_FILES = set(['.gitignore', '.DS_Store'])
 
 bootstrap = Bootstrap(app)
-print('测试nginx会不会走app.py11111')
 
 
 def allowed_file(filename):
@@ -337,13 +334,8 @@ def addVideoToProcess():
     processed_files, unprocessed_files = did_get_all_data()
     return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files': unprocessed_files})
 
-print('测试nginx会不会走app.py222222')
 
 processVideos.start_all_queues()
 
 if __name__ == '__main__':
-    print('初始化线程')
-    print('初始化线程借宿')
     app.run(host='0.0.0.0')
-
-print('测试nginx会不会走app.py33333')
