@@ -10,7 +10,7 @@ function addToProcess(videoName, height, tags, captionChecked, isChinese, callba
         "videoName": videoName,
         'height':height,
         'tags': tags,
-        "captionChecked": captionChecked
+        "captionChecked": captionChecked,
         "isChinese": isChinese
       };
       url = "/addVideoToProcess"
