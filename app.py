@@ -234,8 +234,11 @@ def gifs(filename):
     tags = json.loads(info['tags'])
 
     generare_caption = False
-    if info.has_key('gif_caption') and ((info.has_key('is_chinese') and info['is_chinese'] == "true") or not info.has_key('is_chinese')):
-        generare_caption = True
+    if info.has_key('gif_caption'):
+        if info.has_key('is_chinese') and info['is_chinese'] == "true":
+            generare_caption = True
+        if not info.has_key('is_chinese'):
+            generare_caption = True
 
     if generare_caption:
         gif_caption = info['gif_caption']
