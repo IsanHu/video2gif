@@ -22,8 +22,6 @@ import json
 import time
 from time import sleep
 
-print "这里走了吗"
-
 basedir = os.path.abspath(os.path.dirname(__file__))
 config = {}
 config['UPLOAD_FOLDER'] = basedir + '/unprocessedvideos/'
@@ -53,7 +51,6 @@ config['XUNFEI_KEY'] = 'c238e91e995ae7b31d313caba8ce28a5'
 # xunfei_id
 
 # videos = {'择天记_时间.mp4': {'status': "处理中"}, '择天记_时间2.mp4': {'status': "排队处理中"}, '择天记_字幕.mp4': {'status': "生成字幕中"}, '择天记_字幕2.mp4': {'status': "排队处理中（字幕）"}, '择天记_字幕3.mp4': {'status': "处理中（字幕）"}}
-print "这里走了吗111"
 videos = {}
 noCaptionQueue = Queue.Queue(maxsize=50)
 captionQueue = Queue.Queue(maxsize=50)
@@ -61,7 +58,6 @@ uploadAudioQueue = Queue.Queue(maxsize=50)
 getAudioQueue = Queue.Queue(maxsize=50)
 topCount = 100
 clipDuration = 2
-print "这里走了吗222"
 
 
 ## nocaption video 队列
@@ -92,8 +88,11 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 	info['status'] = '处理中'
 	video = VideoFileClip(video_path)
 	segmentsArray = []
-	for videoStart in range(0, clipDuration, 1):
-		particalSegments = [(start, int(start+video.fps*clipDuration)) for start in range(int(videoStart*video.fps),int(video.duration*video.fps),int(video.fps*clipDuration))]
+	duration = info['duration']
+	if duration <= 0:
+		duration = clipDuration
+	for videoStart in range(0, duration, 1):
+		particalSegments = [(start, int(start+video.fps*duration)) for start in range(int(videoStart*video.fps),int(video.duration*video.fps),int(video.fps*duration))]
 		print "particalSegments count:"
 		print len(particalSegments)
 		segmentsArray.append(particalSegments)
@@ -143,14 +142,14 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 			clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
 			original_clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
 			out_gif = "%s/%s_%.2d.gif" % (OUT_DIR.decode('utf-8'),file_name.decode('utf-8'),nr)
-			origianl_gif = "%s/%s_%.2d.gif" % (ogiginal_gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
+			origianl_gif = "%s/%s_%.2d.mp4" % (ogiginal_gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
 			## resize
 			if height > 0:
 				clip = clip.resize(height=height)
 			else:
 				clip = clip.resize(width=320)
-			clip.write_gif(out_gif,fps=10)
-			original_clip.write_gif(origianl_gif, fps=10)
+			clip.write_gif(out_gif, fps=10, program="ImageMagick", opt="optimizeplus")
+			original_clip.write_videofile(origianl_gif, fps=10)
 			nr += 1
 
 	# 压缩原尺寸图片
@@ -171,14 +170,12 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 ## 初始化提取 audio 队列
 def start_get_audio_queue():
 	print "初始化提取音频队列"
-	print threading.currentThread()
 	thread = threading.Thread(target=did_start_get_audio_queue)
 	thread.daemon = True
 	thread.start()
 
 def did_start_get_audio_queue():
 	print 'did_start_get_audio_queue'
-	print threading.currentThread()
 	for file_name, video_path, gif_path, audio_path, caption_path, processed_path in get_video_to_audio_path():
 		# 先检查audio_path是否有文件了
 		# 如果有检查audio的时长跟video的时长是否一样，不一样的话删除audio，重新提取audio
@@ -212,10 +209,8 @@ def did_start_get_audio_queue():
 
 
 def get_video_to_audio_path():
-	print 'get_video_to_audio_path'
 	item = getAudioQueue.get()
 	while item:
-		print "获取到了item"
 		yield item
 		getAudioQueue.task_done()
 		item = getAudioQueue.get()
@@ -232,6 +227,7 @@ def did_start_upload_audio_queue():
 	for file_name, video_path, audio_path in get_audio_path():
 		start = time.time()
 		cmd = "java -jar %s 0 %s %s %s" % (config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], audio_path)
+		print cmd
 		try:
 			result = json.loads(os.popen(cmd).read())
 		except:
@@ -255,7 +251,7 @@ def did_start_upload_audio_queue():
 		# info['xunfei_id'] = xunfei_id
 
 		info['status'] = "生成字幕中"
-
+		print audio_path
 		print("上传音频用时: %.2fs" % (time.time() - start))
 
 def get_audio_path():
@@ -274,7 +270,6 @@ def start_get_caption_loop():
 
 def get_caption_from_xunfei():
 	print 'get_caption_from_xunfei'
-	print threading.currentThread()
 	for key in videos:
 		vi = videos[key]
 		if vi.has_key('xunfei_id') and vi['status'] != "生成字幕成功":
@@ -401,15 +396,15 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 		original_clip = video.subclip(segment[0] / float(fps), segment[1] / float(fps))
 		clip = video.subclip(segment[0] / float(fps), segment[1] / float(fps))
 		out_gif = "%s/%s_%.2d.gif" % (gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
-		original_gif = "%s/%s_%.2d.gif" % (ogiginal_gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
+		original_gif = "%s/%s_%.2d.mp4" % (ogiginal_gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
 		gif_name = "%s_%.2d.gif" % (file_name, nr)
 		## resize
 		if height > 0:
 			clip = clip.resize(height=height)
 		else:
 			clip = clip.resize(width=320)
-		clip.write_gif(out_gif, fps=10)
-		original_clip.write_gif(original_gif, fps=10)
+		clip.write_gif(out_gif, fps=10, program="ImageMagick", opt="optimizeplus")
+		original_clip.write_videofile(original_gif, fps=10)
 		result.append({"gif": gif_name, 'caption': segment[2]})
 		nr += 1
 
@@ -467,7 +462,6 @@ def get_file_status_info(fileName):
 
 def start_all_queues():
 	print "初始化队列"
-	print threading.currentThread()
 	start_nocaption_video_queue()
 	start_get_audio_queue()
 	start_upload_audio_queue()
@@ -475,12 +469,13 @@ def start_all_queues():
 	start_caption_video_queue()
 	print "初始化队列完成"
 
-def add_video_to_process(fileName, height, tags, caption, isChinese):
+def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
 	info = {}
 	info['height'] = height
 	info['tags'] = tags
 	info['caption'] = caption
 	info['is_chinese'] = isChinese
+	info['duration'] = duration
 	print "is chinese"
 	print isChinese
 

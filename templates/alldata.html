@@ -8,8 +8,20 @@ function addToProcessButtonClicked() {
   var tagString = $("#tag").val().trim();
   var tags = $("#tag").val().trim().split("\n");
   captionChecked = $("#captionCheckbox").prop('checked')
-  isChinese = $("#isChinese").prop('checked')
-  // captionChecked = 'true'
+
+  duration = 0
+  isChinese = false
+  if (captionChecked == true) {
+    isChinese = $("#chinese").prop('checked')
+  }else{
+    var duration_str = $("#duration").val()
+    duration = parseInt(duration_str)
+      if (isNaN(duration) || duration < 1 || duration > 5) {
+        alert("请填写符合要求的时间间隔")
+        return
+      }
+  }
+
   var height = 0
   height_str = $("#img-height").val()
   if (height_str != "") {
@@ -20,7 +32,7 @@ function addToProcessButtonClicked() {
       }
   }
   
-  addToProcess(videoName, height, JSON.stringify(tags), captionChecked, isChinese, function(data){
+  addToProcess(videoName, height, JSON.stringify(tags), captionChecked, isChinese, duration, function(data){
       $('#addToProcessModal').modal('hide');
       tasks.processedData = data['processed_files']
       tasks.unprocessedData = data['unprocessed_files']
@@ -63,14 +75,32 @@ function addToProcessButtonClicked() {
                 <h4 id="videoToProcess" class="modal-title"></h4>
               </div>
               <div class="modal-body">
-                  <input type="checkbox" id="isChinese" checked><span> 是否是中文视频
-                  <br>
-                  <input type="checkbox" id="captionCheckbox" checked><span> 是否生成字幕</span>&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp
-                  截图高度：<input type="" id='img-height' name="" placeholder="可选">   
+              <div class="radio">
+                <label>
+                  <input type="radio" id="captionCheckbox" onChange="javascript:methodChage()" name='method' checked>
+                  按字幕截图  &nbsp &nbsp    
+                </label>
+                <label id="chineselabel">
+                  <input type="radio" name="language" id="chinese" value="chinese" checked>
+                  中文视频  &nbsp &nbsp  
+                </label>
+                <label id="foreignlabel">
+                  <input type="radio" name="language" id="foreign" value="foreign">
+                  其他语言  &nbsp &nbsp  
+                </label>
+              </div>
+              <div class="radio">
+                <label>
+                  <input type="radio" id="captionChec" name='method' onChange="javascript:methodChage()">
+                 按时间截图
+                </label>
+                <span id='durationP' hidden="true">&nbsp &nbsp 截图间隔：<input type="" name="" id="duration" style="width: 25px"> &nbsp秒</span>
+              </div>
                   
-                  <br>
-                  <p>默认截图宽度320，并保存原视频尺寸图片供下载</p>
-                  <br>
+                截图高度：<input type="" id='img-height' name="" placeholder="可选">   
+                  
+                <br>
+                <p style="margin-top: 8px">默认截图宽度320，并保存原视频尺寸图片供下载</p>
                   <textarea id="tag" class="form-control" rows="10" placeholder="tag,用换行隔开"></textarea>
               </div>
               <div class="modal-footer">
@@ -122,5 +152,18 @@ function videoList(callback) {
       tasks.processedData = data['processed_files']
       tasks.unprocessedData = data['unprocessed_files']
   })
+
+  function methodChage() {
+      captionChecked = $("#captionCheckbox").prop('checked')
+      if (captionChecked == true) {
+        $("#chineselabel").show()
+        $("#foreignlabel").show()
+        $("#durationP").hide()
+      }else{
+        $("#chineselabel").hide()
+        $("#foreignlabel").hide()
+        $("#durationP").show()
+      }
+  }
 </script>
 {% endblock %}

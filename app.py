@@ -224,9 +224,10 @@ def gifs(filename):
             for f in sorted(os.listdir(gifs_dir)):
 
                 if f.rsplit(".", 1)[1].lower() == "gif":
+                    fName = f.rsplit(".", 1)[0]
                     size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
-                    full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, f))) / 1024.0 / 1024.0, 2)
-                    gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags': '', 'caption': '', 'segments': ''})
+                    full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, fName))) / 1024.0 / 1024.0, 2)
+                    gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags': '', 'caption': '', 'segments': ''})
                     index = index + 1
         gifs_str = json.dumps(gifs)
         return render_template('upload_gif.html', gifs=gifs_str, result=1)
@@ -260,12 +261,13 @@ def gifs(filename):
 
             for f in sorted(os.listdir(gifs_dir)):
                 if f.rsplit(".", 1)[1].lower() == "gif":
+                    fName = f.rsplit(".", 1)[0]
                     size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
-                    full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, f))) / 1024.0 / 1024.0, 2)
+                    full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, fName))) / 1024.0 / 1024.0, 2)
                     if index < len(segments_array):
-                        gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags':tags, 'caption': gif_caption[index]['caption'], 'segments': segments_array[index]})
+                        gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags':tags, 'caption': gif_caption[index]['caption'], 'segments': segments_array[index]})
                     else:
-                        gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags': tags, 'caption': gif_caption[index]['caption'],
+                        gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags': tags, 'caption': gif_caption[index]['caption'],
                                      'segments': ''})
                     index += 1
     else:
@@ -273,9 +275,10 @@ def gifs(filename):
             index = 0
             for f in sorted(os.listdir(gifs_dir)):
                 if f.rsplit(".", 1)[1].lower() == "gif":
+                    fName = f.rsplit(".", 1)[0]
                     size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
-                    full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, f))) / 1024.0 / 1024.0, 2)
-                    gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + f, 'tags': tags, 'caption': '', 'segments': ''})
+                    full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, fName))) / 1024.0 / 1024.0, 2)
+                    gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags': tags, 'caption': '', 'segments': ''})
                     index = index + 1
     gifs_str = json.dumps(gifs)
     return render_template('upload_gif.html', gifs=gifs_str, result=1)
@@ -353,7 +356,8 @@ def addVideoToProcess():
     tags = params['tags']
     captionChecked = params['captionChecked']
     isChinese = params['isChinese']
-    processVideos.add_video_to_process(videoName, height, tags, captionChecked, isChinese)
+    duration = int(params['duration'])
+    processVideos.add_video_to_process(videoName, height, tags, captionChecked, isChinese, duration)
     processed_files, unprocessed_files = did_get_all_data()
     return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files': unprocessed_files})
 
