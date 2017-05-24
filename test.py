@@ -28,7 +28,7 @@ for videoStart in range(0, 5, 1):
 	clip = video.subclip(videoStart * 2, (videoStart + 1) * 2)
 	out_clip = "out_%.2d.mp4" % videoStart
 	out_gif = "out_%.2d.gif" % videoStart
-	clip.write_videofile(out_clip, fps=10)
+	clip.write_videofile(out_clip, fps=10, audio=False)
 
 
 	clip.resize(width=500)
