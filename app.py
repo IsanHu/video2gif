@@ -226,7 +226,10 @@ def gifs(filename):
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     fName = f.rsplit(".", 1)[0] + ".mp4"
                     size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
-                    full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, fName))) / 1024.0 / 1024.0, 2)
+                    full_size = 0
+                    original_mp4_path = os.path.join(basedir + original_gif_path, fName)
+                    if os.path.isfile(original_mp4_path):
+                        full_size = round(float(os.path.getsize(original_mp4_path)) / 1024.0 / 1024.0, 2)
                     gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags': '', 'caption': '', 'segments': ''})
                     index = index + 1
         gifs_str = json.dumps(gifs)
@@ -263,7 +266,10 @@ def gifs(filename):
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     fName = f.rsplit(".", 1)[0] + ".mp4"
                     size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
-                    full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, fName))) / 1024.0 / 1024.0, 2)
+                    full_size = 0
+                    original_mp4_path = os.path.join(basedir + original_gif_path, fName)
+                    if os.path.isfile(original_mp4_path):
+                        full_size = round(float(os.path.getsize(original_mp4_path)) / 1024.0 / 1024.0, 2)
                     if index < len(segments_array):
                         gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags':tags, 'caption': gif_caption[index]['caption'], 'segments': segments_array[index]})
                     else:
@@ -277,7 +283,10 @@ def gifs(filename):
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     fName = f.rsplit(".", 1)[0] + ".mp4"
                     size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
-                    full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, fName))) / 1024.0 / 1024.0, 2)
+                    full_size = 0
+                    original_mp4_path = os.path.join(basedir + original_gif_path, fName)
+                    if os.path.isfile(original_mp4_path):
+                        full_size = round(float(os.path.getsize(original_mp4_path)) / 1024.0 / 1024.0, 2)
                     gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags': tags, 'caption': '', 'segments': ''})
                     index = index + 1
     gifs_str = json.dumps(gifs)
