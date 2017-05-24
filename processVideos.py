@@ -296,6 +296,7 @@ def get_caption_from_xunfei():
 			content = {}
 			content['file_name'] = vi['file_name']
 			content['tags'] = vi['tags']
+			content['is_chinese'] = vi['is_chinese']
 			content['xunfei_id'] = xunfei_id
 			caption_string = result['data']
 			content['caption'] = json.loads(caption_string)
