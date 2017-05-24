@@ -394,6 +394,8 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 		if nr >= top_k:
 			break
 		original_clip = video.subclip(segment[0] / float(fps), segment[1] / float(fps))
+		print segment[0] / float(fps)
+		print segment[1] / float(fps)
 		clip = video.subclip(segment[0] / float(fps), segment[1] / float(fps))
 		out_gif = "%s/%s_%.2d.gif" % (gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
 		original_gif = "%s/%s_%.2d.mp4" % (ogiginal_gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
