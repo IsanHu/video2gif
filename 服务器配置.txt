@@ -3,6 +3,9 @@ http://www.jianshu.com/p/f5ee6b6b7e54
 
 https://www.douban.com/group/topic/88724267/
 
+
+http://developer.51cto.com/art/201010/229615_all.htm
+
 [uwsgi] 
 
 # uwsgi 启动时所使用的地址与端口 

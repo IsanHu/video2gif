@@ -1,12 +1,28 @@
 问题：
-
-获取字幕成功后，还没完没了的获取
-不足16帧的问题
-
-
-返回的图片是乱序的
+检查是否已经获取过字幕了
 
 
   File "/home/3isan333/code/video2gif/processVideos.py", line 222, in get_caption_from_xunfei
     for key in videos:
 RuntimeError: dictionary changed size during iteration
+
+
+花儿与少年：26599f62b820455787942bff7842a1d9
+校园鬼     9c6a5a03d8d4400bb8decd523b6536f3
+
+
+05 d2931698fdf8413f8b496de400025295
+java -jar LfasrDemo.jar 1 591c2c4d c238e91e995ae7b31d313caba8ce28a5 d2931698fdf8413f8b496de400025295
+
+
+06   feddf1cfe7c14a4fb14596efdd6fe725
+
+
+
+unable to fork process: Cannot allocate memory
+
+
+nginx  上传文件问题：https://my.oschina.net/ericquan8/blog/379265
+
+
+讯飞语音转写 只能转写中文的
