@@ -149,7 +149,7 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 			else:
 				clip = clip.resize(width=320)
 			clip.write_gif(out_gif, fps=10, program="ImageMagick", opt="optimizeplus")
-			original_clip.write_videofile(origianl_gif, fps=10)
+			original_clip.write_videofile(origianl_gif, fps=10, audio=False)
 			nr += 1
 
 	# 压缩原尺寸图片
@@ -404,7 +404,7 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 		else:
 			clip = clip.resize(width=320)
 		clip.write_gif(out_gif, fps=10, program="ImageMagick", opt="optimizeplus")
-		original_clip.write_videofile(original_gif, fps=10)
+		original_clip.write_videofile(original_gif, fps=10, audio=False)
 		result.append({"gif": gif_name, 'caption': segment[2]})
 		nr += 1
 
