@@ -224,7 +224,7 @@ def gifs(filename):
             for f in sorted(os.listdir(gifs_dir)):
 
                 if f.rsplit(".", 1)[1].lower() == "gif":
-                    fName = f.rsplit(".", 1)[0]
+                    fName = f.rsplit(".", 1)[0] + ".mp4"
                     size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
                     full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, fName))) / 1024.0 / 1024.0, 2)
                     gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags': '', 'caption': '', 'segments': ''})
@@ -261,7 +261,7 @@ def gifs(filename):
 
             for f in sorted(os.listdir(gifs_dir)):
                 if f.rsplit(".", 1)[1].lower() == "gif":
-                    fName = f.rsplit(".", 1)[0]
+                    fName = f.rsplit(".", 1)[0] + ".mp4"
                     size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
                     full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, fName))) / 1024.0 / 1024.0, 2)
                     if index < len(segments_array):
@@ -275,7 +275,7 @@ def gifs(filename):
             index = 0
             for f in sorted(os.listdir(gifs_dir)):
                 if f.rsplit(".", 1)[1].lower() == "gif":
-                    fName = f.rsplit(".", 1)[0]
+                    fName = f.rsplit(".", 1)[0] + ".mp4"
                     size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
                     full_size = round(float(os.path.getsize(os.path.join(basedir + original_gif_path, fName))) / 1024.0 / 1024.0, 2)
                     gifs.append({'url': path + f, 'name':f, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags': tags, 'caption': '', 'segments': ''})
