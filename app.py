@@ -253,14 +253,18 @@ def gifs(filename):
             for ca in gif_caption:
                 captions.append(ca['caption'])
 
-            apiUrl = "http://120.27.214.63:8080/open-api/word/segments"
-            headers = {'Content-Type': 'application/json;charset:UTF-8'}
-            print '分词访问前'
-            response = requests.post(url=apiUrl, data=json.dumps(captions), headers=headers)
-            print '分词请求发送'
-            result = json.loads(response.content)
-            if result['error_code'] == 0:
-                segments_array = result['data']
+            segments_array = []
+            try:
+                apiUrl = "http://120.27.214.63:8080/open-api/word/segments"
+                headers = {'Content-Type': 'application/json;charset:UTF-8'}
+                print '分词访问前'
+                response = requests.post(url=apiUrl, data=json.dumps(captions), headers=headers)
+                print '分词请求发送'
+                result = json.loads(response.content)
+                if result['error_code'] == 0:
+                    segments_array = result['data']
+            except:
+                print '分词失败'
 
 
             for f in sorted(os.listdir(gifs_dir)):
