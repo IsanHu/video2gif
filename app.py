@@ -385,21 +385,19 @@ def unprocessedSort(x, y):
     stat_x = os.stat(app.config['UPLOAD_FOLDER'] + x)
     stat_y = os.stat(app.config['UPLOAD_FOLDER'] + y)
     if stat_x.st_ctime < stat_y.st_ctime:
-        return -1
-    elif stat_x.st_ctime > stat_y.st_ctime:
         return 1
+    elif stat_x.st_ctime > stat_y.st_ctime:
+        return -1
     else:
         return 0
 
 def processedSort(x, y):
-    print app.config['PROCESSED_FOLDER'] + x
-    print app.config['PROCESSED_FOLDER'] + y
     stat_x = os.stat(app.config['PROCESSED_FOLDER'] + x)
     stat_y = os.stat(app.config['PROCESSED_FOLDER'] + y)
     if stat_x.st_ctime < stat_y.st_ctime:
-        return -1
-    elif stat_x.st_ctime > stat_y.st_ctime:
         return 1
+    elif stat_x.st_ctime > stat_y.st_ctime:
+        return -1
     else:
         return 0
 
