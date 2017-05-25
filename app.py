@@ -104,6 +104,7 @@ def upload():
 
             else:
                 # save file to disk
+                filename = filename.replace(' ', '_')
                 uploaded_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 files.save(uploaded_file_path)
                 print "saved path:"
