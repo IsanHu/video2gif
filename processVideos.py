@@ -232,6 +232,7 @@ def did_start_upload_audio_queue():
 			result = json.loads(os.popen(cmd).read())
 		except:
 			# 上传失败,重新加入上传音频队列
+			print "上传失败"
 			uploadAudioQueue.put((file_name, video_path, audio_path))
 			continue
 
