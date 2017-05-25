@@ -123,8 +123,8 @@ def upload():
         files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'],f)) and f not in IGNORED_FILES ]
         
         file_display = []
-
-        for f in sorted(files):
+        files.sort(unprocessedSort)
+        for f in files:
             size = os.path.getsize(os.path.join(app.config['UPLOAD_FOLDER'], f))
             file_saved = uploadfile(name=f, size=size)
             file_info = file_saved.get_file()
@@ -132,7 +132,8 @@ def upload():
             file_display.append(file_info)
 
         processed_files = [f for f in os.listdir(app.config['PROCESSED_FOLDER']) if os.path.isfile(os.path.join(app.config['PROCESSED_FOLDER'],f)) and f not in IGNORED_FILES ]
-        for f in sorted(processed_files):
+        files.sort(processedSort)
+        for f in processed_files:
             size = os.path.getsize(os.path.join(app.config['PROCESSED_FOLDER'], f))
             file_saved = processedfile(name=f, size=size)
             file_info = file_saved.get_file()
@@ -320,7 +321,8 @@ def did_get_all_data():
              os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], f)) and f not in IGNORED_FILES]
     file_display = []
     unprocessed_files = []
-    for f in sorted(files):
+    files.sort(unprocessedSort)
+    for f in files:
         size = round(float(os.path.getsize(os.path.join(app.config['UPLOAD_FOLDER'], f))) / 1024.0 / 1024.0, 2)
         file_saved = uploadfile(name=f, size=size)
         file_info = file_saved.get_file()
@@ -334,7 +336,8 @@ def did_get_all_data():
     processed_files = []
     processed = [f for f in os.listdir(app.config['PROCESSED_FOLDER']) if
                  os.path.isfile(os.path.join(app.config['PROCESSED_FOLDER'], f)) and f not in IGNORED_FILES]
-    for f in sorted(processed):
+    processed.sort(processedSort)
+    for f in processed:
         size = round(float(os.path.getsize(os.path.join(app.config['PROCESSED_FOLDER'], f))) / 1024.0 / 1024.0, 2)
         file_saved = processedfile(name=f, size=size)
         file_info = file_saved.get_file()
@@ -374,6 +377,29 @@ def addVideoToProcess():
     processVideos.add_video_to_process(videoName, height, tags, captionChecked, isChinese, duration)
     processed_files, unprocessed_files = did_get_all_data()
     return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files': unprocessed_files})
+
+
+
+## helper
+def unprocessedSort(x, y):
+    stat_x = os.stat(app.config['UPLOAD_FOLDER'] + x)
+    stat_y = os.stat(app.config['UPLOAD_FOLDER'] + y)
+    if stat_x.st_ctime < stat_y.st_ctime:
+        return -1
+    elif stat_x.st_ctime > stat_y.st_ctime:
+        return 1
+    else:
+        return 0
+
+def processedSort(x, y):
+    stat_x = os.stat(app.config['PROCESSED_FOLDER'] + x)
+    stat_y = os.stat(app.config['PROCESSED_FOLDER'] + y)
+    if stat_x.st_ctime < stat_y.st_ctime:
+        return -1
+    elif stat_x.st_ctime > stat_y.st_ctime:
+        return 1
+    else:
+        return 0
 
 
 processVideos.start_all_queues()
