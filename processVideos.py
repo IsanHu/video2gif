@@ -233,7 +233,6 @@ def did_start_upload_audio_queue():
 		except:
 			# 上传失败,重新加入上传音频队列
 			print "上传失败"
-			print result
 			uploadAudioQueue.put((file_name, video_path, audio_path))
 			continue
 
