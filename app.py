@@ -132,7 +132,7 @@ def upload():
             file_display.append(file_info)
 
         processed_files = [f for f in os.listdir(app.config['PROCESSED_FOLDER']) if os.path.isfile(os.path.join(app.config['PROCESSED_FOLDER'],f)) and f not in IGNORED_FILES ]
-        files.sort(processedSort)
+        processed_files.sort(processedSort)
         for f in processed_files:
             size = os.path.getsize(os.path.join(app.config['PROCESSED_FOLDER'], f))
             file_saved = processedfile(name=f, size=size)
