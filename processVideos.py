@@ -59,7 +59,6 @@ getAudioQueue = Queue.Queue(maxsize=50)
 topCount = 100
 clipDuration = 2
 
-
 ## nocaption video 队列
 def start_nocaption_video_queue():
 	thread = threading.Thread(target=did_start_nocaption_video_queue)
