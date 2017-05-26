@@ -80,7 +80,7 @@ def create_thumbnail(image):
 @app.route("/hInfo", methods=['GET'])
 def hInfo():
     # //获取硬件信息
-    free_disk = "磁盘可用空间：%.2fG" % hardwareInfo.free_disk("/home/3isan333")
+    free_disk = "磁盘可用空间：%.2fG" % hardwareInfo.free_disk("/root")
     # gpu_info = hardwareInfo.gpu_info()
     hinfo = {"free_disk": free_disk}
     return simplejson.dumps(hinfo)
