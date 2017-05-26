@@ -87,7 +87,6 @@ def hInfo():
 
 @app.route("/upload", methods=['GET', 'POST'])
 def upload():
-    time.sleep(0.01)
     if request.method == 'POST':
         files = request.files['file']
 
@@ -119,6 +118,7 @@ def upload():
             return simplejson.dumps({"files": [result.get_file()]})
 
     if request.method == 'GET':
+        print "到这里了吗？？？？"
         # get all file in ./data directory
         files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'],f)) and f not in IGNORED_FILES ]
         
@@ -195,22 +195,18 @@ def get_thumbnail(filename):
 
 @app.route("/processed/<string:filename>", methods=['GET'])
 def get_processed_file(filename):
-    time.sleep(0.01)
     return send_from_directory(os.path.join(app.config['PROCESSED_FOLDER']), filename=filename)
 
 @app.route("/unprocessed/<string:filename>", methods=['GET'])
 def get_unprocessed_file(filename):
-    time.sleep(0.01)
     return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER']), filename=filename)
 
 @app.route("/zipedgif/<string:filename>", methods=['GET'])
 def get_ziped_gif_file(filename):
-    time.sleep(0.01)
     return send_from_directory(os.path.join(app.config['ZIPED_GIF_FOLDER']), filename=filename)
 
 @app.route("/gifs/<string:filename>", methods=['GET'])
 def gifs(filename):
-    time.sleep(0.01)
     gifs_dir = app.config['GIF_FOLDER'] + filename
     gifs = []
     path = "/static/gifs/%s" % filename + "/"
@@ -301,17 +297,16 @@ def gifs(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    time.sleep(0.01)
+    print '哈哈的点点滴滴'
     return render_template('index.html', tab='upload')
 
 @app.route('/alldata', methods=['GET', 'POST'])
 def alldata():
-    time.sleep(0.01)
+    print "到这里了吗？？？？alldata"
     return render_template('alldata.html', tab='process')
 
 @app.route('/getalldata', methods=['GET', 'POST'])
 def getalldata():
-    time.sleep(0.01)
     processed_files, unprocessed_files = did_get_all_data()
     return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files':unprocessed_files})
 
@@ -366,7 +361,6 @@ def did_get_all_data():
 
 @app.route("/addVideoToProcess", methods=['POST'])
 def addVideoToProcess():
-    time.sleep(0.01)
     params = request.form
     videoName = params['videoName'].encode('utf-8')
     height = int(params['height'])
