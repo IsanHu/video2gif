@@ -154,12 +154,12 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 
 	# 压缩原尺寸图片
 	zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], file_name + '.zip')
-	cmd = "zip -rj " + zip_path + " " +  ogiginal_gif_path
+	cmd = "zip -rj " + zhuanyi(zip_path) + " " +  zhuanyi(ogiginal_gif_path)
 	print cmd
 	os.system(cmd)
 
 	# 转移视频
-	cmd1 = 'mv ' + video_path + " " + processed_path
+	cmd1 = 'mv ' + zhuanyi(video_path) + " " + zhuanyi(processed_path)
 	print cmd1
 	os.system(cmd1)
 
@@ -226,7 +226,7 @@ def start_upload_audio_queue():
 def did_start_upload_audio_queue():
 	for file_name, video_path, audio_path in get_audio_path():
 		start = time.time()
-		cmd = "java -jar %s 0 %s %s %s" % (config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], audio_path)
+		cmd = "java -jar %s 0 %s %s %s" % (config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], zhuanyi(audio_path))
 		print cmd
 		try:
 			result = json.loads(os.popen(cmd).read())
@@ -422,13 +422,13 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 
 	# 压缩原尺寸图片
 	zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], file_name + '.zip')
-	cmd = "zip -rj " + zip_path + " " + ogiginal_gif_path
+	cmd = "zip -rj " + zhuanyi(zip_path) + " " + zhuanyi(ogiginal_gif_path)
 	print cmd
 	os.system(cmd)
 
 	print '准备转移视频'
 	# 转移视频
-	cmd1 = 'mv ' + video_path + " " + processed_path
+	cmd1 = 'mv ' + zhuanyi(video_path) + " " + zhuanyi(processed_path)
 	print cmd1
 	os.system(cmd1)
 
@@ -446,6 +446,14 @@ def is_mp4(file):
     	print "did is mp4"
         return True
     return False
+
+def zhuanyi(original):
+	chars = ['&','<','>','|','?','*','~','#',';','$','!']
+	for char in chars:
+		original = original.replace(char, '\\' + char)
+
+	print original
+	return original
 
 
 ## 接口
