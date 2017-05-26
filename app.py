@@ -118,7 +118,6 @@ def upload():
             return simplejson.dumps({"files": [result.get_file()]})
 
     if request.method == 'GET':
-        print "到这里了吗？？？？"
         # get all file in ./data directory
         files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'],f)) and f not in IGNORED_FILES ]
         
@@ -297,12 +296,10 @@ def gifs(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    print '哈哈的点点滴滴'
     return render_template('index.html', tab='upload')
 
 @app.route('/alldata', methods=['GET', 'POST'])
 def alldata():
-    print "到这里了吗？？？？alldata"
     return render_template('alldata.html', tab='process')
 
 @app.route('/getalldata', methods=['GET', 'POST'])
