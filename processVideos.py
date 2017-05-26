@@ -451,8 +451,6 @@ def zhuanyi(original):
 	chars = ['&','<','>','|','?','*','~','#',';','$','!']
 	for char in chars:
 		original = original.replace(char, '\\' + char)
-
-	print original
 	return original
 
 
