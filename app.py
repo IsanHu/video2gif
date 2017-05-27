@@ -392,7 +392,7 @@ def processedSort(x, y):
     else:
         return 0
 
-
+print "app.py 脚本"
 processVideos.start_all_queues()
 
 if __name__ == '__main__':
