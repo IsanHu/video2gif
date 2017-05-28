@@ -127,22 +127,26 @@ def get_scores(predict, segments, video, stride=8, with_features=False):
     index = 0
     for segment,snip in get_input_data():
         # only add a segment, once we certainly get a prediction
+        index = index + 1
         if segment not in segment2score:
             segment2score[segment]=[]
 
         scores=predict(snip)
         segment2score[segment].append(scores.mean(axis=0))
-        index = index + 1
-        print("first %d " % index)
+        if index % 10 == 0:
+            print("first %d " % index)
 
+    print("first count: %d " % index)
 
     index = 0
     for segment in segment2score.keys():
+        index = index + 1
         print "segment scores count:"
         print len(segment2score[segment])
         segment2score[segment]=np.array(segment2score[segment]).mean(axis=0)
-        index = index + 1
         print("second %d " % index)
+
+    print("second count: %d " % index)
 
     print("Extracting scores for %d segments took %.3fs" % (len(segments),time.time()-extractStart))
     return segment2score
