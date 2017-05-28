@@ -224,7 +224,7 @@ def start_upload_audio_queue():
 
 def did_start_upload_audio_queue():
 	for file_name, video_path, audio_path in get_audio_path():
-		# start = time.time()
+		start = time.time()
 		# cmd = "java -jar %s 0 %s %s %s" % (config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], zhuanyi(audio_path))
 		# print cmd
 		# try:
@@ -252,7 +252,7 @@ def did_start_upload_audio_queue():
 
 		# info['status'] = "生成字幕中"
 		# print audio_path
-		# print("上传音频用时: %.2fs" % (time.time() - start))
+		print("上传音频用时: %.2fs" % (time.time() - start))
 
 def get_audio_path():
 	item = uploadAudioQueue.get()
