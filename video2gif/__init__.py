@@ -93,12 +93,13 @@ def get_scores(predict, segments, video, stride=8, with_features=False):
 
                 snip = model.get_snips(frames,snipplet_mean,0,True)
                 queue.put((segments[seg_nr],snip))
-                print "添加数据:"
-                print seg_nr
+                if seg_nr % 10 == 0:
+                    print("添加数据: %d " % seg_nr)
+
                 frames=[]
 
             frames.append(f)
-
+        print("添加数据总数: %d " % seg_nr)
         queue.put(sentinel)
 
     def get_input_data():
@@ -134,19 +135,17 @@ def get_scores(predict, segments, video, stride=8, with_features=False):
         scores=predict(snip)
         segment2score[segment].append(scores.mean(axis=0))
         if index % 10 == 0:
-            print("first %d " % index)
+            print("score: %d " % index)
 
-    print("first count: %d " % index)
+    print("score count: %d " % index)
 
     index = 0
     for segment in segment2score.keys():
         index = index + 1
-        print "segment scores count:"
-        print len(segment2score[segment])
         segment2score[segment]=np.array(segment2score[segment]).mean(axis=0)
-        print("second %d " % index)
-
-    print("second count: %d " % index)
+        if index % 10 == 0:
+            print("average score: %d " % index)
+    print("average score count: %d " % index)
 
     print("Extracting scores for %d segments took %.3fs" % (len(segments),time.time()-extractStart))
     return segment2score
