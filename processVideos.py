@@ -96,7 +96,7 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
 		print len(particalSegments)
 		segmentsArray.append(particalSegments)
 
-	print "segments count:"
+	print "segments array count:"
 	print len(segmentsArray)
 
 	# Score the segments

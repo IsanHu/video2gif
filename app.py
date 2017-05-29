@@ -23,6 +23,11 @@ import processVideos
 import hardwareInfo
 import json
 import time
+
+
+## 数据库相关
+from middleware import video_by_name
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -84,6 +89,10 @@ def hInfo():
     # gpu_info = hardwareInfo.gpu_info()
     hinfo = {"free_disk": free_disk}
     return simplejson.dumps(hinfo)
+
+@app.route("/test", methods=['GET'])
+def test():
+    return video_by_name('test')
 
 @app.route("/upload", methods=['GET', 'POST'])
 def upload():
