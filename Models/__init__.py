@@ -1,5 +1,5 @@
 #-*- coding:utf-8 -*-
-__all__ = ["Keywordnet", "init_database"]
+__all__ = ["Video", "init_database"]
 
-from Keywordnet import Keywordnet
+from Video import Video
 from InitDB import init_database
