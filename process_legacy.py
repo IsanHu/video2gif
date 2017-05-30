@@ -130,7 +130,7 @@ def process_processed():
                     os.system(cmd)
                     index += 1
 
-            cmd_gif = 'mv ' + gifs_dir + " " + new_gifs_dir
+            cmd_gif = 'mv ' + zhuanyi(gifs_dir) + " " + zhuanyi(new_gifs_dir)
             print cmd_gif
             os.system(cmd_gif)
 
