@@ -16,7 +16,7 @@ from middleware import video_by_name
 
 reload(sys)
 sys.setdefaultencoding('utf8')
-basedir = os.path.abspath(os.path.dirname(__file__)) + '/..'
+basedir = os.path.abspath(os.path.dirname(__file__))
 config = {}
 config['UPLOAD_FOLDER'] = basedir + '/unprocessedvideos/'
 config['PROCESSED_FOLDER'] = basedir + '/processedvideos/'
