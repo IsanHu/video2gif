@@ -9,10 +9,12 @@ import requests
 import sys
 import json
 import time
-
+import datetime
+from datetime import date, datetime
+from Models import Video
 import hashlib
 ## 数据库相关
-from middleware import video_by_name
+from middleware import DATA_PROVIDER
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -28,7 +30,7 @@ config['ZIPED_GIF_FOLDER'] = basedir + '/zipedgifs/'
 
 IGNORED_FILES = set(['.gitignore', '.DS_Store'])
 
-def hash_name(name):
+def md5_name(name):
     m = hashlib.md5()
     m.update(name)
     return m.hexdigest()
@@ -39,17 +41,37 @@ def zhuanyi(original):
 		original = original.replace(char, '\\' + char)
 	return original
 
+def process_unprocessed():
+    files = [f for f in os.listdir(config['UPLOAD_FOLDER']) if
+                 os.path.isfile(os.path.join(config['UPLOAD_FOLDER'], f)) and f not in IGNORED_FILES]
+    sql = ""
+    videos = []
+    for f in files:
+        if f.rsplit(".", 1)[1].lower() == "mp4":
+            print f
+            fName = f.rsplit(".", 1)[0]
+            print fName
+            hash_name = md5_name(fName)
+            original = config['UPLOAD_FOLDER'] + f
+            hashed = config['UPLOAD_FOLDER'] + hash_name + '.mp4'
+            cmd = 'mv ' + zhuanyi(original)  + ' ' + zhuanyi(hashed)
+            print cmd
+            os.system(cmd)
 
-files = [f for f in os.listdir(config['UPLOAD_FOLDER']) if
-             os.path.isfile(os.path.join(config['UPLOAD_FOLDER'], f)) and f not in IGNORED_FILES]
-for f in files:
-    if f.rsplit(".", 1)[1].lower() == "mp4":
-        fName = f.rsplit(".", 1)[0]
-        hash_name = hash_name(fName)
-        original = config['UPLOAD_FOLDER'] + f
-        hashed = config['UPLOAD_FOLDER'] + hash_name + '.mp4'
-        cmd = 'mv ' + zhuanyi(original)  + ' ' + hashed
-        print cmd
+            video = Video(name=fName,
+                          hash_name=hash_name,
+                          extension="mp4",
+                          status=0,
+                          update_time=datetime.now(),
+                          upload_time=datetime.now())
+            videos.append(video)
+            # sql += 'insert into video (name, hash_name, extension, status, update_time, upload_time) values ("%s", "%s", "mp4", 0, current_timestamp, current_timestamp);' % (fName, hash_name)
+
+    # print sql
+    result = DATA_PROVIDER.add_unprocessed_videos(videos)
+    print result
+
+process_unprocessed()
 
 
 
@@ -58,46 +80,89 @@ for f in files:
 
 
 
+def process_processed():
+    videos = []
+    files = [f for f in os.listdir(config['PROCESSED_FOLDER']) if
+                 os.path.isfile(os.path.join(config['PROCESSED_FOLDER'], f)) and f not in IGNORED_FILES]
+    for f in files:
+        if f.rsplit(".", 1)[1].lower() == "mp4":
+            print f
+            fName = f.rsplit(".", 1)[0]
+            print fName
+            hash_name = md5_name(fName)
+            original = config['PROCESSED_FOLDER'] + f
+            hashed = config['PROCESSED_FOLDER'] + hash_name + '.mp4'
+            cmd = 'mv ' + zhuanyi(original)  + ' ' + zhuanyi(hashed)
+            print cmd
+            os.system(cmd)
+
+            ## 读取caption (不需要修改caption文件名,因为用不到了)
+            caption_path = os.path.join(config['BOTTLENECK'], fName + ".txt")
+            print caption_path
+            caption = ""
+            try:
+                with open(caption_path, 'r') as f:
+                    caption = f.read()
+            except:
+                print "%s 读字幕文件失败" % fName
+                return
 
 
-    # size = round(float(os.path.getsize(os.path.join(config['UPLOAD_FOLDER'], f))) / 1024.0 / 1024.0, 2)
-    # file_saved = uploadfile(name=f, size=size)
-    # file_info = file_saved.get_file()
-    # file_name = os.path.splitext(os.path.split(f)[1])[0]
-    # status, op = processVideos.get_file_status_info(file_name)
-    # file_info['status'] = status
-    # if op != "":
-    #     file_info['op'] = op
-    # unprocessed_files.append(file_info)
+            ## 更改zip名
+            ziped_gif_file_name = fName + ".zip"
+            new_ziped_gif_file_name = hash_name + ".zip"
+            ziped_gif_path = os.path.join(config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
+            new_ziped_gif_path = os.path.join(config['ZIPED_GIF_FOLDER'], new_ziped_gif_file_name)
+            cmd = 'mv ' + zhuanyi(ziped_gif_path) + ' ' + zhuanyi(new_ziped_gif_path)
+            print cmd
+            os.system(cmd)
 
 
-    # processed_files = []
-    # processed = [f for f in os.listdir(config['PROCESSED_FOLDER']) if
-    #              os.path.isfile(os.path.join(config['PROCESSED_FOLDER'], f)) and f not in IGNORED_FILES]
-    # processed.sort(processedSort)
-    # for f in processed:
-    #     size = round(float(os.path.getsize(os.path.join(config['PROCESSED_FOLDER'], f))) / 1024.0 / 1024.0, 2)
-    #     file_saved = processedfile(name=f, size=size)
-    #     file_info = file_saved.get_file()
-    #
-    #     file_name = os.path.splitext(os.path.split(f)[1])[0]
-    #     ziped_gif_file_name = file_name + ".zip"
-    #     ziped_gif_path = os.path.join(config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
-    #
-    #     if os.path.isfile(ziped_gif_path):
-    #         ziped_gif_size = round(float(os.path.getsize(ziped_gif_path)) / 1024.0 / 1024.0, 2)
-    #         ziped_gif_saved = zipedgiffile(name=ziped_gif_file_name, size=ziped_gif_size)
-    #         file_info['ziped_gif_info'] = ziped_gif_saved.get_file()
-    #
-    #     # gif图片目录
-    #     gifs_dir = config['GIF_FOLDER'] + file_name
-    #     gif_count = 0
-    #     if os.path.isdir(gifs_dir):
-    #         file_info['gifs_dir'] = "gifs/%s" % file_name
-    #         for f in os.listdir(gifs_dir):
-    #             if f.rsplit(".", 1)[1].lower() == "gif":
-    #                 gif_count += 1
-    #     file_info['gif_count'] = gif_count
-    #
-    #     processed_files.append(file_info)
-    # return processed_files, unprocessed_files
+            ## 更改gif名称
+            gifs_dir = config['GIF_FOLDER'] + fName
+            new_gifs_dir = config['GIF_FOLDER'] + hash_name
+            index = 0
+            for f in sorted(os.listdir(gifs_dir)):
+                if f.rsplit(".", 1)[1].lower() == "gif":
+                    new_name = "%.2d.gif" % index
+                    cmd = "mv " + zhuanyi(gifs_dir + '/' + f) + " " + zhuanyi(gifs_dir + '/' + new_name)
+                    print cmd
+                    os.system(cmd)
+                    index += 1
+
+            cmd_gif = 'mv ' + gifs_dir + " " + new_gifs_dir
+            print cmd_gif
+            os.system(cmd_gif)
+
+
+            ## 更改original_gif名称
+            ori_gifs_dir = config['ORIGINAL_GIF_FOLDER'] + fName
+            new_ori_gifs_dir = config['ORIGINAL_GIF_FOLDER'] + hash_name
+            index = 0
+            for f in sorted(os.listdir(ori_gifs_dir)):
+                if f.rsplit(".", 1)[1].lower() == "mp4":
+                    new_name = "%.2d.mp4" % index
+                    cmd = "mv " + zhuanyi(ori_gifs_dir + '/' + f) + " " + zhuanyi(ori_gifs_dir + '/' + new_name)
+                    print cmd
+                    os.system(cmd)
+                    index += 1
+
+            cmd_gif = 'mv ' + ori_gifs_dir + " " + new_ori_gifs_dir
+            print cmd_gif
+            os.system(cmd_gif)
+
+            video = Video(name=fName,
+                          hash_name=hash_name,
+                          extension="mp4",
+                          status=1,
+                          update_time=datetime.now(),
+                          upload_time=datetime.now(),
+                          processed_time=datetime.now(),
+                          split_type=0,
+                          caption = caption
+                          )
+            videos.append(video)
+    result = DATA_PROVIDER.add_unprocessed_videos(videos)
+    print result
+
+process_processed()

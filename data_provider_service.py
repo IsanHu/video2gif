@@ -50,4 +50,16 @@ class DataProviderService:
             return videos
 
 
+    def excute_temp_sql(self, sql):
+        result = self.session.execute(sql)
+        return result
 
+    def add_unprocessed_videos(self, videos):
+        for vi in videos:
+            self.session.add(vi)
+        result = self.session.commit()
+        return result
+
+    def all_videos(self):
+        videos = self.session.query(Video)
+        return videos
