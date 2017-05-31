@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}处理{% endblock %}
+
+{% block page_content %}
+<script type="text/javascript">
+function addToProcessButtonClicked() {
+  var videoName = $('#videoToProcess').text()
+  var tagString = $("#tag").val().trim();
+  var tags = $("#tag").val().trim().split("\n");
+  captionChecked = $("#captionCheckbox").prop('checked')
+
+  duration = 0
+  isChinese = false
+  if (captionChecked == true) {
+    isChinese = $("#chinese").prop('checked')
+  }else{
+    var duration_str = $("#duration").val()
+    duration = parseInt(duration_str)
+      if (isNaN(duration) || duration < 1 || duration > 5) {
+        alert("请填写符合要求的时间间隔")
+        return
+      }
+  }
+
+  var height = 0
+  height_str = $("#img-height").val()
+  if (height_str != "") {
+      height = parseInt(height_str)
+      if (isNaN(height) || height < 200 || height > 500) {
+        alert("请填写符合要求的高度")
+        return
+      }
+  }
+  
+  addToProcess(videoName, height, JSON.stringify(tags), captionChecked, isChinese, duration, function(data){
+      $('#addToProcessModal').modal('hide');
+      tasks.processedData = data['processed_files']
+      tasks.unprocessedData = data['unprocessed_files']
+  })
+
+}
+</script>
+<div class="container" id="task_page">
+    <div class="row">
+        <div id="right" class="col-md-12">
+          <table class="table">
+              <tr>
+                <th>视频名称</th>
+                <th>视频信息</th>
+                <th>文件大小</th>
+                <th>上传时间</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+              <tr is="videos" v-for="data in videos" v-bind:data="data"></tr>
+              </videos>
+          </table>
+        </div>
+    </div>
+    <div id="addToProcessModal" class="modal fade" tabindex="-1" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 id="videoToProcess" class="modal-title"></h4>
+              </div>
+              <div class="modal-body">
+              <div class="radio">
+                <label>
+                  <input type="radio" id="captionCheckbox" onChange="javascript:methodChage()" name='method' checked>
+                  按字幕截图  &nbsp &nbsp    
+                </label>
+                <label id="chineselabel">
+                  <input type="radio" name="language" id="chinese" value="chinese" checked>
+                  中文视频  &nbsp &nbsp  
+                </label>
+                <label id="foreignlabel">
+                  <input type="radio" name="language" id="foreign" value="foreign">
+                  其他语言  &nbsp &nbsp  
+                </label>
+              </div>
+              <div class="radio">
+                <label>
+                  <input type="radio" id="captionChec" name='method' onChange="javascript:methodChage()">
+                 按时间截图
+                </label>
+                <span id='durationP' hidden="true">&nbsp &nbsp 截图间隔：<input type="" name="" id="duration" style="width: 25px"> &nbsp秒</span>
+              </div>
+                  
+                截图高度：<input type="" id='img-height' name="" placeholder="可选">   
+                  
+                <br>
+                <p style="margin-top: 8px">默认截图宽度320，并保存原视频尺寸图片供下载</p>
+                  <textarea id="tag" class="form-control" rows="10" placeholder="tag,用换行隔开"></textarea>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="AddToProcessButton" onClick="javascript:addToProcessButtonClicked()">处理</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+  </div>
+{% endblock %}
+
+{% block scripts %}
+
+<script type="text/javascript">
+    var tasks = new Vue({
+    el: '#task_page',
+      data: {
+          message: 'You loaded this page on ' + new Date(),
+          videos: [],
+      }
+    })
+
+    var all_video = {{ videos|safe }}
+    // print all_video.length
+    tasks.videos = all_video
+
+
+  function methodChage() {
+      captionChecked = $("#captionCheckbox").prop('checked')
+      if (captionChecked == true) {
+        $("#chineselabel").show()
+        $("#foreignlabel").show()
+        $("#durationP").hide()
+      }else{
+        $("#chineselabel").hide()
+        $("#foreignlabel").hide()
+        $("#durationP").show()
+      }
+  }
+</script>
+{% endblock %}

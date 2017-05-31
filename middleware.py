@@ -14,7 +14,7 @@ DATA_PROVIDER = DataProviderService(db_engine)
 
 
 def video_by_name(name):
-    video = DATA_PROVIDER.get_video_by_name(name, serialize=True)
+    video = DATA_PROVIDER.get_video_by_name(name)
     if video:
         return jsonify({'video': video})
     else:

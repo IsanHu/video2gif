@@ -23,11 +23,15 @@ import processVideos
 import hardwareInfo
 import json
 import time
-
+import hashlib
+from moviepy.editor import VideoFileClip
+from flask import jsonify
 
 ## 数据库相关
-from middleware import video_by_name
+from middleware import DATA_PROVIDER
 
+from Models import Video
+from datetime import datetime
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -53,19 +57,17 @@ def allowed_file(filename):
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def gen_file_name(filename):
+def gen_file_name(fName):
     """
     If file was exist already, rename it and return a new name
     """
-
-    i = 1
-    while os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename)):
-        name, extension = os.path.splitext(filename)
-        filename = '%s_%s%s' % (name, str(i), extension)
-        i += 1
-
-    return filename
-
+    name = fName
+    videos = DATA_PROVIDER.all_videos()
+    for vi in videos:
+        if vi.name == fName:
+            name = name + "_1"
+            break
+    return name
 
 def create_thumbnail(image):
     try:
@@ -90,9 +92,21 @@ def hInfo():
     hinfo = {"free_disk": free_disk}
     return simplejson.dumps(hinfo)
 
+
+@app.route("/root", methods=['GET'])
+def root():
+    videos = DATA_PROVIDER.all_videos(serialize=True)
+    return render_template('root.html', videos=json.dumps(videos))
+
+@app.route("/allvideos/<int:page>", methods=['GET'])
+def allvideos(page):
+    videos = DATA_PROVIDER.all_videos(serialize=True)
+    return render_template('root.html', videos=videos)
+
 @app.route("/test", methods=['GET'])
 def test():
-    return video_by_name('test')
+     video = DATA_PROVIDER.get_video_by_name('test', serialize=True)
+     return jsonify({'video': video})
 
 @app.route("/upload", methods=['GET', 'POST'])
 def upload():
@@ -101,35 +115,56 @@ def upload():
 
         if files:
             filename = files.filename.encode('utf-8')
-            filename = gen_file_name(filename)
-            print filename
+
             mime_type = files.content_type
-            print "文件类型"
-            print mime_type
-
-            if not allowed_file(files.filename):
+            if not allowed_file(filename):
                 result = uploadfile(name=filename, type=mime_type, size=0, not_allowed_msg="请上传MP4文件")
-
             else:
                 # save file to disk
-                filename = filename.replace(' ', '_')
-                uploaded_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                fName = filename.rsplit('.', 1)[0]
+                extension = filename.rsplit('.', 1)[1]
+                fName = gen_file_name(fName)
+                hash_name = md5_name(fName)
+
+                uploaded_file_path = os.path.join(app.config['UPLOAD_FOLDER'], hash_name + "." + extension)
                 files.save(uploaded_file_path)
+
+                video_clip = VideoFileClip(uploaded_file_path)
+                duration = sec_2_time(video_clip.duration)
+                dimention = video_clip.size
+                size = round(float(os.path.getsize(uploaded_file_path)) / 1024.0 / 1024.0, 2)
+                size_str = "%.2f M" % size
+                info = {'duration': duration, 'dimention': dimention, 'size': size_str}
+                info_str = json.dumps(info)
+
+
+
                 print "saved path:"
                 print uploaded_file_path
+
+                video = Video(name=fName,
+                              hash_name=hash_name,
+                              extension="mp4",
+                              status=0,
+                              update_time=datetime.now(),
+                              upload_time=datetime.now(),
+                              video_info=info_str)
+                ## 保存成功后, 在数据库中添加记录
+                result = DATA_PROVIDER.add_unprocessed_videos([video])
+                print result
                 
                 # get file size after saving
                 size = os.path.getsize(uploaded_file_path)
 
                 # return json for js call back
-                result = uploadfile(name=filename, type=mime_type, size=size)
+                result = uploadfile(name=fName, type=mime_type, size=size)
             
             return simplejson.dumps({"files": [result.get_file()]})
 
     if request.method == 'GET':
         # get all file in ./data directory
         files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'],f)) and f not in IGNORED_FILES ]
-        
+
         file_display = []
         files.sort(unprocessedSort)
         for f in files:
@@ -381,6 +416,16 @@ def addVideoToProcess():
 
 
 ## helper
+def md5_name(name):
+    m = hashlib.md5()
+    m.update(name)
+    return m.hexdigest()
+
+def sec_2_time(sec):
+    m, s = divmod(sec, 60)
+    h, m = divmod(m, 60)
+    return ("%02d:%02d:%02d" % (h, m, s))
+
 def unprocessedSort(x, y):
     stat_x = os.stat(app.config['UPLOAD_FOLDER'] + x)
     stat_y = os.stat(app.config['UPLOAD_FOLDER'] + y)

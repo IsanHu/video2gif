@@ -33,6 +33,7 @@ function addToProcess(videoName, height, tags, captionChecked, isChinese, durati
   }
 
 
+
 Vue.component('unprocessedtr', {
     props: ['data'],
     template: 
@@ -92,6 +93,41 @@ Vue.component('processedtr', {
           //     删除
           // '</p>' +
           // '</td>' +
+        '</tr>',
+});
+
+
+Vue.component('videos', {
+    props: ['data'],
+    template: 
+        '<tr>'+
+          '<td>{{data.name}}</td>'+
+          '<td>{{data.video_info.dimention}}({{data.video_info.duration}})</td>'+
+          '<td>{{data.video_info.size}}</td>'+
+          '<td>{{data.upload_time}}</td>'+
+          '<td>{{data.status_info}}</td>'+
+          '<td>' +
+             '<p v-if="data.status == 0">' +
+                '<button>处理</button>' +
+          '</p>' +
+
+          '<p v-else-if="data.status == 1">' +
+              '<a v-bind:href="data.gif_info.gifs_dir" target="_blank">{{data.gif_info.gif_count}}张</a>' + 
+              '<a v-bind:href="data.ziped_gif_info.download_url" target="_blank">原尺寸图{{data.ziped_gif_info.size}}</a>' +
+              // '<button>删除</button>' +
+          '</p>' +
+          
+
+
+          '<p v-else>' +
+              '{{data.status_info}}' + 
+          '</p>' +
+
+
+
+
+
+          '</td>' +
         '</tr>',
 });
 

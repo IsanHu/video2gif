@@ -28,7 +28,7 @@ class DataProviderService:
         if not engine:
             raise ValueError('The values specified in engine parameter has to be supported by SQLAlchemy')
         self.engine = engine
-        db_engine = create_engine(engine)
+        db_engine = create_engine(engine, isolation_level="READ UNCOMMITTED")
         db_session = sessionmaker(bind=db_engine)
         self.session = db_session()
         print 'init DataProviderService'
@@ -39,6 +39,22 @@ class DataProviderService:
         :return: None
         """
         init_database(self.engine)
+
+    def all_videos(self, serialize=False):
+        # videos = self.session.query(Video.name, Video.video_info, Video.status, Video.upload_time, Video.hash_name,Video.processed_time).filter(Video.status != -1).order_by(Video.upload_time)
+        videos = self.session.query(Video).filter(Video.status != -1).order_by(Video.upload_time)
+        if serialize:
+            return [vi.mini_serialize() for vi in videos]
+        else:
+            return videos
+
+    def unprocessed_videos(self, serialize=False):
+        videos = self.session.query(Video).filter(Video.status != -1).order_by(Video.upload_time)
+        if serialize:
+            return [vi.serialize() for vi in videos]
+        else:
+            return videos
+
 
     def get_video_by_name(self, name, serialize=False):
 
@@ -60,6 +76,3 @@ class DataProviderService:
         result = self.session.commit()
         return result
 
-    def all_videos(self):
-        videos = self.session.query(Video)
-        return videos
