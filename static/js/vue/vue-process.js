@@ -114,7 +114,7 @@ Vue.component('videos', {
           '<p v-else-if="data.status == 1">' +
               '<a v-bind:href="data.gif_info.gifs_dir" target="_blank">{{data.gif_info.gif_count}}张</a>' + 
               '<a v-bind:href="data.ziped_gif_info.download_url" target="_blank">原尺寸图{{data.ziped_gif_info.size}}</a>' +
-              // '<button>删除</button>' +
+              '<button @click="deleteProcessed">删除</button>' +
           '</p>' +
           
 
@@ -129,5 +129,13 @@ Vue.component('videos', {
 
           '</td>' +
         '</tr>',
+
+    methods: {
+        deleteProcessed: function() {
+            console.log("删除已经处理过的")
+            print data
+
+        }
+    }, 
 });
 
