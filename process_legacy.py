@@ -38,6 +38,11 @@ def md5_name(name):
     m.update(name)
     return m.hexdigest()
 
+def sec_2_time(sec):
+    m, s = divmod(sec, 60)
+    h, m = divmod(m, 60)
+    return ("%02d:%02d:%02d" % (h, m, s))
+
 def zhuanyi(original):
 	chars = ['&','<','>','|','?','*','~','#',';','$','!']
 	for char in chars:
@@ -57,10 +62,11 @@ def process_unprocessed():
             hash_name = md5_name(fName)
             original = config['UPLOAD_FOLDER'] + f
             video_clip = VideoFileClip(original)
-            duration = video_clip.duration
+            duration = sec_2_time(video_clip.duration)
             dimention = video_clip.size
-            size = os.path.getsize(original)
-            info = {'duration': duration, 'dimention':dimention, 'size':size}
+            size = round(float(os.path.getsize(original)) / 1024.0 / 1024.0, 2)
+            size_str = "%.2d M" % size
+            info = {'duration': duration, 'dimention':dimention, 'size':size_str}
             info_str = json.dumps(info)
 
             hashed = config['UPLOAD_FOLDER'] + hash_name + '.mp4'
@@ -104,10 +110,11 @@ def process_processed():
             original = config['PROCESSED_FOLDER'] + f
 
             video_clip = VideoFileClip(original)
-            duration = video_clip.duration
+            duration = sec_2_time(video_clip.duration)
             dimention = video_clip.size
-            size = os.path.getsize(original)
-            info = {'duration': duration, 'dimention': dimention, 'size': size}
+            size = round(float(os.path.getsize(original)) / 1024.0 / 1024.0, 2)
+            size_str = "%.2d M" % size
+            info = {'duration': duration, 'dimention': dimention, 'size': size_str}
             info_str = json.dumps(info)
 
             hashed = config['PROCESSED_FOLDER'] + hash_name + '.mp4'
