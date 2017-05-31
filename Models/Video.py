@@ -99,6 +99,8 @@ class Video(Model):
 
         ziped_gif_info['download_url'] = "zipedgif/%s" % self.name
         ziped_gif_info['size'] = "%.2fM" % ziped_gif_size
+        print ziped_gif_info
+        return ziped_gif_info
 
     def gif_info(self):
         gif_info = {}
@@ -110,5 +112,7 @@ class Video(Model):
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     gif_count += 1
         gif_info['gif_count'] = gif_count
+        print gif_info
+        return gif_info
 
 
