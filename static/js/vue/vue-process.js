@@ -133,7 +133,7 @@ Vue.component('videos', {
     methods: {
         deleteProcessed: function() {
             console.log("删除已经处理过的")
-            print data
+            console.log(this.data)
 
         }
     }, 
