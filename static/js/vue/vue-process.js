@@ -148,7 +148,7 @@ Vue.component('videos', {
               '&nbsp &nbsp' +
               '<a v-bind:href="data.ziped_gif_info.download_url" target="_blank">原尺寸图{{data.ziped_gif_info.size}}</a>' +
               '&nbsp &nbsp' +
-              '<button class="btn btn-danger" @click="deleteProcessed">删除</button>' +
+              '<button class="btn btn-danger" style="float: right;" @click="deleteProcessed">删除</button>' +
           '</p>' +
           '<p v-else>' +
               '{{data.status_info}}' + 
