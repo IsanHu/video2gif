@@ -161,7 +161,8 @@ Vue.component('videos', {
             console.log("删除已经处理过的")
             console.log(this.data.name)
 
-        }
+        },
+        
         processVideo: function() {
             console.log("处理:")
             console.log(this.data.name)
