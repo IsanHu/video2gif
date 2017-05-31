@@ -65,7 +65,7 @@ def process_unprocessed():
             duration = sec_2_time(video_clip.duration)
             dimention = video_clip.size
             size = round(float(os.path.getsize(original)) / 1024.0 / 1024.0, 2)
-            size_str = "%.2d M" % size
+            size_str = "%.2f M" % size
             info = {'duration': duration, 'dimention':dimention, 'size':size_str}
             info_str = json.dumps(info)
 
@@ -113,7 +113,7 @@ def process_processed():
             duration = sec_2_time(video_clip.duration)
             dimention = video_clip.size
             size = round(float(os.path.getsize(original)) / 1024.0 / 1024.0, 2)
-            size_str = "%.2d M" % size
+            size_str = "%.2f M" % size
             info = {'duration': duration, 'dimention': dimention, 'size': size_str}
             info_str = json.dumps(info)
 
