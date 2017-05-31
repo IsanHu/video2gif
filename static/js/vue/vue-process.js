@@ -162,12 +162,12 @@ Vue.component('videos', {
             console.log(this.data.name)
 
         },
-        
+
         processVideo: function() {
             console.log("处理:")
             console.log(this.data.name)
-            $('#videoToProcess').text(data.name)
-            $('#hashName').text(data.hash_name)
+            $('#videoToProcess').text(this.data.name)
+            $('#hashName').text(this.data.hash_name)
             $('#addToProcessModal').modal('show');
 
         }
