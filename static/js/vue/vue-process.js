@@ -1,9 +1,40 @@
-// waitingDialog.show('处理中...');
-// videoList(function(data){
-//     console.log(data['processed_files'])
-//     tasks.processedData = data['processed_files']
-//     tasks.unprocessedData = data['unprocessed_files']
-// })
+function addToProcessButtonClicked() {
+  var videoName = $('#hashName').text()
+  var tagString = $("#tag").val().trim();
+  var tags = $("#tag").val().trim().split("\n");
+  captionChecked = $("#captionCheckbox").prop('checked')
+
+  duration = 0
+  isChinese = false
+  if (captionChecked == true) {
+    isChinese = $("#chinese").prop('checked')
+  }else{
+    var duration_str = $("#duration").val()
+    duration = parseInt(duration_str)
+      if (isNaN(duration) || duration < 1 || duration > 5) {
+        alert("请填写符合要求的时间间隔")
+        return
+      }
+  }
+
+  var height = 0
+  height_str = $("#img-height").val()
+  if (height_str != "") {
+      height = parseInt(height_str)
+      if (isNaN(height) || height < 200 || height > 500) {
+        alert("请填写符合要求的高度")
+        return
+      }
+  }
+  
+  addToProcess(videoName, height, JSON.stringify(tags), captionChecked, isChinese, duration, function(data){
+      $('#addToProcessModal').modal('hide');
+      tasks.processedData = data['processed_files']
+      tasks.unprocessedData = data['unprocessed_files']
+  })
+
+}
+
 function addToProcess(videoName, height, tags, captionChecked, isChinese, duration, callback) {
       waitingDialog.show("添加" + videoName + "处理");
       var params = {
@@ -14,6 +45,7 @@ function addToProcess(videoName, height, tags, captionChecked, isChinese, durati
         "isChinese": isChinese,
         "duration": duration
       };
+      console.log(params)
       url = "/addVideoToProcess"
       $.ajax({
           type: "POST",
@@ -108,18 +140,16 @@ Vue.component('videos', {
           '<td>{{data.status_info}}</td>'+
           '<td>' +
              '<p v-if="data.status == 0">' +
-                '<button class="btn btn-default">处理</button>' +
+                '<button class="btn btn-default" @click="processVideo">处理</button>' +
           '</p>' +
 
           '<p v-else-if="data.status == 1">' +
               '<a v-bind:href="data.gif_info.gifs_dir" target="_blank">{{data.gif_info.gif_count}}张</a>' + 
               '&nbsp &nbsp' +
               '<a v-bind:href="data.ziped_gif_info.download_url" target="_blank">原尺寸图{{data.ziped_gif_info.size}}</a>' +
+              '&nbsp &nbsp' +
               '<button class="btn btn-danger" @click="deleteProcessed">删除</button>' +
           '</p>' +
-          
-
-
           '<p v-else>' +
               '{{data.status_info}}' + 
           '</p>' +
@@ -130,6 +160,14 @@ Vue.component('videos', {
         deleteProcessed: function() {
             console.log("删除已经处理过的")
             console.log(this.data.name)
+
+        }
+        processVideo: function() {
+            console.log("处理:")
+            console.log(this.data.name)
+            $('#videoToProcess').text(data.name)
+            $('#hashName').text(data.hash_name)
+            $('#addToProcessModal').modal('show');
 
         }
     }, 

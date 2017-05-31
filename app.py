@@ -19,7 +19,7 @@ import requests
 
 from lib.upload_file import uploadfile, processedfile, zipedgiffile
 import sys
-import processVideos
+import process
 import hardwareInfo
 import json
 import time
@@ -363,7 +363,7 @@ def did_get_all_data():
         file_saved = uploadfile(name=f, size=size)
         file_info = file_saved.get_file()
         file_name = os.path.splitext(os.path.split(f)[1])[0]
-        status, op = processVideos.get_file_status_info(file_name)
+        status, op = process.get_file_status_info(file_name)
         file_info['status'] = status
         if op != "":
             file_info['op'] = op
@@ -409,7 +409,7 @@ def addVideoToProcess():
     captionChecked = params['captionChecked']
     isChinese = params['isChinese']
     duration = int(params['duration'])
-    processVideos.add_video_to_process(videoName, height, tags, captionChecked, isChinese, duration)
+    process.add_video_to_process(videoName, height, tags, captionChecked, isChinese, duration)
     processed_files, unprocessed_files = did_get_all_data()
     return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files': unprocessed_files})
 
@@ -447,7 +447,7 @@ def processedSort(x, y):
         return 0
 
 print "app.py 脚本"
-processVideos.start_all_queues()
+process.start_all_queues()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
