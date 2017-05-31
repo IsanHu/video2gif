@@ -108,13 +108,14 @@ Vue.component('videos', {
           '<td>{{data.status_info}}</td>'+
           '<td>' +
              '<p v-if="data.status == 0">' +
-                '<button>处理</button>' +
+                '<button class="btn btn-default">处理</button>' +
           '</p>' +
 
           '<p v-else-if="data.status == 1">' +
               '<a v-bind:href="data.gif_info.gifs_dir" target="_blank">{{data.gif_info.gif_count}}张</a>' + 
+              '&nbsp &nbsp' +
               '<a v-bind:href="data.ziped_gif_info.download_url" target="_blank">原尺寸图{{data.ziped_gif_info.size}}</a>' +
-              '<button @click="deleteProcessed">删除</button>' +
+              '<button class="btn btn-danger" @click="deleteProcessed">删除</button>' +
           '</p>' +
           
 
@@ -122,18 +123,13 @@ Vue.component('videos', {
           '<p v-else>' +
               '{{data.status_info}}' + 
           '</p>' +
-
-
-
-
-
           '</td>' +
         '</tr>',
 
     methods: {
         deleteProcessed: function() {
             console.log("删除已经处理过的")
-            console.log(this.data)
+            console.log(this.data.name)
 
         }
     }, 
