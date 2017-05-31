@@ -16,6 +16,7 @@ class Video(Model):
     processed_time = Column(Date, nullable=True)
     tag = Column(String(512), nullable=False, default='')
     caption = Column(String(512*1024), nullable=False, default='')
+    video_info = Column(String(512), nullable=False, default='')
 
 
 
@@ -31,5 +32,6 @@ class Video(Model):
             "split_type": self.split_type,
             "processed_time": self.processed_time,
             "tag": self.tag,
-            "caption": self.caption
+            "caption": self.caption,
+            "video_info": self.video_info
         }
