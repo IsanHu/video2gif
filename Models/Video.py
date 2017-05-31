@@ -97,7 +97,7 @@ class Video(Model):
         ziped_gif_path = os.path.join(config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
         ziped_gif_size = round(float(os.path.getsize(ziped_gif_path)) / 1024.0 / 1024.0, 2)
 
-        ziped_gif_info['download_url'] = "zipedgif/%s" % self.name
+        ziped_gif_info['download_url'] = "zipedgif/%s" % self.hash_name
         ziped_gif_info['size'] = "%.2fM" % ziped_gif_size
         print ziped_gif_info
         return ziped_gif_info
