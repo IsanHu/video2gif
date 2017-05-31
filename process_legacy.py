@@ -13,8 +13,11 @@ import datetime
 from datetime import date, datetime
 from Models import Video
 import hashlib
+import json
 ## 数据库相关
 from middleware import DATA_PROVIDER
+
+from moviepy.editor import VideoFileClip, AudioFileClip
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -53,6 +56,13 @@ def process_unprocessed():
             print fName
             hash_name = md5_name(fName)
             original = config['UPLOAD_FOLDER'] + f
+            video_clip = VideoFileClip(original)
+            duration = video_clip.duration
+            dimention = video_clip.size
+            size = os.path.getsize(original)
+            info = {'duration': duration, 'dimention':dimention, 'size':size}
+            info_str = json.dumps(info)
+
             hashed = config['UPLOAD_FOLDER'] + hash_name + '.mp4'
             cmd = 'mv ' + zhuanyi(original)  + ' ' + zhuanyi(hashed)
             print cmd
@@ -63,7 +73,8 @@ def process_unprocessed():
                           extension="mp4",
                           status=0,
                           update_time=datetime.now(),
-                          upload_time=datetime.now())
+                          upload_time=datetime.now(),
+                          video_info=info_str)
             videos.append(video)
             # sql += 'insert into video (name, hash_name, extension, status, update_time, upload_time) values ("%s", "%s", "mp4", 0, current_timestamp, current_timestamp);' % (fName, hash_name)
 
@@ -91,6 +102,14 @@ def process_processed():
             print fName
             hash_name = md5_name(fName)
             original = config['PROCESSED_FOLDER'] + f
+
+            video_clip = VideoFileClip(original)
+            duration = video_clip.duration
+            dimention = video_clip.size
+            size = os.path.getsize(original)
+            info = {'duration': duration, 'dimention': dimention, 'size': size}
+            info_str = json.dumps(info)
+
             hashed = config['PROCESSED_FOLDER'] + hash_name + '.mp4'
             cmd = 'mv ' + zhuanyi(original)  + ' ' + zhuanyi(hashed)
             print cmd
@@ -159,7 +178,8 @@ def process_processed():
                           upload_time=datetime.now(),
                           processed_time=datetime.now(),
                           split_type=0,
-                          caption = caption
+                          caption = caption,
+                          video_info = info_str
                           )
             videos.append(video)
     result = DATA_PROVIDER.add_unprocessed_videos(videos)
