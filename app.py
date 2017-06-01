@@ -62,7 +62,7 @@ def gen_file_name(fName):
     If file was exist already, rename it and return a new name
     """
     name = fName
-    videos = DATA_PROVIDER.all_videos()
+    videos = DATA_PROVIDER.all_videos(DATA_PROVIDER.main_queue_session)
     for vi in videos:
         if vi.name == fName:
             name = name + "_1"
@@ -95,17 +95,17 @@ def hInfo():
 
 @app.route("/root", methods=['GET'])
 def root():
-    videos = DATA_PROVIDER.all_videos(serialize=True)
+    videos = DATA_PROVIDER.all_videos(DATA_PROVIDER.main_queue_session, serialize=True)
     return render_template('root.html', videos=json.dumps(videos))
 
 @app.route("/allvideos/<int:page>", methods=['GET'])
 def allvideos(page):
-    videos = DATA_PROVIDER.all_videos(serialize=True)
+    videos = DATA_PROVIDER.all_videos(DATA_PROVIDER.main_queue_session, serialize=True)
     return render_template('root.html', videos=videos)
 
 @app.route("/test", methods=['GET'])
 def test():
-     video = DATA_PROVIDER.get_video_by_name('test', serialize=True)
+     video = DATA_PROVIDER.get_video_by_name(DATA_PROVIDER.main_queue_session, 'test', serialize=True)
      return jsonify({'video': video})
 
 @app.route("/upload", methods=['GET', 'POST'])
@@ -150,7 +150,7 @@ def upload():
                               upload_time=datetime.now(),
                               video_info=info_str)
                 ## 保存成功后, 在数据库中添加记录
-                result = DATA_PROVIDER.add_unprocessed_videos([video])
+                result = DATA_PROVIDER.add_unprocessed_videos(DATA_PROVIDER.main_queue_session, [video])
                 print result
                 
                 # get file size after saving
