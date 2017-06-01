@@ -409,9 +409,8 @@ def addVideoToProcess():
     captionChecked = params['captionChecked']
     isChinese = params['isChinese']
     duration = int(params['duration'])
-    process.add_video_to_process(videoName, height, tags, captionChecked, isChinese, duration)
-    processed_files, unprocessed_files = did_get_all_data()
-    return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files': unprocessed_files})
+    result = process.add_video_to_process(videoName, height, tags, captionChecked, isChinese, duration)
+    return simplejson.dumps(result)
 
 
 

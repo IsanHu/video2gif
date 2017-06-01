@@ -88,9 +88,6 @@ def process_unprocessed():
     result = DATA_PROVIDER.add_unprocessed_videos(videos)
     print result
 
-process_unprocessed()
-
-
 
 
 
@@ -192,4 +189,36 @@ def process_processed():
     result = DATA_PROVIDER.add_unprocessed_videos(videos)
     print result
 
-process_processed()
+
+def process_other_info():
+    update_videos = []
+    videos = DATA_PROVIDER.all_videos()
+    for vi in videos:
+
+        if vi.caption is None or vi.caption == "":
+            continue
+        caption = json.loads(vi.caption)
+
+
+        tags = caption['tags']
+        print tags
+        is_chinese = 0
+        if caption.has_key('is_chinese') and caption['is_chinese'] == "false":
+            is_chinese = 1
+        print is_chinese
+
+        xunfei_id = ""
+        if caption.has_key('xunfei_id') and caption['xunfei_id'] != "":
+            xunfei_id = caption['xunfei_id']
+
+        vi.tag = tags
+        vi.is_chinese = is_chinese
+        vi.xunfei_id = xunfei_id
+        update_videos.append(vi)
+
+    result = DATA_PROVIDER.add_unprocessed_videos(update_videos)
+    print result
+
+process_other_info()
+
+# process_unprocessed()

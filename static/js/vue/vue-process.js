@@ -1,4 +1,5 @@
 function addToProcessButtonClicked() {
+  var readbleName = $('#videoToProcess').text()
   var videoName = $('#hashName').text()
   var tagString = $("#tag").val().trim();
   var tags = $("#tag").val().trim().split("\n");
@@ -27,16 +28,34 @@ function addToProcessButtonClicked() {
       }
   }
   
-  addToProcess(videoName, height, JSON.stringify(tags), captionChecked, isChinese, duration, function(data){
+  addToProcess(readbleName, videoName, height, JSON.stringify(tags), captionChecked, isChinese, duration, function(data){
       $('#addToProcessModal').modal('hide');
-      tasks.processedData = data['processed_files']
-      tasks.unprocessedData = data['unprocessed_files']
+      if(data['result'] == 0) {
+           
+      }else{
+        alert(data['error_message'])
+      }
+
+     video = data['video']
+     if(video) {
+         index = -1
+         for (var i = 0; i < tasks.videos.length; i++) {
+             vi = tasks.videos[i]
+             if (vi['id'] == video['id']) {
+                  index = i
+                  break
+              }
+         }
+         if (index >= 0) {
+            Vue.set(tasks.videos, index, video)
+         }
+     }
   })
 
 }
 
-function addToProcess(videoName, height, tags, captionChecked, isChinese, duration, callback) {
-      waitingDialog.show("添加" + videoName + "处理");
+function addToProcess(readbleName, videoName, height, tags, captionChecked, isChinese, duration, callback) {
+      waitingDialog.show("添加" + readbleName + "处理");
       var params = {
         "videoName": videoName,
         'height':height,

@@ -14,6 +14,8 @@ config['ORIGINAL_GIF_FOLDER'] = basedir + '/static/original_gifs/'
 config['BOTTLENECK'] = basedir + '/bottleneck/'
 config['ZIPED_GIF_FOLDER'] = basedir + '/zipedgifs/'
 
+
+
 class Video(Model):
     __tablename__ = 'video'
     id = Column(Integer, primary_key=True, nullable=False)
@@ -28,7 +30,31 @@ class Video(Model):
     tag = Column(String(512), nullable=False, default='')
     caption = Column(String(512*1024), nullable=False, default='')
     video_info = Column(String(512), nullable=False, default='')
+    thumb_height = Column(Integer, nullable=False, default=0)
+    segment_duration = Column(Integer, nullable=False, default=0)
+    is_chinese = Column(Integer, nullable=False, default=0)
+    xunfei_id = Column(String(45), nullable=True)
 
+    @classmethod
+    def get_new_instance(cls, vi):
+        new_vi = Video(id=vi.id,
+                   name=vi.name,
+                   hash_name=vi.hash_name,
+                   extension=vi.extension,
+                   status=vi.status,
+                   update_time=vi.update_time,
+                   upload_time=vi.upload_time,
+                   processed_time=vi.processed_time,
+                   split_type=vi.split_type,
+                   caption=vi.caption,
+                   video_info=vi.video_info,
+                   tag=vi.tag,
+                   thumb_height=vi.thumb_height,
+                   segment_duration=vi.segment_duration,
+                   is_chinese=vi.is_chinese,
+                   xunfei_id=vi.xunfei_id,
+                   )
+        return new_vi
 
 
     def serialize(self):
@@ -51,7 +77,12 @@ class Video(Model):
             "processed_time": str(self.processed_time),
             "tag": tag_str,
             "caption": caption_str,
-            "video_info": json.loads(self.video_info)
+            "video_info": json.loads(self.video_info),
+            "thumb_height":self.thumb_height,
+            "segment_duration": self.segment_duration,
+            "is_chinese": self.is_chinese,
+            "xunfei_id": self.xunfei_id
+
         }
 
 
@@ -71,7 +102,11 @@ class Video(Model):
                 "processed_time": str(self.processed_time),
                 "video_info": json.loads(self.video_info),
                 "ziped_gif_info": self.ziped_gif_info(),
-                "gif_info": self.gif_info()
+                "gif_info": self.gif_info(),
+                "thumb_height": self.thumb_height,
+                "segment_duration": self.segment_duration,
+                "is_chinese": self.is_chinese,
+                "xunfei_id": self.xunfei_id
             }
         return {
             "id": self.id,
@@ -84,11 +119,15 @@ class Video(Model):
             "update_time": str(self.update_time),
             "split_type": self.split_type,
             "processed_time": str(self.processed_time),
-            "video_info": json.loads(self.video_info)
+            "video_info": json.loads(self.video_info),
+            "thumb_height": self.thumb_height,
+            "segment_duration": self.segment_duration,
+            "is_chinese": self.is_chinese,
+            "xunfei_id": self.xunfei_id
         }
 
     def status_info(self):
-        video_status = {-1: "已删除", 0: "尚未处理", 1: "已处理", 2: "排队处理中", 3: "处理中"}
+        video_status = {-1: "已删除", 0: "尚未处理", 1: "已处理", 2: "排队等待处理中", 3: "处理中", 4: "提取音频中", 5:"提取音频成功", 6:"上传音频中", 7:"上传音频成功",8:"获取字幕中", 9:"获取字幕成功"}
         return video_status[self.status]
 
     def ziped_gif_info(self):

@@ -21,7 +21,9 @@ import sys
 import json
 import time
 from time import sleep
-
+from datetime import date, datetime
+from middleware import DATA_PROVIDER
+from Models import Video
 basedir = os.path.abspath(os.path.dirname(__file__))
 config = {}
 config['UPLOAD_FOLDER'] = basedir + '/unprocessedvideos/'
@@ -67,11 +69,11 @@ def start_nocaption_video_queue():
 
 
 def did_start_nocaption_video_queue():
-    for file_name, video_path, gif_path, info_file_path, processed_path in get_no_caption_video_path():
-        process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_path, processed_path)
+    for video in get_no_caption_video():
+        process_video_to_generate_gifs(video)
 
 
-def get_no_caption_video_path():
+def get_no_caption_video():
     item = noCaptionQueue.get()
     while item:
         yield item
@@ -83,15 +85,41 @@ def is_overlapping(x1, x2, y1, y2):
     return max(x1, y1) < min(x2, y2)
 
 
-def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_path, processed_path):
-    if not videos.has_key(file_name):
+def process_video_to_generate_gifs(video):
+    ## 检查状态
+    videos = DATA_PROVIDER.get_video_by_hash_name(video.hash_name)
+    if len(videos) == 0:
+        print "dataError: process_video_to_generate_gifs 数据丢失"
         return
+
+    vi = videos[0]
+    if vi.status != 2:
+        print "dataError: process_video_to_generate_gifs 数据状态不是'排队等待处理中'"
+        print vi.status
+        return
+
+    ## 更新video状态
+    vi.status = 3
+    vi.update_time = datetime.now()
+    DATA_PROVIDER.add_or_update_videos([vi])
+
+    ## 开始处理
+
     process_start = time.time()
-    info = videos[file_name]
-    info['status'] = '处理中'
+    video_path = os.path.join(config['UPLOAD_FOLDER'], vi.hash_name + "." + vi.extension)
+    processed_path = os.path.join(config['PROCESSED_FOLDER'], vi.hash_name + "." + vi.extension)
+    gif_path = os.path.join(config['GIF_FOLDER'], vi.hash_name)
+    ogiginal_gif_path = os.path.join(config['ORIGINAL_GIF_FOLDER'], vi.hash_name)
+    zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], vi.hash_name + '.zip')
+    print video_path
+    print processed_path
+    print gif_path
+    print ogiginal_gif_path
+    print zip_path
+
     video = VideoFileClip(video_path)
     segmentsArray = []
-    duration = info['duration']
+    duration = vi.segment_duration
     if duration <= 0:
         duration = clipDuration
     for videoStart in range(0, duration, 1):
@@ -113,23 +141,18 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
         print "score count:"
         print len(scores)
 
-    OUT_DIR = gif_path
-    if not os.path.exists(OUT_DIR):
-        os.mkdir(OUT_DIR)
-    ogiginal_gif_path = os.path.join(config['ORIGINAL_GIF_FOLDER'], file_name)
-    print 'original path:'
-    print ogiginal_gif_path
+    if not os.path.exists(gif_path):
+        os.mkdir(gif_path)
+
     if not os.path.exists(ogiginal_gif_path):
         os.mkdir(ogiginal_gif_path)
 
     # Generate GIFs from the top scoring segments
-
     nr = 0
     totalCount = len(scores)
     top_k = min(topCount, totalCount)
     occupiedTime = []
-    height = videos[file_name]['height']
-    print height
+    height = vi.height
     for segment in sorted(scores, key=lambda x: -scores.get(x))[0:totalCount]:
         if nr >= top_k:
             break
@@ -145,8 +168,8 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
             occupiedTime.append(segment)
             clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
             original_clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
-            out_gif = "%s/%s_%.2d.gif" % (OUT_DIR.decode('utf-8'), file_name.decode('utf-8'), nr)
-            origianl_gif = "%s/%s_%.2d.mp4" % (ogiginal_gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
+            out_gif = "%s/%.2d.gif" % (gif_path.decode('utf-8'), nr)
+            origianl_gif = "%s/%.2d.mp4" % (ogiginal_gif_path.decode('utf-8'), nr)
             ## resize
             if height > 0:
                 clip = clip.resize(height=height)
@@ -157,17 +180,15 @@ def process_video_to_generate_gifs(file_name, video_path, gif_path, info_file_pa
             nr += 1
 
     # 压缩原尺寸图片
-    zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], file_name + '.zip')
-    cmd = "zip -rj " + zhuanyi(zip_path) + " " + zhuanyi(ogiginal_gif_path)
+    cmd = "zip -rj " + zip_path + " " + ogiginal_gif_path
     print cmd
     os.system(cmd)
 
     # 转移视频
-    cmd1 = 'mv ' + zhuanyi(video_path) + " " + zhuanyi(processed_path)
+    cmd1 = 'mv ' + video_path + " " + processed_path
     print cmd1
     os.system(cmd1)
 
-    del videos[file_name]
     print("处理无字幕视频用时: %.2fs" % (time.time() - process_start))
 
 
@@ -181,10 +202,35 @@ def start_get_audio_queue():
 
 def did_start_get_audio_queue():
     print 'did_start_get_audio_queue'
-    for file_name, video_path, gif_path, audio_path, caption_path, processed_path in get_video_to_audio_path():
+    for video in get_video_to_audio_path():
+
+        ## 检查状态
+        videos = DATA_PROVIDER.get_video_by_hash_name(video.hash_name)
+        if len(videos) == 0:
+            print "dataError: did_start_get_audio_queue 数据丢失"
+            return
+
+        vi = videos[0]
+        if vi.status != 2:
+            print "dataError: did_start_get_audio_queue 数据状态不是'排队等待处理中'"
+            print vi.status
+            return
+
+        ## 更新video状态
+        vi.status = 4 ## 提取音频中
+        vi.update_time = datetime.now()
+        DATA_PROVIDER.add_or_update_videos([vi])
+
+        ## 开始处理
+        start = time.time()
+
         # 先检查audio_path是否有文件了
         # 如果有检查audio的时长跟video的时长是否一样，不一样的话删除audio，重新提取audio
-        start = time.time()
+        video_path = os.path.join(config['UPLOAD_FOLDER'], vi.hash_name + "." + vi.extension)
+        audio_path = os.path.join(config['BOTTLENECK'], vi.hash_name + "." + "mp3")
+        print video_path
+        print audio_path
+
         has_audio = False
         if os.path.isfile(audio_path):
             has_audio = True
@@ -203,14 +249,22 @@ def did_start_get_audio_queue():
                 clip = video.subclip(0)
                 clip.audio.write_audiofile(audio_path, bitrate="128k")
             except:
-                print "%s提取音频失败" % file_name
+                print "%s提取音频失败" % vi.hash_name
                 if os.path.isfile(audio_path):
                     os.remove(audio_path)
                 # 重新加入提取音频队列
-                getAudioQueue.put((file_name, video_path, gif_path, audio_path, caption_path, processed_path))
+                vi.status = 2
+                vi.update_time = datetime.now()
+                DATA_PROVIDER.add_or_update_videos([vi])
+
+                getAudioQueue.put(vi)
                 continue
         print("提取音频用时: %.2fs" % (time.time() - start))
-        uploadAudioQueue.put((file_name, video_path, audio_path))
+        ## 更新video状态
+        vi.status = 5  ## 提取音频成功
+        vi.update_time = datetime.now()
+        DATA_PROVIDER.add_or_update_videos([vi])
+        uploadAudioQueue.put(vi)
 
 
 def get_video_to_audio_path():
@@ -229,36 +283,67 @@ def start_upload_audio_queue():
 
 
 def did_start_upload_audio_queue():
-    for file_name, video_path, audio_path in get_audio_path():
+    for video in get_audio_path():
+
+        ## 检查状态
+        videos = DATA_PROVIDER.get_video_by_hash_name(video.hash_name)
+        if len(videos) == 0:
+            print "dataError: did_start_upload_audio_queue 数据丢失"
+            return
+
+        vi = videos[0]
+        ## 更新video状态
+        vi.status = 6  ## 上传音频中
+        vi.update_time = datetime.now()
+        DATA_PROVIDER.add_or_update_videos([vi])
+
+        ## 开始处理
         start = time.time()
+        xunfei_id = vi.xunfei_id
+        if xunfei_id is not None and xunfei_id != "":
+            print("已上传过音频,讯飞id: %s" % xunfei_id)
+            ## 更新video状态
+            vi.status = 7  ## 上传音频成功
+            vi.update_time = datetime.now()
+            DATA_PROVIDER.add_or_update_videos([vi])
+            continue
+
+        audio_path = os.path.join(config['BOTTLENECK'], vi.hash_name + "." + "mp3")
+        print audio_path
         cmd = "java -jar %s 0 %s %s %s" % (
-        config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], zhuanyi(audio_path))
+        config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], audio_path)
         print cmd
         try:
             result = json.loads(os.popen(cmd).read())
         except:
             # 上传失败,重新加入上传音频队列
             print "上传失败"
-            uploadAudioQueue.put((file_name, video_path, audio_path))
+            ## 更新video状态
+            vi.status = 5  ## 提取音频成功
+            vi.update_time = datetime.now()
+            DATA_PROVIDER.add_or_update_videos([vi])
+
+            uploadAudioQueue.put(vi)
             continue
 
         print result
         if result['ok'] == 0:
+            ## 更新video状态
+            vi.status = 7  ## 上传音频成功
             xunfei_id = result['data']
-            info = videos[file_name]
-            info['xunfei_id'] = xunfei_id
+            vi.xunfei_id = xunfei_id
+            vi.update_time = datetime.now()
+            DATA_PROVIDER.add_or_update_videos([vi])
         else:
             # 上传失败,重新加入上传音频队列
-            uploadAudioQueue.put((file_name, video_path, audio_path))
+            print "上传失败"
+            ## 更新video状态
+            vi.status = 5  ## 提取音频成功
+            vi.update_time = datetime.now()
+            DATA_PROVIDER.add_or_update_videos([vi])
+            uploadAudioQueue.put(vi)
             continue
 
-        # 临时
-        # xunfei_id = 'd2931698fdf8413f8b496de400025295'
-        # info = videos[file_name]
-        # info['xunfei_id'] = xunfei_id
-
-        info['status'] = "生成字幕中"
-        print audio_path
         print("上传音频用时: %.2fs" % (time.time() - start))
 
 
@@ -279,51 +364,42 @@ def start_get_caption_loop():
 
 def get_caption_from_xunfei():
     print 'get_caption_from_xunfei'
-    for key in videos:
-        vi = videos[key]
-        if vi.has_key('xunfei_id') and vi['status'] != "生成字幕成功":
-            print key
-            xunfei_id = vi['xunfei_id']
-            cmd = "java -jar %s 1 %s %s %s" % (
-            config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], xunfei_id)
-            print cmd
-            try:
-                result = json.loads(os.popen(cmd).read())
-            except:
-                continue
+    videos = DATA_PROVIDER.get_all_fetching_caption_videos()
+    for video in videos:
 
-            if result['ok'] != 0:
-                print result
-                continue
+        vi = Video.get_new_instance(video)
 
-            print "%s 获取字幕成功" % xunfei_id
-            vi['status'] = "生成字幕成功"
-            content = {}
-            content['file_name'] = vi['file_name']
-            content['tags'] = vi['tags']
-            content['is_chinese'] = vi['is_chinese']
-            content['xunfei_id'] = xunfei_id
-            caption_string = result['data']
-            content['caption'] = json.loads(caption_string)
+        ## 更新video状态
+        vi.status = 8  ## 获取字幕中
+        vi.update_time = datetime.now()
+        DATA_PROVIDER.add_or_update_videos([vi])
 
-            caption_file_name = vi['file_name'] + '.txt'
-            caption_file_path = os.path.join(config['BOTTLENECK'], caption_file_name)
+        xunfei_id = vi.xunfei_id
+        cmd = "java -jar %s 1 %s %s %s" % (
+        config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], xunfei_id)
+        print cmd
+        try:
+            result = json.loads(os.popen(cmd).read())
+        except:
+            continue
 
-            try:
-                with open(caption_file_path, 'w') as f:
-                    f.write(json.dumps(content))
-            except:
-                print "%s 写文件失败" % xunfei_id
+        if result['ok'] != 0:
+            print result
+            ## 更新video状态
+            vi.status = 7  ## 上传音频成功
+            vi.update_time = datetime.now()
+            DATA_PROVIDER.add_or_update_videos([vi])
+            continue
 
-            # 加入字幕视屏队列
-            video_path = os.path.join(config['UPLOAD_FOLDER'], key + ".mp4")
-            gif_path = os.path.join(config['GIF_FOLDER'], vi['file_name'])
-            print gif_path
-            processed_path = os.path.join(config['PROCESSED_FOLDER'], vi['file_name'] + '.mp4')
-            audio_name = vi['file_name'] + ".mp3"
-            audio_path = os.path.join(config['BOTTLENECK'], audio_name)
-            caption_path = caption_file_path
-            captionQueue.put((vi['file_name'], video_path, gif_path, audio_path, caption_path, processed_path))
+        print "%s 获取字幕成功" % xunfei_id
+        ## 更新video状态
+        vi.status = 9  ## 获取字幕成功
+        vi.caption= json.loads(result['data'])
+        vi.update_time = datetime.now()
+        DATA_PROVIDER.add_or_update_videos([vi])
+
+        # 加入字幕视屏队列
+        captionQueue.put(vi)
 
 
 ## 初始化有字幕 video 队列
@@ -334,9 +410,8 @@ def start_caption_video_queue():
 
 
 def did_start_caption_video_queue():
-    for file_name, video_path, gif_path, audio_path, caption_path, processed_path in get_caption_video_path():
-        process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audio_path, caption_path,
-                                               processed_path)
+    for video in get_caption_video_path():
+        process_caption_video_to_generate_gifs(video)
 
 
 def get_caption_video_path():
@@ -347,25 +422,46 @@ def get_caption_video_path():
         item = captionQueue.get()
 
 
-def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audio_path, caption_path, processed_path):
-    if not videos.has_key(file_name):
+def process_caption_video_to_generate_gifs(video):
+    ## 检查状态
+    videos = DATA_PROVIDER.get_video_by_hash_name(video.hash_name)
+    if len(videos) == 0:
+        print "dataError: process_caption_video_to_generate_gifs 数据丢失"
         return
+
+    vi = videos[0]
+    if vi.status != 9:
+        print "dataError: process_caption_video_to_generate_gifs 数据状态不是'获取字幕成功'"
+        print vi.status
+        return
+
+    ## 更新video状态
+    vi.status = 3
+    vi.update_time = datetime.now()
+    DATA_PROVIDER.add_or_update_videos([vi])
+
+    ## 开始处理
     start = time.time()
+
+    video_path = os.path.join(config['UPLOAD_FOLDER'], vi.hash_name + "." + vi.extension)
+    processed_path = os.path.join(config['PROCESSED_FOLDER'], vi.hash_name + "." + vi.extension)
+    gif_path = os.path.join(config['GIF_FOLDER'], vi.hash_name)
+    ogiginal_gif_path = os.path.join(config['ORIGINAL_GIF_FOLDER'], vi.hash_name)
+    zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], vi.hash_name + '.zip')
+    print video_path
+    print processed_path
+    print gif_path
+    print ogiginal_gif_path
+    print zip_path
+
 
     video = VideoFileClip(video_path)
     info = {}
-    try:
-        with open(caption_path, 'r') as f:
-            info = json.loads(f.read())
-    except:
-        print "%s 读字幕文件失败" % file_name
-        captionQueue.put((file_name, video_path, gif_path, audio_path, caption_path, processed_path))
-        return
 
-    captions = info['caption']
+    captions = json.loads(vi.caption)
+    info['caption'] = captions
     segments = []
     fps = video.fps
-    durations = []
     for ca in captions:
         bg = int(ca['bg'])
         ed = int(ca['ed'])
@@ -373,8 +469,6 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
         end_frame = int(float(ed) / float(1000) * fps)
 
         duration = float(ed - bg) / 1000.0
-        durations.append(duration)
-
         if duration > 5:
             print "大于5秒"
             continue
@@ -390,9 +484,6 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 
     if not os.path.exists(gif_path):
         os.mkdir(gif_path)
-    ogiginal_gif_path = os.path.join(config['ORIGINAL_GIF_FOLDER'], file_name)
-    print 'original path:'
-    print ogiginal_gif_path
     if not os.path.exists(ogiginal_gif_path):
         os.mkdir(ogiginal_gif_path)
 
@@ -400,7 +491,7 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
     nr = 0
     top_k = min(topCount, count)
     result = []
-    height = videos[file_name]['height']
+    height = vi.height
     print height
     for segment in sorted(scores, key=lambda x: -scores.get(x))[0:count]:
         if nr >= top_k:
@@ -409,9 +500,9 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
         print segment[1] / float(fps)
         original_clip = video.subclip(segment[0] / float(fps), segment[1] / float(fps))
         clip = video.subclip(segment[0] / float(fps), segment[1] / float(fps))
-        out_gif = "%s/%s_%.2d.gif" % (gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
-        original_gif = "%s/%s_%.2d.mp4" % (ogiginal_gif_path.decode('utf-8'), file_name.decode('utf-8'), nr)
-        gif_name = "%s_%.2d.gif" % (file_name, nr)
+        out_gif = "%s/%.2d.gif" % (gif_path.decode('utf-8'), nr)
+        original_gif = "%s/%.2d.mp4" % (ogiginal_gif_path.decode('utf-8'), nr)
+        gif_name = "%.2d.gif" % nr
         ## resize
         if height > 0:
             clip = clip.resize(height=height)
@@ -424,26 +515,23 @@ def process_caption_video_to_generate_gifs(file_name, video_path, gif_path, audi
 
     info['gif_caption'] = result
     print "处理带字幕的视频完成完成"
-    try:
-        with open(caption_path, 'w') as f:
-            print '打开info,写入result'
-            f.write(json.dumps(info))
-    except:
-        print "%s 依据字幕生成gif后,记录gif对应字幕失败" % file_name
 
     # 压缩原尺寸图片
-    zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], file_name + '.zip')
-    cmd = "zip -rj " + zhuanyi(zip_path) + " " + zhuanyi(ogiginal_gif_path)
+    cmd = "zip -rj " + zip_path + " " + ogiginal_gif_path
     print cmd
     os.system(cmd)
 
     print '准备转移视频'
     # 转移视频
-    cmd1 = 'mv ' + zhuanyi(video_path) + " " + zhuanyi(processed_path)
+    cmd1 = 'mv ' + video_path + " " + processed_path
     print cmd1
     os.system(cmd1)
 
-    del videos[file_name]
+    ## 更新video状态
+    vi.status = 1
+    vi.update_time = datetime.now()
+    vi.caption = json.dumps(info)
+    DATA_PROVIDER.add_or_update_videos([vi])
     print("处理字幕视频用时: %.2fs" % (time.time() - start))
 
 
@@ -493,48 +581,42 @@ def start_all_queues():
 
 
 def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
-    info = {}
-    info['height'] = height
-    info['tags'] = tags
-    info['caption'] = caption
-    info['is_chinese'] = isChinese
-    info['duration'] = duration
-    print "is chinese"
-    print isChinese
+    videos = DATA_PROVIDER.get_video_by_hash_name(fileName)
+    if len(videos) == 0:
+        return {'result': 1001, "error_message": "该视频丢失"}
 
-    file_name = os.path.splitext(os.path.split(fileName)[1])[0]
-    info['file_name'] = file_name
-    video_path = os.path.join(config['UPLOAD_FOLDER'], fileName)
-    print video_path
+    video = videos[0]
+    ## 检查video状态
+    if video.status != 0:
+        return {'result': 1002, "error_message": "视频已经在处理了", "video": video.mini_serialize()}
 
-    gif_path = os.path.join(config['GIF_FOLDER'], file_name)
-    processed_path = os.path.join(config['PROCESSED_FOLDER'], fileName)
+    video.tag = tags
+    video.status = 2
+    video.thumb_height = height
+    video.segment_duration = duration
+    is_chinese = 0
+    if isChinese == "false":
+        is_chinese = 1
+    video.is_chinese = is_chinese
+
+    split_type = 1
     if caption == "true":
-        info['status'] = "排队处理中（字幕）"
-        audio_name = file_name + ".mp3"
-        audio_path = os.path.join(config['BOTTLENECK'], audio_name)
-        caption_name = file_name + ".txt"
-        caption_path = os.path.join(config['BOTTLENECK'], caption_name)
-        getAudioQueue.put((file_name, video_path, gif_path, audio_path, caption_path, processed_path))
+        split_type = 0
+
+    video.split_type = split_type
+    video.update_time = datetime.now()
+
+    DATA_PROVIDER.add_or_update_videos([video])
+
+    if split_type == 0:
+        getAudioQueue.put(video)
     else:
-        info['status'] = "排队处理中"
-        content = {}
-        content['file_name'] = file_name
-        content['tags'] = tags
+        noCaptionQueue.put(video)
 
-        info_file_name = file_name + '.txt'
-        info_file_path = os.path.join(config['BOTTLENECK'], info_file_name)
-        try:
-            with open(info_file_path, 'w') as f:
-                f.write(json.dumps(content))
-        except:
-            print "%s 写info失败" % file_name
-            return
-        noCaptionQueue.put((file_name, video_path, gif_path, info_file_path, processed_path))
-
-    videos[file_name] = info
     print "添加的video"
-    print file_name
+    print video.name
+    return {'result': 0, "video": video.mini_serialize()}
+
 
 
 
