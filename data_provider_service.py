@@ -28,12 +28,9 @@ class DataProviderService:
         if not engine:
             raise ValueError('The values specified in engine parameter has to be supported by SQLAlchemy')
         self.engine = engine
-        normalengine = create_engine(engine, isolation_level="READ UNCOMMITTED")
-        caption_engine = create_engine(engine, isolation_level="READ UNCOMMITTED")
-        session = sessionmaker(bind=normalengine)
-        caption_session = sessionmaker(bind=caption_engine)
-        self.session = session()
-        self.caption_session = caption_session()
+        db_engine = create_engine(engine)
+        db_session = sessionmaker(bind=db_engine)
+        self.session = db_session()
         print 'init DataProviderService'
 
     def init_database(self):
@@ -69,7 +66,7 @@ class DataProviderService:
             return videos
 
     def get_all_fetching_caption_videos(self, serialize=False):
-        videos = self.caption_session.query(Video).filter(Video.status == 7).all()
+        videos = self.session.query(Video).filter(Video.status == 7).all()
         if serialize:
             return [vi.serialize() for vi in videos]
         else:
