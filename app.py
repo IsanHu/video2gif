@@ -262,28 +262,11 @@ def gifs(filename):
     path = "/static/gifs/%s" % filename + "/"
     original_gif_path = "/static/original_gifs/%s" % filename + "/"
 
-    info = json.loads(vi.caption)
-    if os.path.isdir(gifs_dir):
-        index = 0
-        for f in sorted(os.listdir(gifs_dir)):
-
-            if f.rsplit(".", 1)[1].lower() == "gif":
-                fName = f.rsplit(".", 1)[0] + ".mp4"
-                size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
-                full_size = 0
-                original_mp4_path = os.path.join(basedir + original_gif_path, fName)
-                if os.path.isfile(original_mp4_path):
-                    full_size = round(float(os.path.getsize(original_mp4_path)) / 1024.0 / 1024.0, 2)
-                gifs.append({'url': path + f, 'name':fName, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags': '', 'caption': '', 'segments': ''})
-                index = index + 1
-    gifs_str = json.dumps(gifs)
-    return render_template('upload_gif.html', gifs=gifs_str, result=1)
-
-    index = 0
     tags = json.loads(vi.tag)
-
     generare_caption = (vi.split_type == 0 and vi.is_chinese == 0)
     if generare_caption:
+        print "include caption"
+        info = json.loads(vi.caption)
         gif_caption = info['gif_caption']
         if os.path.isdir(gifs_dir):
             # 获取字幕分词
@@ -304,7 +287,7 @@ def gifs(filename):
             except:
                 print '分词失败'
 
-
+            index = 0
             for f in sorted(os.listdir(gifs_dir)):
                 if f.rsplit(".", 1)[1].lower() == "gif":
                     fName = f.rsplit(".", 1)[0] + ".mp4"
