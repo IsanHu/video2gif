@@ -78,7 +78,7 @@ class DataProviderService:
         # temp_session = Scope_Session()
         # print temp_session
         # videos = self.session.query(Video.name, Video.video_info, Video.status, Video.upload_time, Video.hash_name,Video.processed_time).filter(Video.status != -1).order_by(Video.upload_time)
-        videos = currentsession.query(Video).filter(Video.status != -1).order_by(Video.upload_time)
+        videos = currentsession.query(Video).filter(Video.status != -1).order_by(Video.upload_time.desc())
         # Scope_Session.remove()
         if serialize:
             return [vi.mini_serialize() for vi in videos]
