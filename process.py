@@ -1,6 +1,9 @@
 # -*- coding:utf-8 -*-
 # Import the video2gif package
-import video2gif
+import global_config
+
+if not global_config.config['is_local']:
+    import video2gif
 '''
 Compile the score function
 On the GPU, the network will be using cuDNN layer implementations available in the Lasagne master
@@ -12,7 +15,9 @@ You can get it from https://github.com/gyglim/Lasagne
 import Queue
 import threading
 from threading import Timer
-score_function = video2gif.get_prediction_function()
+
+if not global_config.config['is_local']:
+    score_function = video2gif.get_prediction_function()
 
 from IPython.display import Image, display
 import os

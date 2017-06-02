@@ -5,7 +5,7 @@
 # Email: ngokhanhit@gmail.com
 # Git repository: https://github.com/ngoduykhanh/flask-file-uploader
 # This work based on jQuery-File-Upload which can be found at https://github.com/blueimp/jQuery-File-Upload/
-
+import global_config
 import os
 import PIL
 from PIL import Image
@@ -430,4 +430,4 @@ print "app.py 脚本"
 process.start_all_queues()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port=global_config.config['port'])

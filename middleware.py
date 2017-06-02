@@ -7,8 +7,9 @@ from flask import url_for
 
 from data_provider_service import DataProviderService
 
-# db_engine = 'mysql+pymysql://root:@localhost:3306/video2gif?charset=utf8'
-db_engine = 'mysql+pymysql://isan:smart_isan@localhost:3306/video2gif?charset=utf8'
+import global_config
+
+db_engine = global_config.config['db_engine']
 
 
 DATA_PROVIDER = DataProviderService(db_engine)
