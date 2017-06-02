@@ -152,9 +152,8 @@ def process_video_to_generate_gifs(video):
     if not os.path.exists(ogiginal_gif_path):
         os.mkdir(ogiginal_gif_path)
 
-    return
-
     # Generate GIFs from the top scoring segments
+    generate_start_time = time.time()
     nr = 0
     totalCount = len(scores)
     top_k = min(topCount, totalCount)
@@ -185,6 +184,7 @@ def process_video_to_generate_gifs(video):
             clip.write_gif(out_gif, fps=10, program="ImageMagick", opt="optimizeplus")
             original_clip.write_videofile(origianl_gif, fps=10, audio=False)
             nr += 1
+    print("生成图片用时: %.2fs" % (time.time() - generate_start_time))
 
     # 压缩原尺寸图片
     cmd = "zip -rj " + zip_path + " " + ogiginal_gif_path

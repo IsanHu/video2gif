@@ -132,7 +132,7 @@ def upload():
 
                 video_clip = VideoFileClip(uploaded_file_path)
                 duration = sec_2_time(video_clip.duration)
-                dimention = video_clip.size
+                dimention = "%d*%d" % (video_clip.size[0], video_clip.size[1])
                 size = round(float(os.path.getsize(uploaded_file_path)) / 1024.0 / 1024.0, 2)
                 size_str = "%.2f M" % size
                 info = {'duration': duration, 'dimention': dimention, 'size': size_str}
