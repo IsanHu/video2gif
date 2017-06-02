@@ -138,7 +138,7 @@ def process_video_to_generate_gifs(video):
     print len(segmentsArray)
     # Score the segments
     scores = {}
-    # return
+    
 
     for particalSegments in segmentsArray:
         particalScores = video2gif.get_scores(score_function, particalSegments, video, vi.name, stride=8)
@@ -151,6 +151,8 @@ def process_video_to_generate_gifs(video):
 
     if not os.path.exists(ogiginal_gif_path):
         os.mkdir(ogiginal_gif_path)
+
+    return
 
     # Generate GIFs from the top scoring segments
     nr = 0
@@ -502,7 +504,7 @@ def process_caption_video_to_generate_gifs(video):
         else:
             print "不足16帧"
 
-    # return
+    
 
     scores = video2gif.get_scores(score_function, segments, video, vi.name, stride=8)
     count = len(scores)
@@ -514,6 +516,7 @@ def process_caption_video_to_generate_gifs(video):
     if not os.path.exists(ogiginal_gif_path):
         os.mkdir(ogiginal_gif_path)
 
+    return
     # Generate GIFs from the top scoring segments
     nr = 0
     top_k = min(topCount, count)
