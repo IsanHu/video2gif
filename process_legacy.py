@@ -5,7 +5,7 @@ from PIL import Image
 import simplejson
 import traceback
 import requests
-
+import random
 import sys
 import json
 import time
@@ -85,7 +85,7 @@ def process_unprocessed():
             # sql += 'insert into video (name, hash_name, extension, status, update_time, upload_time) values ("%s", "%s", "mp4", 0, current_timestamp, current_timestamp);' % (fName, hash_name)
 
     # print sql
-    result = DATA_PROVIDER.add_unprocessed_videos(videos)
+    result = DATA_PROVIDER.add_unprocessed_videos(DATA_PROVIDER.main_queue_session, videos)
     print result
 
 
@@ -186,13 +186,13 @@ def process_processed():
                           video_info = info_str
                           )
             videos.append(video)
-    result = DATA_PROVIDER.add_unprocessed_videos(videos)
+    result = DATA_PROVIDER.add_unprocessed_videos(DATA_PROVIDER.main_queue_session, videos)
     print result
 
 
 def process_other_info():
     update_videos = []
-    videos = DATA_PROVIDER.all_videos()
+    videos = DATA_PROVIDER.all_videos(currentsession=DATA_PROVIDER.main_queue_session)
     for vi in videos:
 
         if vi.caption is None or vi.caption == "":
@@ -215,10 +215,8 @@ def process_other_info():
         vi.is_chinese = is_chinese
         vi.xunfei_id = xunfei_id
         update_videos.append(vi)
-
-    result = DATA_PROVIDER.add_unprocessed_videos(update_videos)
+    result = DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.main_queue_session, update_videos)
     print result
 
-process_other_info()
 
-# process_unprocessed()
+process_other_info()

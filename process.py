@@ -86,25 +86,29 @@ def is_overlapping(x1, x2, y1, y2):
 
 
 def process_video_to_generate_gifs(video):
+    print "process_video_to_generate_gifs"
     ## 检查状态
+    sleep(0.1)
     videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.no_caption_queue_session, video.hash_name)
     if len(videos) == 0:
         print "dataError: process_video_to_generate_gifs 数据丢失"
         return
-
+    print "检查状态"
+    print "准备更新状态 3"
     vi = videos[0]
     if vi.status != 2:
         print "dataError: process_video_to_generate_gifs 数据状态不是'排队等待处理中'"
         print vi.status
         return
-
+    print "更新状态 3"
     ## 更新video状态
     vi.status = 3
     vi.update_time = datetime.now()
-    DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.no_caption_queue_session, [vi])
+    sleep(0.01)
+    DATA_PROVIDER.update_video(DATA_PROVIDER.no_caption_queue_session, vi)
 
     ## 开始处理
-
+    print "开始处理"
     process_start = time.time()
     video_path = os.path.join(config['UPLOAD_FOLDER'], vi.hash_name + "." + vi.extension)
     processed_path = os.path.join(config['PROCESSED_FOLDER'], vi.hash_name + "." + vi.extension)
@@ -132,9 +136,10 @@ def process_video_to_generate_gifs(video):
 
     print "segments array count:"
     print len(segmentsArray)
-    return
     # Score the segments
     scores = {}
+    # return
+
     for particalSegments in segmentsArray:
         particalScores = video2gif.get_scores(score_function, particalSegments, video, stride=8)
         scores.update(particalScores)
@@ -189,6 +194,12 @@ def process_video_to_generate_gifs(video):
     print cmd1
     os.system(cmd1)
 
+    #把状态更新成已处理
+    vi.status = 1
+    vi.update_time = datetime.now()
+    sleep(0.01)
+    DATA_PROVIDER.update_video(DATA_PROVIDER.no_caption_queue_session, vi)
+
     print("处理无字幕视频用时: %.2fs" % (time.time() - process_start))
 
 
@@ -203,7 +214,8 @@ def start_get_audio_queue():
 def did_start_get_audio_queue():
     print 'did_start_get_audio_queue'
     for video in get_video_to_audio_path():
-
+        print "did_start_get_audio_queue"
+        sleep(0.1)
         ## 检查状态
         videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.audio_queue_session,video.hash_name)
         if len(videos) == 0:
@@ -219,7 +231,8 @@ def did_start_get_audio_queue():
         ## 更新video状态
         vi.status = 4 ## 提取音频中
         vi.update_time = datetime.now()
-        DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.audio_queue_session, [vi])
+        sleep(0.01)
+        DATA_PROVIDER.update_video(DATA_PROVIDER.audio_queue_session, vi)
 
         ## 开始处理
         start = time.time()
@@ -255,7 +268,8 @@ def did_start_get_audio_queue():
                 # 重新加入提取音频队列
                 vi.status = 2
                 vi.update_time = datetime.now()
-                DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.audio_queue_session, [vi])
+                sleep(0.01)
+                DATA_PROVIDER.update_video(DATA_PROVIDER.audio_queue_session, vi)
 
                 getAudioQueue.put(vi)
                 continue
@@ -263,7 +277,8 @@ def did_start_get_audio_queue():
         ## 更新video状态
         vi.status = 5  ## 提取音频成功
         vi.update_time = datetime.now()
-        DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.audio_queue_session, [vi])
+        sleep(0.01)
+        DATA_PROVIDER.update_video(DATA_PROVIDER.audio_queue_session, vi)
         uploadAudioQueue.put(vi)
 
 
@@ -286,6 +301,7 @@ def did_start_upload_audio_queue():
     for video in get_audio_path():
 
         ## 检查状态
+        sleep(0.1)
         videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.upload_queue_session, video.hash_name)
         if len(videos) == 0:
             print "dataError: did_start_upload_audio_queue 数据丢失"
@@ -295,7 +311,8 @@ def did_start_upload_audio_queue():
         ## 更新video状态
         vi.status = 6  ## 上传音频中
         vi.update_time = datetime.now()
-        DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.upload_queue_session, [vi])
+        sleep(0.01)
+        DATA_PROVIDER.update_video(DATA_PROVIDER.upload_queue_session, vi)
 
         ## 开始处理
         start = time.time()
@@ -305,7 +322,8 @@ def did_start_upload_audio_queue():
             ## 更新video状态
             vi.status = 7  ## 上传音频成功
             vi.update_time = datetime.now()
-            DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.upload_queue_session, [vi])
+            sleep(0.01)
+            DATA_PROVIDER.update_video(DATA_PROVIDER.upload_queue_session, vi)
             continue
 
         audio_path = os.path.join(config['BOTTLENECK'], vi.hash_name + "." + "mp3")
@@ -321,7 +339,8 @@ def did_start_upload_audio_queue():
             ## 更新video状态
             vi.status = 5  ## 提取音频成功
             vi.update_time = datetime.now()
-            DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.upload_queue_session, [vi])
+            sleep(0.01)
+            DATA_PROVIDER.update_video(DATA_PROVIDER.upload_queue_session, vi)
 
             uploadAudioQueue.put(vi)
             continue
@@ -333,14 +352,16 @@ def did_start_upload_audio_queue():
             xunfei_id = result['data']
             vi.xunfei_id = xunfei_id
             vi.update_time = datetime.now()
-            DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.upload_queue_session, [vi])
+            sleep(0.01)
+            DATA_PROVIDER.update_video(DATA_PROVIDER.upload_queue_session, vi)
         else:
             # 上传失败,重新加入上传音频队列
             print "上传失败"
             ## 更新video状态
             vi.status = 5  ## 提取音频成功
             vi.update_time = datetime.now()
-            DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.upload_queue_session, [vi])
+            sleep(0.01)
+            DATA_PROVIDER.update_video(DATA_PROVIDER.upload_queue_session, vi)
             uploadAudioQueue.put(vi)
             continue
 
@@ -364,15 +385,14 @@ def start_get_caption_loop():
 
 def get_caption_from_xunfei():
     print 'get_caption_from_xunfei'
+    sleep(0.1)
     videos = DATA_PROVIDER.get_all_fetching_caption_videos(DATA_PROVIDER.caption_loop_queue_session)
-    for video in videos:
-
-        vi = Video.get_new_instance(video)
-
+    for vi in videos:
         ## 更新video状态
         vi.status = 8  ## 获取字幕中
         vi.update_time = datetime.now()
-        DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.caption_loop_queue_session, [vi])
+        sleep(0.01)
+        DATA_PROVIDER.update_video(DATA_PROVIDER.caption_loop_queue_session, vi)
 
         xunfei_id = vi.xunfei_id
         cmd = "java -jar %s 1 %s %s %s" % (
@@ -388,15 +408,17 @@ def get_caption_from_xunfei():
             ## 更新video状态
             vi.status = 7  ## 上传音频成功
             vi.update_time = datetime.now()
-            DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.caption_loop_queue_session, [vi])
+            sleep(0.01)
+            DATA_PROVIDER.update_video(DATA_PROVIDER.caption_loop_queue_session, vi)
             continue
 
         print "%s 获取字幕成功" % xunfei_id
         ## 更新video状态
         vi.status = 9  ## 获取字幕成功
-        vi.caption= json.loads(result['data'])
+        vi.caption= result['data']
         vi.update_time = datetime.now()
-        DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.caption_loop_queue_session, [vi])
+        sleep(0.1)
+        DATA_PROVIDER.update_video(DATA_PROVIDER.caption_loop_queue_session, vi)
 
         # 加入字幕视屏队列
         captionQueue.put(vi)
@@ -424,6 +446,8 @@ def get_caption_video_path():
 
 def process_caption_video_to_generate_gifs(video):
     ## 检查状态
+    print("process_caption_video_to_generate_gifs")
+    sleep(0.1)
     videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.caption_queue_session, video.hash_name)
     if len(videos) == 0:
         print "dataError: process_caption_video_to_generate_gifs 数据丢失"
@@ -438,7 +462,8 @@ def process_caption_video_to_generate_gifs(video):
     ## 更新video状态
     vi.status = 3
     vi.update_time = datetime.now()
-    DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.caption_queue_session, [vi])
+    sleep(0.01)
+    DATA_PROVIDER.update_video(DATA_PROVIDER.caption_queue_session, vi)
 
     ## 开始处理
     start = time.time()
@@ -477,7 +502,7 @@ def process_caption_video_to_generate_gifs(video):
         else:
             print "不足16帧"
 
-    return
+    # return
 
     scores = video2gif.get_scores(score_function, segments, video, stride=8)
     count = len(scores)
@@ -533,7 +558,8 @@ def process_caption_video_to_generate_gifs(video):
     vi.status = 1
     vi.update_time = datetime.now()
     vi.caption = json.dumps(info)
-    DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.caption_queue_session, [vi])
+    sleep(0.01)
+    DATA_PROVIDER.update_video(DATA_PROVIDER.caption_queue_session, vi)
     print("处理字幕视频用时: %.2fs" % (time.time() - start))
 
 
@@ -583,8 +609,8 @@ def start_all_queues():
 
 
 def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
+    sleep(0.01)
     videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.main_queue_session, fileName)
-
     print "video count:"
     print len(videos)
     if len(videos) == 0:
@@ -612,8 +638,8 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
 
     video.split_type = split_type
     video.update_time = datetime.now()
-
-    DATA_PROVIDER.add_or_update_videos(DATA_PROVIDER.main_queue_session, [video])
+    sleep(0.01)
+    DATA_PROVIDER.update_video(DATA_PROVIDER.main_queue_session, video)
 
     if split_type == 0:
         getAudioQueue.put(video)

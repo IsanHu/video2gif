@@ -101,7 +101,7 @@ def root():
 @app.route("/allvideos/<int:page>", methods=['GET'])
 def allvideos(page):
     videos = DATA_PROVIDER.all_videos(DATA_PROVIDER.main_queue_session, serialize=True)
-    return render_template('root.html', videos=videos)
+    return render_template('root.html', videos=json.dumps(videos))
 
 @app.route("/test", methods=['GET'])
 def test():

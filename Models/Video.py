@@ -56,6 +56,49 @@ class Video(Model):
                    )
         return new_vi
 
+    @classmethod
+    def sync_old_video(cls, old_vi, vi):
+        old_vi.id = vi.id,
+        old_vi.name = vi.name,
+        old_vi.hash_name = vi.hash_name,
+        old_vi.extension = vi.extension,
+        old_vi.status = vi.status,
+        old_vi.update_time = vi.update_time,
+        old_vi.upload_time = vi.upload_time,
+        old_vi.processed_time = vi.processed_time,
+        old_vi.split_type = vi.split_type,
+        old_vi.caption = vi.caption,
+        old_vi.video_info = vi.video_info,
+        old_vi.tag = vi.tag,
+        old_vi.thumb_height = vi.thumb_height,
+        old_vi.segment_duration = vi.segment_duration,
+        old_vi.is_chinese = vi.is_chinese,
+        old_vi.xunfei_id = vi.xunfei_id
+
+        return old_vi
+
+
+    @classmethod
+    def get_video_from_dic(cls, viDic):
+        new_vi = Video(id=viDic["id"],
+                   name=viDic["name"],
+                   hash_name=viDic["hash_name"],
+                   extension=viDic["extension"],
+                   status=viDic["status"],
+                   update_time=viDic["update_time"],
+                   upload_time=viDic["upload_time"],
+                   processed_time=viDic["processed_time"],
+                   split_type=viDic["split_type"],
+                   caption=viDic["caption"],
+                   video_info=viDic["video_info"],
+                   tag=viDic["tag"],
+                   thumb_height=viDic["thumb_height"],
+                   segment_duration=viDic["segment_duration"],
+                   is_chinese=viDic["is_chinese"],
+                   xunfei_id=viDic["xunfei_id"],
+                   )
+        return new_vi
+
 
     def serialize(self):
         tag_str = self.tag
