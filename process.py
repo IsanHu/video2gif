@@ -157,7 +157,7 @@ def process_video_to_generate_gifs(video):
     totalCount = len(scores)
     top_k = min(topCount, totalCount)
     occupiedTime = []
-    height = vi.height
+    height = vi.thumb_height
     for segment in sorted(scores, key=lambda x: -scores.get(x))[0:totalCount]:
         if nr >= top_k:
             break
@@ -518,7 +518,7 @@ def process_caption_video_to_generate_gifs(video):
     nr = 0
     top_k = min(topCount, count)
     result = []
-    height = vi.height
+    height = vi.thumb_height
     print height
     for segment in sorted(scores, key=lambda x: -scores.get(x))[0:count]:
         if nr >= top_k:
