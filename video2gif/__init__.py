@@ -60,7 +60,7 @@ def get_prediction_function(feature_layer = None):
 
     return pred_fn
 
-def get_scores(predict, segments, video, stride=8, with_features=False):
+def get_scores(predict, segments, video, videoName, stride=8, with_features=False):
     '''
     Predict scores for segments using threaded loading
     (see https://github.com/Lasagne/Lasagne/issues/12#issuecomment-59494251)
@@ -135,19 +135,19 @@ def get_scores(predict, segments, video, stride=8, with_features=False):
         scores=predict(snip)
         segment2score[segment].append(scores.mean(axis=0))
         if index % 10 == 0:
-            print("score: %d " % index)
+            print("%s score: %d " % (videoName, index))
 
-    print("score count: %d " % index)
+    print("%s score count: %d " % (videoName, index))
 
     index = 0
     for segment in segment2score.keys():
         index = index + 1
         segment2score[segment]=np.array(segment2score[segment]).mean(axis=0)
         if index % 10 == 0:
-            print("average score: %d " % index)
-    print("average score count: %d " % index)
+            print("%s average score: %d " % (videoName,index))
+    print("%s average score count: %d " % (videoName, index))
 
-    print("Extracting scores for %d segments took %.3fs" % (len(segments),time.time()-extractStart))
+    print("%s Extracting scores for %d segments took %.3fs" % (videoName, len(segments),time.time()-extractStart))
     return segment2score
 
 def is_overlapping(x1,x2,y1,y2):

@@ -141,7 +141,7 @@ def process_video_to_generate_gifs(video):
     # return
 
     for particalSegments in segmentsArray:
-        particalScores = video2gif.get_scores(score_function, particalSegments, video, stride=8)
+        particalScores = video2gif.get_scores(score_function, particalSegments, video, vi.name, stride=8)
         scores.update(particalScores)
         print "score count:"
         print len(scores)
@@ -504,7 +504,7 @@ def process_caption_video_to_generate_gifs(video):
 
     # return
 
-    scores = video2gif.get_scores(score_function, segments, video, stride=8)
+    scores = video2gif.get_scores(score_function, segments, video, vi.name, stride=8)
     count = len(scores)
     print "segment count:"
     print count

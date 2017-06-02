@@ -23,6 +23,7 @@ import process
 import hardwareInfo
 import json
 import time
+from time import sleep
 import hashlib
 from moviepy.editor import VideoFileClip
 from flask import jsonify
@@ -250,41 +251,38 @@ def get_ziped_gif_file(filename):
 
 @app.route("/gifs/<string:filename>", methods=['GET'])
 def gifs(filename):
+    sleep(0.01)
+    videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.main_queue_session, filename)
+    if len(videos) == 0:
+        return {'result': 1001, "error_message": "该视频丢失"}
+    vi = videos[0]
+
     gifs_dir = app.config['GIF_FOLDER'] + filename
     gifs = []
     path = "/static/gifs/%s" % filename + "/"
     original_gif_path = "/static/original_gifs/%s" % filename + "/"
-    info_path = os.path.join(app.config['BOTTLENECK'], filename + '.txt')
-    info = {}
-    try:
-        with open(info_path, 'r') as f:
-            info = json.loads(f.read())
-    except:
-        if os.path.isdir(gifs_dir):
-            index = 0
-            for f in sorted(os.listdir(gifs_dir)):
 
-                if f.rsplit(".", 1)[1].lower() == "gif":
-                    fName = f.rsplit(".", 1)[0] + ".mp4"
-                    size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
-                    full_size = 0
-                    original_mp4_path = os.path.join(basedir + original_gif_path, fName)
-                    if os.path.isfile(original_mp4_path):
-                        full_size = round(float(os.path.getsize(original_mp4_path)) / 1024.0 / 1024.0, 2)
-                    gifs.append({'url': path + f, 'name':fName, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags': '', 'caption': '', 'segments': ''})
-                    index = index + 1
-        gifs_str = json.dumps(gifs)
-        return render_template('upload_gif.html', gifs=gifs_str, result=1)
+    info = json.loads(vi.caption)
+    if os.path.isdir(gifs_dir):
+        index = 0
+        for f in sorted(os.listdir(gifs_dir)):
+
+            if f.rsplit(".", 1)[1].lower() == "gif":
+                fName = f.rsplit(".", 1)[0] + ".mp4"
+                size = round(float(os.path.getsize(os.path.join(basedir + path, f))) / 1024.0, 2)
+                full_size = 0
+                original_mp4_path = os.path.join(basedir + original_gif_path, fName)
+                if os.path.isfile(original_mp4_path):
+                    full_size = round(float(os.path.getsize(original_mp4_path)) / 1024.0 / 1024.0, 2)
+                gifs.append({'url': path + f, 'name':fName, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags': '', 'caption': '', 'segments': ''})
+                index = index + 1
+    gifs_str = json.dumps(gifs)
+    return render_template('upload_gif.html', gifs=gifs_str, result=1)
+
     index = 0
-    tags = json.loads(info['tags'])
+    tags = json.loads(vi.tag)
 
-    generare_caption = False
-    if info.has_key('gif_caption'):
-        if info.has_key('is_chinese') and info['is_chinese'] == "true":
-            generare_caption = True
-        if not info.has_key('is_chinese'):
-            generare_caption = True
-
+    generare_caption = (vi.split_type == 0 and vi.is_chinese == 0)
     if generare_caption:
         gif_caption = info['gif_caption']
         if os.path.isdir(gifs_dir):
