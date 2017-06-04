@@ -350,6 +350,7 @@ def did_start_upload_audio_queue():
         print cmd
         try:
             result = json.loads(os.popen(cmd).read())
+            print result
         except:
             # 上传失败,重新加入上传音频队列
             print "上传失败"
@@ -406,13 +407,12 @@ def get_caption_from_xunfei():
     sleep(0.1)
     videos = DATA_PROVIDER.get_all_fetching_caption_videos(DATA_PROVIDER.caption_loop_queue_session)
     for vi in videos:
-        ## d
         time_gap = datetime.now() - vi.xunfei_upload_time
-
-        if time_gap.days > 0 or time_gap.seconds > 480:
+        if time_gap.days > 0 or time_gap.seconds > 480: ##TODO根据视频duration决定等待时间
             print "%s 开始获取字幕, xunfei_id: %s" % (vi.name, vi.xunfei_id)
         else:
             print "尚未到讯飞要求的时间"
+            return
 
         ## 更新video状态
         vi.status = 8  ## 获取字幕中
@@ -426,6 +426,7 @@ def get_caption_from_xunfei():
         print cmd
         try:
             result = json.loads(os.popen(cmd).read())
+            print result
         except:
             continue
 
