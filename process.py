@@ -141,6 +141,16 @@ def process_video_to_generate_gifs(video):
 
     print "segments array count:"
     print len(segmentsArray)
+
+    if global_config.config['is_local']:
+        print "本地假装开始对 %s 进行评分" % vi.name
+        sleep(60)
+        print "本地假装对 %s 进行评分结束" % vi.name
+        vi.status = 33
+        vi.update_time = datetime.now()
+        DATA_PROVIDER.update_video(DATA_PROVIDER.no_caption_queue_session, vi)
+        return
+
     # Score the segments
     scores = {}
     
@@ -359,6 +369,7 @@ def did_start_upload_audio_queue():
             xunfei_id = result['data']
             vi.xunfei_id = xunfei_id
             vi.update_time = datetime.now()
+            vi.xunfei_upload_time = datetime.now()
             sleep(0.01)
             DATA_PROVIDER.update_video(DATA_PROVIDER.upload_queue_session, vi)
         else:
@@ -395,6 +406,14 @@ def get_caption_from_xunfei():
     sleep(0.1)
     videos = DATA_PROVIDER.get_all_fetching_caption_videos(DATA_PROVIDER.caption_loop_queue_session)
     for vi in videos:
+        ## d
+        time_gap = datetime.now() - vi.xunfei_upload_time
+
+        if time_gap.days > 0 or time_gap.seconds > 480:
+            print "%s 开始获取字幕, xunfei_id: %s" % (vi.name, vi.xunfei_id)
+        else:
+            print "尚未到讯飞要求的时间"
+
         ## 更新video状态
         vi.status = 8  ## 获取字幕中
         vi.update_time = datetime.now()
@@ -419,7 +438,7 @@ def get_caption_from_xunfei():
             DATA_PROVIDER.update_video(DATA_PROVIDER.caption_loop_queue_session, vi)
             continue
 
-        print "%s 获取字幕成功" % xunfei_id
+        print "%s 获取字幕成功, xunfei_id: %s" % (vi.name, xunfei_id)
         ## 更新video状态
         vi.status = 9  ## 获取字幕成功
         vi.caption= result['data']
@@ -509,7 +528,14 @@ def process_caption_video_to_generate_gifs(video):
         else:
             print "不足16帧"
 
-    
+    if global_config.config['is_local']:
+        print "本地假装开始对 %s 进行评分" % vi.name
+        sleep(60)
+        print "本地假装对 %s 进行评分结束" % vi.name
+        vi.status = 33
+        vi.update_time = datetime.now()
+        DATA_PROVIDER.update_video(DATA_PROVIDER.no_caption_queue_session, vi)
+        return
 
     scores = video2gif.get_scores(score_function, segments, video, vi.name, stride=8)
     count = len(scores)

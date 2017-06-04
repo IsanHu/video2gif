@@ -34,6 +34,7 @@ class Video(Model):
     segment_duration = Column(Integer, nullable=False, default=0)
     is_chinese = Column(Integer, nullable=False, default=0)
     xunfei_id = Column(String(45), nullable=True)
+    xunfei_upload_time = Column(Date, nullable=True)
 
     @classmethod
     def get_new_instance(cls, vi):
@@ -53,6 +54,8 @@ class Video(Model):
                    segment_duration=vi.segment_duration,
                    is_chinese=vi.is_chinese,
                    xunfei_id=vi.xunfei_id,
+                   xunfei_upload_time=vi.xunfei_upload_time,
+
                    )
         return new_vi
 
@@ -73,7 +76,8 @@ class Video(Model):
         old_vi.thumb_height = vi.thumb_height,
         old_vi.segment_duration = vi.segment_duration,
         old_vi.is_chinese = vi.is_chinese,
-        old_vi.xunfei_id = vi.xunfei_id
+        old_vi.xunfei_id = vi.xunfei_id,
+        old_vi.xunfei_upload_time = vi.xunfei_upload_time
 
         return old_vi
 
@@ -96,6 +100,7 @@ class Video(Model):
                    segment_duration=viDic["segment_duration"],
                    is_chinese=viDic["is_chinese"],
                    xunfei_id=viDic["xunfei_id"],
+                   xunfei_upload_time=viDic["xunfei_upload_time"],
                    )
         return new_vi
 
@@ -124,7 +129,8 @@ class Video(Model):
             "thumb_height":self.thumb_height,
             "segment_duration": self.segment_duration,
             "is_chinese": self.is_chinese,
-            "xunfei_id": self.xunfei_id
+            "xunfei_id": self.xunfei_id,
+            "xunfei_upload_time": self.xunfei_upload_time
 
         }
 
