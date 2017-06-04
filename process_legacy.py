@@ -221,4 +221,6 @@ def process_other_info():
     print result
 
 
+process_unprocessed()
+process_processed()
 process_other_info()
