@@ -73,79 +73,84 @@ class DataProviderService:
         init_database(self.engine)
 
     def all_videos(self,currentsession, serialize=False):
-        # sleep(0.1)
-        # print currentsession
-        # temp_session = Scope_Session()
-        # print temp_session
-        # videos = self.session.query(Video.name, Video.video_info, Video.status, Video.upload_time, Video.hash_name,Video.processed_time).filter(Video.status != -1).order_by(Video.upload_time)
-        videos = currentsession.query(Video).filter(Video.status != -1).order_by(Video.upload_time.desc())
-        # Scope_Session.remove()
-        if serialize:
-            return [vi.mini_serialize() for vi in videos]
-        else:
-            return videos
+        try:
+            videos = currentsession.query(Video).filter(Video.status != -1).order_by(Video.upload_time.desc())
+            if serialize:
+                return [vi.mini_serialize() for vi in videos]
+            else:
+                return videos
+        except:
+            print "all_videos 操作失败"
+            sleep(1)
+            return self.all_videos(currentsession, serialize)
 
     def get_video_by_hash_name(self,currentsession, hash_name, serialize=False):
-        # sleep(0.2)
-        print currentsession
+        try:
+            print currentsession
+            videos = currentsession.query(Video).filter(Video.hash_name == hash_name).all()
+            if serialize:
+                return [vi.serialize() for vi in videos]
+            else:
+                return videos
+        except:
+            print "get_video_by_hash_name 操作失败"
+            sleep(1)
+            return self.get_video_by_hash_name(currentsession, hash_name, serialize)
 
-        # temp_session = Scope_Session()
-        # print temp_session
-        videos = currentsession.query(Video).filter(Video.hash_name == hash_name).all()
-        # Scope_Session.remove()
-        if serialize:
-            return [vi.serialize() for vi in videos]
-        else:
-            return videos
 
     def get_video_by_name(self,currentsession, name, serialize=False):
-        # sleep(0.1)
-        videos = currentsession.query(Video).filter(Video.name.like('%' + name + '%')).limit(1)
-
-        if serialize:
-            return [vi.serialize() for vi in videos]
-        else:
-            return videos
+        try:
+            videos = currentsession.query(Video).filter(Video.name.like('%' + name + '%')).limit(1)
+            if serialize:
+                return [vi.serialize() for vi in videos]
+            else:
+                return videos
+        except:
+            print "get_video_by_name 操作失败"
+            sleep(1)
+            return self.get_video_by_name(currentsession, name, serialize)
 
     def get_all_fetching_caption_videos(self,currentsession, serialize=False):
-        # sleep(0.1)
-        print currentsession
-        # temp_session = Scope_Session()
-        # print temp_session
-
-        videos = currentsession.query(Video).filter(Video.status == 7).all()
-        currentsession.commit()
-        # Scope_Session.remove()
-        if serialize:
-            return [vi.serialize() for vi in videos]
-        else:
-            return videos
+        try:
+            print currentsession
+            videos = currentsession.query(Video).filter(Video.status == 7).all()
+            currentsession.commit()
+            if serialize:
+                return [vi.serialize() for vi in videos]
+            else:
+                return videos
+        except:
+            print "get_all_fetching_caption_videos 操作失败"
+            sleep(1)
+            return self.get_all_fetching_caption_videos(currentsession, serialize)
 
 
 
 
     def add_or_update_videos(self,currentsession, videos):
-        # sleep(0.1)
-        print currentsession
-        # temp_session = Scope_Session()
-        # print temp_session
-        for vi in videos:
-            currentsession.add(vi)
-
-        currentsession.commit()
+        try:
+            print currentsession
+            for vi in videos:
+                currentsession.add(vi)
+            currentsession.commit()
+        except:
+            print "add_or_update_videos 操作失败"
+            sleep(1)
+            self.add_or_update_videos(currentsession, videos)
 
     def update_video(self,currentsession, video):  ## trick: 先查出来,再更新
-        # sleep(0.1)
-        print currentsession
-        videos = currentsession.query(Video).filter(Video.id == video.id).all()
-        if len(videos) > 0:
-            vi = videos[0]
-            new_vi = Video.sync_old_video(old_vi=vi, vi=video)
-            currentsession.add(new_vi)
-            currentsession.commit()
-
-        print "update_video 借宿"
-
+        try:
+            print currentsession
+            videos = currentsession.query(Video).filter(Video.id == video.id).all()
+            if len(videos) > 0:
+                vi = videos[0]
+                new_vi = Video.sync_old_video(old_vi=vi, vi=video)
+                currentsession.add(new_vi)
+                currentsession.commit()
+        except:
+            print "update_video 操作失败"
+            sleep(1)
+            self.update_video(currentsession, video)
 
     def unprocessed_videos(self,currentsession, serialize=False):
         # sleep(0.1)
@@ -161,13 +166,4 @@ class DataProviderService:
             currentsession.add(vi)
         result = currentsession.commit()
         return result
-
-
-
-
-
-
-
-    ## temp
-    # def update_video_with(self, video_dic):
 
