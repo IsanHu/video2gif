@@ -412,7 +412,7 @@ def get_caption_from_xunfei():
             print "%s 开始获取字幕, xunfei_id: %s" % (vi.name, vi.xunfei_id)
         else:
             print "尚未到讯飞要求的时间"
-            return
+            continue
 
         ## 更新video状态
         vi.status = 8  ## 获取字幕中
