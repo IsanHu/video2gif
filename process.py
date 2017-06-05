@@ -62,7 +62,7 @@ noCaptionQueue = Queue.Queue(maxsize=50)
 captionQueue = Queue.Queue(maxsize=50)
 uploadAudioQueue = Queue.Queue(maxsize=50)
 getAudioQueue = Queue.Queue(maxsize=50)
-topCount = 100
+topCount = 200
 clipDuration = 2
 
 
@@ -189,8 +189,8 @@ def process_video_to_generate_gifs(video):
             occupiedTime.append(segment)
             clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
             original_clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
-            out_gif = "%s/%.2d.gif" % (gif_path.decode('utf-8'), nr)
-            origianl_gif = "%s/%.2d.mp4" % (ogiginal_gif_path.decode('utf-8'), nr)
+            out_gif = "%s/%.3d.gif" % (gif_path.decode('utf-8'), nr)
+            origianl_gif = "%s/%.3d.mp4" % (ogiginal_gif_path.decode('utf-8'), nr)
             ## resize
             if height > 0:
                 clip = clip.resize(height=height)
@@ -561,9 +561,9 @@ def process_caption_video_to_generate_gifs(video):
         print segment[1] / float(fps)
         original_clip = video.subclip(segment[0] / float(fps), segment[1] / float(fps))
         clip = video.subclip(segment[0] / float(fps), segment[1] / float(fps))
-        out_gif = "%s/%.2d.gif" % (gif_path.decode('utf-8'), nr)
-        original_gif = "%s/%.2d.mp4" % (ogiginal_gif_path.decode('utf-8'), nr)
-        gif_name = "%.2d.gif" % nr
+        out_gif = "%s/%.3d.gif" % (gif_path.decode('utf-8'), nr)
+        original_gif = "%s/%.3d.mp4" % (ogiginal_gif_path.decode('utf-8'), nr)
+        gif_name = "%.3d.gif" % nr
         ## resize
         if height > 0:
             clip = clip.resize(height=height)
