@@ -115,6 +115,8 @@ def process_video_to_generate_gifs(video):
     ## 开始处理
     print "开始处理"
     process_start = time.time()
+    process_info = json.loads(vi.process_info)
+
     video_path = os.path.join(config['UPLOAD_FOLDER'], vi.hash_name + "." + vi.extension)
     processed_path = os.path.join(config['PROCESSED_FOLDER'], vi.hash_name + "." + vi.extension)
     gif_path = os.path.join(config['GIF_FOLDER'], vi.hash_name)
@@ -161,6 +163,9 @@ def process_video_to_generate_gifs(video):
         print "score count:"
         print len(scores)
 
+    process_info['segment_count'] = len(scores)
+    process_info['score_time'] = int(time.time() - process_start)
+
     if not os.path.exists(gif_path):
         os.mkdir(gif_path)
 
@@ -200,6 +205,7 @@ def process_video_to_generate_gifs(video):
             original_clip.write_videofile(origianl_gif, fps=10, audio=False)
             nr += 1
     print("生成图片用时: %.2fs" % (time.time() - generate_start_time))
+    process_info['generate_time'] = int(time.time() - generate_start_time)
 
     # 压缩原尺寸图片
     cmd = "zip -rj " + zip_path + " " + ogiginal_gif_path
@@ -214,10 +220,13 @@ def process_video_to_generate_gifs(video):
     #把状态更新成已处理
     vi.status = 1
     vi.update_time = datetime.now()
+    process_info['total_time'] = int(time.time() - process_start)
+    vi.process_info = json.dumps(process_info)
     sleep(0.01)
     DATA_PROVIDER.update_video(DATA_PROVIDER.no_caption_queue_session, vi)
 
     print("处理无字幕视频用时: %.2fs" % (time.time() - process_start))
+
 
 
 ## 初始化提取 audio 队列
@@ -253,7 +262,7 @@ def did_start_get_audio_queue():
 
         ## 开始处理
         start = time.time()
-
+        process_info = json.loads(vi.process_info)
         # 先检查audio_path是否有文件了
         # 如果有检查audio的时长跟video的时长是否一样，不一样的话删除audio，重新提取audio
         video_path = os.path.join(config['UPLOAD_FOLDER'], vi.hash_name + "." + vi.extension)
@@ -291,9 +300,11 @@ def did_start_get_audio_queue():
                 getAudioQueue.put(vi)
                 continue
         print("提取音频用时: %.2fs" % (time.time() - start))
+        process_info['extract_audio_time'] = int(time.time() - start)
         ## 更新video状态
         vi.status = 5  ## 提取音频成功
         vi.update_time = datetime.now()
+        vi.process_info = json.dumps(process_info)
         sleep(0.01)
         DATA_PROVIDER.update_video(DATA_PROVIDER.audio_queue_session, vi)
         uploadAudioQueue.put(vi)
@@ -333,6 +344,7 @@ def did_start_upload_audio_queue():
 
         ## 开始处理
         start = time.time()
+        process_info = json.loads(vi.process_info)
         xunfei_id = vi.xunfei_id
         if xunfei_id is not None and xunfei_id != "":
             print("已上传过音频,讯飞id: %s" % xunfei_id)
@@ -370,6 +382,8 @@ def did_start_upload_audio_queue():
             xunfei_id = result['data']
             vi.xunfei_id = xunfei_id
             vi.update_time = datetime.now()
+            process_info['upload_audio_time'] = int(time() - start)
+            vi.process_info = json.dumps(process_info)
             vi.xunfei_upload_time = datetime.now()
             sleep(0.01)
             DATA_PROVIDER.update_video(DATA_PROVIDER.upload_queue_session, vi)
@@ -426,8 +440,9 @@ def get_caption_from_xunfei():
         print cmd
         try:
             result = json.loads(os.popen(cmd).read())
-            print result
-        except:
+        except (AssertionError) as e:
+            print "抓到exception"
+            print e.message
             continue
 
         if result['ok'] != 0:
@@ -472,6 +487,9 @@ def get_caption_video_path():
 
 
 def process_caption_video_to_generate_gifs(video):
+    if video.split_type == 1: ## 因为thero在多线程下有问题
+        process_video_to_generate_gifs(video)
+        return
     ## 检查状态
     print("process_caption_video_to_generate_gifs")
     sleep(0.1)
@@ -494,6 +512,7 @@ def process_caption_video_to_generate_gifs(video):
 
     ## 开始处理
     start = time.time()
+    process_info = json.loads(vi.process_info)
 
     video_path = os.path.join(config['UPLOAD_FOLDER'], vi.hash_name + "." + vi.extension)
     processed_path = os.path.join(config['PROCESSED_FOLDER'], vi.hash_name + "." + vi.extension)
@@ -542,6 +561,8 @@ def process_caption_video_to_generate_gifs(video):
     count = len(scores)
     print "segment count:"
     print count
+    process_info['segment_count'] = len(scores)
+    process_info['score_time'] = int(time.time() - start)
 
     if not os.path.exists(gif_path):
         os.mkdir(gif_path)
@@ -549,6 +570,8 @@ def process_caption_video_to_generate_gifs(video):
         os.mkdir(ogiginal_gif_path)
 
     # Generate GIFs from the top scoring segments
+
+    generate_start_time = time.time()
     nr = 0
     top_k = min(topCount, count)
     result = []
@@ -574,6 +597,8 @@ def process_caption_video_to_generate_gifs(video):
         result.append({"gif": gif_name, 'caption': segment[2]})
         nr += 1
 
+    process_info['generate_time'] = int(time.time() - generate_start_time)
+
     info['gif_caption'] = result
     print "处理带字幕的视频完成完成"
 
@@ -588,10 +613,12 @@ def process_caption_video_to_generate_gifs(video):
     print cmd1
     os.system(cmd1)
 
+    process_info['total_time'] = int(time.time() - start)
     ## 更新video状态
     vi.status = 1
     vi.update_time = datetime.now()
     vi.caption = json.dumps(info)
+    vi.process_info = json.dumps(process_info)
     sleep(0.01)
     DATA_PROVIDER.update_video(DATA_PROVIDER.caption_queue_session, vi)
     print("处理字幕视频用时: %.2fs" % (time.time() - start))
@@ -678,7 +705,7 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
     if split_type == 0:
         getAudioQueue.put(video)
     else:
-        noCaptionQueue.put(video)
+        captionQueue.put(video) ##由于thero在多线程下有问题
 
     print "添加的video"
     print video.hash_name

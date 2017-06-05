@@ -35,6 +35,8 @@ class Video(Model):
     is_chinese = Column(Integer, nullable=False, default=0)
     xunfei_id = Column(String(45), nullable=True)
     xunfei_upload_time = Column(Date, nullable=True)
+    process_info = Column(String(1024), nullable=False, default='')
+
 
     @classmethod
     def get_new_instance(cls, vi):
@@ -55,6 +57,7 @@ class Video(Model):
                    is_chinese=vi.is_chinese,
                    xunfei_id=vi.xunfei_id,
                    xunfei_upload_time=vi.xunfei_upload_time,
+                   process_info=vi.process_info,
 
                    )
         return new_vi
@@ -78,6 +81,7 @@ class Video(Model):
         old_vi.is_chinese = vi.is_chinese,
         old_vi.xunfei_id = vi.xunfei_id,
         old_vi.xunfei_upload_time = vi.xunfei_upload_time
+        old_vi.process_info = vi.process_info,
 
         return old_vi
 
@@ -101,6 +105,7 @@ class Video(Model):
                    is_chinese=viDic["is_chinese"],
                    xunfei_id=viDic["xunfei_id"],
                    xunfei_upload_time=viDic["xunfei_upload_time"],
+                   process_info=viDic["process_info"],
                    )
         return new_vi
 
@@ -130,7 +135,8 @@ class Video(Model):
             "segment_duration": self.segment_duration,
             "is_chinese": self.is_chinese,
             "xunfei_id": self.xunfei_id,
-            "xunfei_upload_time": self.xunfei_upload_time
+            "xunfei_upload_time": self.xunfei_upload_time,
+            "process_info":json.loads(self.process_info)
 
         }
 
@@ -155,7 +161,8 @@ class Video(Model):
                 "thumb_height": self.thumb_height,
                 "segment_duration": self.segment_duration,
                 "is_chinese": self.is_chinese,
-                "xunfei_id": self.xunfei_id
+                "xunfei_id": self.xunfei_id,
+                "process_info":json.loads(self.process_info)
             }
         return {
             "id": self.id,
@@ -172,7 +179,8 @@ class Video(Model):
             "thumb_height": self.thumb_height,
             "segment_duration": self.segment_duration,
             "is_chinese": self.is_chinese,
-            "xunfei_id": self.xunfei_id
+            "xunfei_id": self.xunfei_id,
+            "process_info":json.loads(self.process_info)
         }
 
     def status_info(self):
