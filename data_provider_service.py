@@ -79,9 +79,11 @@ class DataProviderService:
                 return [vi.mini_serialize() for vi in videos]
             else:
                 return videos
-        except:
+        except (AssertionError) as e:
+            print "抓到exception"
+            print e.message
             print "all_videos 操作失败"
-            sleep(1)
+            sleep(3)
             return self.all_videos(currentsession, serialize)
 
     def get_video_by_hash_name(self,currentsession, hash_name, serialize=False):
@@ -92,9 +94,11 @@ class DataProviderService:
                 return [vi.serialize() for vi in videos]
             else:
                 return videos
-        except:
+        except (AssertionError) as e:
+            print "抓到exception"
+            print e.message
             print "get_video_by_hash_name 操作失败"
-            sleep(1)
+            sleep(3)
             return self.get_video_by_hash_name(currentsession, hash_name, serialize)
 
 
@@ -105,9 +109,11 @@ class DataProviderService:
                 return [vi.serialize() for vi in videos]
             else:
                 return videos
-        except:
+        except (AssertionError) as e:
+            print "抓到exception"
+            print e.message
             print "get_video_by_name 操作失败"
-            sleep(1)
+            sleep(3)
             return self.get_video_by_name(currentsession, name, serialize)
 
     def get_all_fetching_caption_videos(self,currentsession, serialize=False):
@@ -119,9 +125,11 @@ class DataProviderService:
                 return [vi.serialize() for vi in videos]
             else:
                 return videos
-        except:
+        except (AssertionError) as e:
+            print "抓到exception"
+            print e.message
             print "get_all_fetching_caption_videos 操作失败"
-            sleep(1)
+            sleep(3)
             return self.get_all_fetching_caption_videos(currentsession, serialize)
 
 
@@ -133,7 +141,9 @@ class DataProviderService:
             for vi in videos:
                 currentsession.add(vi)
             currentsession.commit()
-        except:
+        except (AssertionError) as e:
+            print "抓到exception"
+            print e.message
             print "add_or_update_videos 操作失败"
             sleep(1)
             self.add_or_update_videos(currentsession, videos)
@@ -147,7 +157,9 @@ class DataProviderService:
                 new_vi = Video.sync_old_video(old_vi=vi, vi=video)
                 currentsession.add(new_vi)
                 currentsession.commit()
-        except:
+        except (AssertionError) as e:
+            print "抓到exception"
+            print e.message
             print "update_video 操作失败"
             sleep(1)
             self.update_video(currentsession, video)
