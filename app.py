@@ -19,6 +19,7 @@ import requests
 
 from lib.upload_file import uploadfile, processedfile, zipedgiffile
 import sys
+from sys import argv
 import process
 import hardwareInfo
 import json
@@ -159,7 +160,7 @@ def upload():
 
                 # return json for js call back
                 result = uploadfile(name=fName, type=mime_type, size=size)
-            
+
             return simplejson.dumps({"files": [result.get_file()]})
 
     if request.method == 'GET':
@@ -432,4 +433,5 @@ print "app.py 脚本"
 process.start_all_queues()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=global_config.config['port'])
+    port = argv[1]
+    app.run(host='0.0.0.0', port=port)
