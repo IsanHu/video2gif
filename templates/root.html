@@ -7,14 +7,13 @@
 </script>
 <div class="container" id="task_page">
     <div class="row">
-        <div id="right" class="col-md-12">
+        <div class="col-md-12">
           <table class="table">
               <tr>
                 <th>视频名称</th>
                 <th>视频信息</th>
                 <th>文件大小</th>
                 <th>上传时间</th>
-                <th>状态</th>
                 <th>操作</th>
               </tr>
               <tr is="videos" v-for="data in videos" v-bind:data="data"></tr>
@@ -68,6 +67,7 @@
     
   </div>
 {% endblock %}
+
 
 {% block scripts %}
 

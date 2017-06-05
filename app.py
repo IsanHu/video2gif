@@ -321,11 +321,13 @@ def gifs(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html', tab='upload')
+    return render_template('root.html', tab='upload')
 
 @app.route('/alldata', methods=['GET', 'POST'])
 def alldata():
-    return render_template('alldata.html', tab='process')
+    videos = DATA_PROVIDER.all_videos(DATA_PROVIDER.main_queue_session, serialize=True)
+    return render_template('root.html', videos=json.dumps(videos), tab='process')
+    # return render_template('alldata.html', tab='process')
 
 @app.route('/getalldata', methods=['GET', 'POST'])
 def getalldata():

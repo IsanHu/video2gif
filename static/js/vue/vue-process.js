@@ -132,18 +132,6 @@ Vue.component('processedtr', {
           '<a v-bind:href="data.ziped_gif_info.url" target="_blank">原尺寸图{{data.ziped_gif_info.size}}M</a>' +
           '</p>' + '</td>' +
 
-          // '<td>' +
-          // '<p v-if="data.deleteUrl">' +
-          // '<button v-bind:class="btn btn-danger delete" v-bind:data-type="data.deleteType" v-bind:data-url="data.deleteUrl">' +
-          //           '<i v-bind:class="glyphicon glyphicon-trash"></i>' +
-          //           '<span>删除</span>' +
-          //       '</button>' + 
-          // '</p>' +
-          // '</td>'
-          // '<td><p v-if="data.gifs_dir">' +
-          //     删除
-          // '</p>' +
-          // '</td>' +
         '</tr>',
 });
 
@@ -156,7 +144,6 @@ Vue.component('videos', {
           '<td>{{data.video_info.dimention}}({{data.video_info.duration}})</td>'+
           '<td>{{data.video_info.size}}</td>'+
           '<td>{{data.upload_time}}</td>'+
-          '<td>{{data.status_info}}</td>'+
           '<td>' +
              '<p v-if="data.status == 0">' +
                 '<button class="btn btn-default" @click="processVideo">处理</button>' +
