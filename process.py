@@ -94,7 +94,7 @@ def process_video_to_generate_gifs(video):
     print "process_video_to_generate_gifs"
     ## 检查状态
     sleep(0.1)
-    videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.no_caption_queue_session, video.hash_name)
+    videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.caption_queue_session, video.hash_name)
     if len(videos) == 0:
         print "dataError: process_video_to_generate_gifs 数据丢失"
         return
@@ -110,7 +110,7 @@ def process_video_to_generate_gifs(video):
     vi.status = 3
     vi.update_time = datetime.now()
     sleep(0.01)
-    DATA_PROVIDER.update_video(DATA_PROVIDER.no_caption_queue_session, vi)
+    DATA_PROVIDER.update_video(DATA_PROVIDER.caption_queue_session, vi)
 
     ## 开始处理
     print "开始处理"
@@ -150,7 +150,7 @@ def process_video_to_generate_gifs(video):
         print "本地假装对 %s 进行评分结束" % vi.name
         vi.status = 33
         vi.update_time = datetime.now()
-        DATA_PROVIDER.update_video(DATA_PROVIDER.no_caption_queue_session, vi)
+        DATA_PROVIDER.update_video(DATA_PROVIDER.caption_queue_session, vi)
         return
 
     # Score the segments
@@ -382,7 +382,7 @@ def did_start_upload_audio_queue():
             xunfei_id = result['data']
             vi.xunfei_id = xunfei_id
             vi.update_time = datetime.now()
-            process_info['upload_audio_time'] = int(time() - start)
+            process_info['upload_audio_time'] = int(time.time() - start)
             vi.process_info = json.dumps(process_info)
             vi.xunfei_upload_time = datetime.now()
             sleep(0.01)
