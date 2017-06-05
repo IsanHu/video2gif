@@ -321,7 +321,7 @@ def gifs(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('root.html', tab='upload')
+    return render_template('index.html', tab='upload')
 
 @app.route('/alldata', methods=['GET', 'POST'])
 def alldata():
