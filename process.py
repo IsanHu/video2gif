@@ -548,7 +548,6 @@ def process_caption_video_to_generate_gifs(video):
     if not os.path.exists(ogiginal_gif_path):
         os.mkdir(ogiginal_gif_path)
 
-    return
     # Generate GIFs from the top scoring segments
     nr = 0
     top_k = min(topCount, count)
