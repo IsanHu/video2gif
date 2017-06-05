@@ -115,7 +115,7 @@ def process_video_to_generate_gifs(video):
     ## 开始处理
     print "开始处理"
     process_start = time.time()
-    process_info = json.loads(vi.process_info)
+    process_info = {}
 
     video_path = os.path.join(config['UPLOAD_FOLDER'], vi.hash_name + "." + vi.extension)
     processed_path = os.path.join(config['PROCESSED_FOLDER'], vi.hash_name + "." + vi.extension)
@@ -262,7 +262,7 @@ def did_start_get_audio_queue():
 
         ## 开始处理
         start = time.time()
-        process_info = json.loads(vi.process_info)
+        process_info = {}
         # 先检查audio_path是否有文件了
         # 如果有检查audio的时长跟video的时长是否一样，不一样的话删除audio，重新提取audio
         video_path = os.path.join(config['UPLOAD_FOLDER'], vi.hash_name + "." + vi.extension)
