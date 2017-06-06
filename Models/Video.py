@@ -195,7 +195,7 @@ class Video(Model):
             "update_time": str(self.update_time),
             "split_type": self.split_type,
             "processed_time": str(self.processed_time),
-            "video_info": json.loads(self.video_info),
+            "video_info": self.video_info,
             "thumb_height": self.thumb_height,
             "segment_duration": self.segment_duration,
             "is_chinese": self.is_chinese,
