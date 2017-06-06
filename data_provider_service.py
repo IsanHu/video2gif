@@ -118,7 +118,6 @@ class DataProviderService:
         try:
             print currentsession
             videos = currentsession.query(Video).filter(Video.status == 7).all()
-            currentsession.commit()
             if serialize:
                 return [vi.serialize() for vi in videos]
             else:
