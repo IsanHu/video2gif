@@ -58,32 +58,36 @@ config['XUNFEI_KEY'] = 'c238e91e995ae7b31d313caba8ce28a5'
 
 # videos = {'择天记_时间.mp4': {'status': "处理中"}, '择天记_时间2.mp4': {'status': "排队处理中"}, '择天记_字幕.mp4': {'status': "生成字幕中"}, '择天记_字幕2.mp4': {'status': "排队处理中（字幕）"}, '择天记_字幕3.mp4': {'status': "处理中（字幕）"}}
 videos = {}
-noCaptionQueue = Queue.Queue(maxsize=50)
-captionQueue = Queue.Queue(maxsize=50)
+processQueue = Queue.Queue(maxsize=50)
 uploadAudioQueue = Queue.Queue(maxsize=50)
 getAudioQueue = Queue.Queue(maxsize=50)
 topCount = 200
 clipDuration = 2
 
 
-## nocaption video 队列
-def start_nocaption_video_queue():
-    thread = threading.Thread(target=did_start_nocaption_video_queue)
+def start_process_queue():
+    thread = threading.Thread(target=did_start_process_queue)
     thread.daemon = True
     thread.start()
 
 
-def did_start_nocaption_video_queue():
-    for video in get_no_caption_video():
-        process_video_to_generate_gifs(video)
+def did_start_process_queue():
+    for video in get_video_to_process():
+        processVideo(video)
 
 
-def get_no_caption_video():
-    item = noCaptionQueue.get()
+def get_video_to_process():
+    item = processQueue.get()
     while item:
         yield item
-        noCaptionQueue.task_done()
-        item = noCaptionQueue.get()
+        processQueue.task_done()
+        item = processQueue.get()
+
+def processVideo(video):
+    if video.split_type == 1:
+        process_video_to_generate_gifs(video)
+    else:
+        process_caption_video_to_generate_gifs(video)
 
 
 def is_overlapping(x1, x2, y1, y2):
@@ -224,7 +228,7 @@ def process_video_to_generate_gifs(video):
     process_info['total_time'] = int(time.time() - process_start)
     vi.process_info = json.dumps(process_info)
     sleep(0.01)
-    DATA_PROVIDER.update_video(DATA_PROVIDER.no_caption_queue_session, vi)
+    DATA_PROVIDER.update_video(DATA_PROVIDER.caption_queue_session, vi)
 
     print("处理无字幕视频用时: %.2fs" % (time.time() - process_start))
 
@@ -465,27 +469,7 @@ def get_caption_from_xunfei():
         DATA_PROVIDER.update_video(DATA_PROVIDER.caption_loop_queue_session, vi)
 
         # 加入字幕视屏队列
-        captionQueue.put(vi)
-
-
-## 初始化有字幕 video 队列
-def start_caption_video_queue():
-    thread = threading.Thread(target=did_start_caption_video_queue)
-    thread.daemon = True
-    thread.start()
-
-
-def did_start_caption_video_queue():
-    for video in get_caption_video_path():
-        process_caption_video_to_generate_gifs(video)
-
-
-def get_caption_video_path():
-    item = captionQueue.get()
-    while item:
-        yield item
-        captionQueue.task_done()
-        item = captionQueue.get()
+        processQueue.put(vi)
 
 
 def process_caption_video_to_generate_gifs(video):
@@ -663,11 +647,10 @@ def get_file_status_info(fileName):
 
 def start_all_queues():
     print "初始化队列"
-    start_nocaption_video_queue()
     start_get_audio_queue()
     start_upload_audio_queue()
     start_get_caption_loop()
-    start_caption_video_queue()
+    start_process_queue()
     print "初始化队列完成"
 
 
@@ -687,7 +670,7 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
 
     video = videos[0]
     print "添加的video"
-    print video.hash_name
+    print video.name
     ## 检查video状态
     if video.status != 0:
         return {'result': 1002, "error_message": "视频已经在处理了", "video": video.mini_serialize()}
@@ -709,10 +692,10 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
     if split_type == 0:
         getAudioQueue.put(video)
     else:
-        noCaptionQueue.put(video) ##由于thero在多线程下有问题
+        processQueue.put(video) ##由于thero在多线程下有问题
 
     print "添加的video"
-    print video.hash_name
+    print video.name
     return {'result': 0, "video": video.mini_serialize()}
 
 
