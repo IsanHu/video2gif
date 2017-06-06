@@ -675,8 +675,6 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
     if caption == "true":
         split_type = 0
 
-    if split_type == 1:
-        return {'result': 1003, "error_message": "暂不支持按时间截图"}
 
     sleep(0.01)
     videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.main_queue_session, fileName)
@@ -709,7 +707,7 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
     if split_type == 0:
         getAudioQueue.put(video)
     else:
-        captionQueue.put(video) ##由于thero在多线程下有问题
+        noCaptionQueue.put(video) ##由于thero在多线程下有问题
 
     print "添加的video"
     print video.hash_name
