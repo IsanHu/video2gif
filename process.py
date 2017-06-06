@@ -487,9 +487,9 @@ def get_caption_video_path():
 
 
 def process_caption_video_to_generate_gifs(video):
-    if video.split_type == 1: ## 因为thero在多线程下有问题
-        process_video_to_generate_gifs(video)
-        return
+    # if video.split_type == 1: ## 因为thero在多线程下有问题
+    #     process_video_to_generate_gifs(video)
+    #     return
     ## 检查状态
     print("process_caption_video_to_generate_gifs")
     sleep(0.1)
@@ -670,6 +670,14 @@ def start_all_queues():
 
 
 def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
+
+    split_type = 1
+    if caption == "true":
+        split_type = 0
+
+    if split_type == 1:
+        return {'result': 1003, "error_message": "暂不支持按时间截图"}
+
     sleep(0.01)
     videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.main_queue_session, fileName)
     print "video count:"
@@ -692,10 +700,6 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
     if isChinese == "false":
         is_chinese = 1
     video.is_chinese = is_chinese
-
-    split_type = 1
-    if caption == "true":
-        split_type = 0
 
     video.split_type = split_type
     video.update_time = datetime.now()
