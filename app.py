@@ -433,5 +433,5 @@ print "app.py 脚本"
 process.start_all_queues()
 
 if __name__ == '__main__':
-    port = argv[1]
-    app.run(host='0.0.0.0', port=port)
+    global_config.config['port'] = argv[1]
+    app.run(host='0.0.0.0', port=global_config.config['port'])

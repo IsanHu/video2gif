@@ -25,6 +25,7 @@ db_engine = create_engine('mysql+pymysql://root:@localhost:3306/video2gif?charse
 session_factory = sessionmaker(bind=db_engine)
 Scope_Session = scoped_session(session_factory)
 
+
 class DataProviderService:
     def __init__(self, engine):
         """
@@ -93,8 +94,9 @@ class DataProviderService:
                 return [vi.serialize() for vi in videos]
             else:
                 return videos
-        except:
+        except (Exception) as e:
             print "抓到exception"
+            print e.message
             print "get_video_by_hash_name 操作失败"
             sleep(3)
             return self.get_video_by_hash_name(currentsession, hash_name, serialize)

@@ -3,7 +3,8 @@ from sqlalchemy import Column, String, Integer, ForeignKey, Numeric, Date
 from Model import Model
 import json
 import os
-
+import time
+from datetime import date, datetime
 config = {}
 basedir = os.path.abspath(os.path.dirname(__file__)) + "/.."
 config['UPLOAD_FOLDER'] = basedir + '/unprocessedvideos/'
@@ -85,6 +86,28 @@ class Video(Model):
 
         return old_vi
 
+    @classmethod
+    def update_video_from_dic(cls, vi, viDic):
+        vi.id=viDic["id"]
+        vi.name=viDic["name"]
+        vi.hash_name=viDic["hash_name"]
+        vi.extension=viDic["extension"]
+        vi.status=viDic["status"]
+        vi.update_time = datetime.now()
+        # vi.update_time= time.strptime(viDic["update_time"], "%Y-%m-%d %H:%M:%S")
+        # vi.upload_time= time.strptime(viDic["upload_time"], "%Y-%m-%d %H:%M:%S")
+        # vi.processed_time= time.strptime(viDic["processed_time"], "%Y-%m-%d %H:%M:%S")
+        vi.split_type=viDic["split_type"]
+        vi.caption=viDic["caption"]
+        vi.video_info=viDic["video_info"]
+        vi.tag=viDic["tag"]
+        vi.thumb_height=viDic["thumb_height"]
+        vi.segment_duration=viDic["segment_duration"]
+        vi.is_chinese=viDic["is_chinese"]
+        vi.xunfei_id=viDic["xunfei_id"]
+        # vi.xunfei_upload_time= time.strptime(viDic["xunfei_upload_time"], "%Y-%m-%d %H:%M:%S")
+        vi.process_info=viDic["process_info"]
+        return vi
 
     @classmethod
     def get_video_from_dic(cls, viDic):
@@ -112,17 +135,7 @@ class Video(Model):
 
     def serialize(self):
         tag_str = self.tag
-        if tag_str != "":
-            json.loads(tag_str)
-
         caption_str = self.caption
-        if caption_str != "":
-            json.loads(caption_str)
-
-        process_info_dic = {}
-        process_info_str = self.process_info
-        if process_info_str is not None and process_info_str != "":
-            process_info_dic = json.loads(process_info_str)
 
         return {
             "id": self.id,
@@ -137,21 +150,17 @@ class Video(Model):
             "processed_time": str(self.processed_time),
             "tag": tag_str,
             "caption": caption_str,
-            "video_info": json.loads(self.video_info),
+            "video_info": self.video_info,
             "thumb_height":self.thumb_height,
             "segment_duration": self.segment_duration,
             "is_chinese": self.is_chinese,
             "xunfei_id": self.xunfei_id,
-            "xunfei_upload_time": self.xunfei_upload_time,
-            "process_info":process_info_dic
+            "xunfei_upload_time": str(self.xunfei_upload_time),
+            "process_info":self.process_info
         }
 
 
     def mini_serialize(self):
-        process_info_dic = {}
-        process_info_str = self.process_info
-        if process_info_str is not None and process_info_str != "":
-            process_info_dic = json.loads(process_info_str)
 
         if self.status == 1:
 
@@ -166,14 +175,14 @@ class Video(Model):
                 "update_time": str(self.update_time),
                 "split_type": self.split_type,
                 "processed_time": str(self.processed_time),
-                "video_info": json.loads(self.video_info),
+                "video_info": self.video_info,
                 "ziped_gif_info": self.ziped_gif_info(),
                 "gif_info": self.gif_info(),
                 "thumb_height": self.thumb_height,
                 "segment_duration": self.segment_duration,
                 "is_chinese": self.is_chinese,
                 "xunfei_id": self.xunfei_id,
-                "process_info":process_info_dic
+                "process_info":self.process_info
             }
         return {
             "id": self.id,
@@ -191,7 +200,7 @@ class Video(Model):
             "segment_duration": self.segment_duration,
             "is_chinese": self.is_chinese,
             "xunfei_id": self.xunfei_id,
-            "process_info":process_info_dic
+            "process_info":self.process_info
         }
 
     def status_info(self):
