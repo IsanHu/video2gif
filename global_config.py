@@ -2,8 +2,8 @@
 
 
 config = {}
-# config['is_local'] = True
-config['is_local'] = False
+config['is_local'] = True
+# config['is_local'] = False
 
 # config['db_engine'] = 'mysql+pymysql://root:@localhost:3306/video2gif?charset=utf8'
 config['db_engine'] = "mysql+pymysql://isan:smart_isan@localhost:3306/video2gif?charset=utf8"
