@@ -427,6 +427,13 @@ def get_caption_from_xunfei():
     sleep(0.1)
     videos = DATA_PROVIDER.get_all_fetching_caption_videos(DATA_PROVIDER.caption_loop_queue_session)
     for vi in videos:
+
+        ##检查是否是本实例处理的视频
+        process_info = json.loads(vi.process_info)
+        if process_info['port'] != global_config.config['port']:
+            print "%s 不是本实例处理的视频" % vi.name
+            continue
+
         time_gap = datetime.now() - vi.xunfei_upload_time
         if time_gap.days > 0 or time_gap.seconds > 480: ##TODO根据视频duration决定等待时间
             print "%s 开始获取字幕, xunfei_id: %s" % (vi.name, vi.xunfei_id)
