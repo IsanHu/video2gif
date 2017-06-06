@@ -119,9 +119,10 @@ class Video(Model):
         if caption_str != "":
             json.loads(caption_str)
 
-        # process_info_str = self.process_info
-        # if process_info_str != "":
-        #     process_info_str = json.loads(process_info_str)
+        process_info_dic = {}
+        process_info_str = self.process_info
+        if process_info_str is not None and process_info_str != "":
+            process_info_dic = json.loads(process_info_str)
 
         return {
             "id": self.id,
@@ -142,13 +143,15 @@ class Video(Model):
             "is_chinese": self.is_chinese,
             "xunfei_id": self.xunfei_id,
             "xunfei_upload_time": self.xunfei_upload_time,
+            "process_info":process_info_dic
         }
 
 
     def mini_serialize(self):
-        # process_info_str = self.process_info
-        # if process_info_str != "":
-        #     process_info_str = json.loads(process_info_str)
+        process_info_dic = {}
+        process_info_str = self.process_info
+        if process_info_str is not None and process_info_str != "":
+            process_info_dic = json.loads(process_info_str)
 
         if self.status == 1:
 
@@ -170,7 +173,7 @@ class Video(Model):
                 "segment_duration": self.segment_duration,
                 "is_chinese": self.is_chinese,
                 "xunfei_id": self.xunfei_id,
-                # "process_info":process_info_str
+                "process_info":process_info_dic
             }
         return {
             "id": self.id,
@@ -188,7 +191,7 @@ class Video(Model):
             "segment_duration": self.segment_duration,
             "is_chinese": self.is_chinese,
             "xunfei_id": self.xunfei_id,
-            # "process_info":process_info_str
+            "process_info":process_info_dic
         }
 
     def status_info(self):
