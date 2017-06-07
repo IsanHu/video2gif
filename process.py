@@ -84,6 +84,8 @@ def get_video_to_process():
         item = processQueue.get()
 
 def processVideo(video):
+    print "要处理的视频类型:"
+    print video.split_type
     if video.split_type == 1:
         process_video_to_generate_gifs(video)
     else:
