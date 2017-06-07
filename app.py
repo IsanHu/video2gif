@@ -101,12 +101,6 @@ def hInfo():
     return simplejson.dumps(hinfo)
 
 
-@app.route("/root", methods=['GET'])
-def root():
-    videos = DATA_PROVIDER.all_videos(serialize=True)
-    return render_template('root.html', videos=json.dumps(videos))
-
-
 
 
 @app.route("/upload", methods=['GET', 'POST'])
@@ -337,8 +331,16 @@ def index():
 
 @app.route('/alldata', methods=['GET', 'POST'])
 def alldata():
-    videos = DATA_PROVIDER.all_videos(serialize=True)
-    return render_template('root.html', videos=json.dumps(videos), tab='process')
+    videos, page_indexs, current_page = DATA_PROVIDER.videos_at_page(1, serialize=True)
+    return render_template('root.html', videos=json.dumps(videos), page_indexs=page_indexs, current_page = current_page, tab='process')
+
+@app.route("/videos", methods=['POST'])
+def get_videos_at_page():
+    params = request.form
+    key = params['key'].encode('utf-8')
+    page = int(params['page'])
+    videos, page_indexs, current_page = DATA_PROVIDER.videos_at_page(page, key=key, serialize=True)
+    return simplejson.dumps({"videos":videos, "page_indexs":page_indexs, "current_page": current_page})
 
 
 @app.route('/getalldata', methods=['GET', 'POST'])

@@ -1,3 +1,64 @@
+//搜索
+function search() {
+      key = $("#searchInput").val().trim();
+      if (key.length == 0) {
+        alert("请输入搜索词");
+        return;
+      }
+      getVidesWithPage(1)
+  }
+  
+
+//分页逻辑
+function getVidesWithPage(page) {
+      waitingDialog.show("加载中...");
+      key = $("#searchInput").val().trim();
+      var params = {
+        "page": page,
+        "key": key,
+      };
+      console.log(params)
+      url = "/videos"
+      $.ajax({
+          type: "POST",
+          data: params,
+          url: url,
+          success: function(data) {
+              waitingDialog.hide();
+              console.log("成功");
+              tasks.videos = data.videos;
+              tasks.current_page = data.current_page;
+              tasks.page_indexs = data.page_indexs;
+          },
+          error: function(data) {
+              waitingDialog.hide();
+          },
+          dataType: "json"
+      });
+  }
+
+function nextPageButtonClicked() {
+    var currentPage = tasks.current_page
+    var pageIndexs = tasks.page_indexs
+    var pageCount = pageIndexs.length
+    if (currentPage < pageCount) {
+        getVidesWithPage(currentPage + 1);
+    }else{
+    }
+}
+
+function prePageButtonClicked() {
+    var currentPage = tasks.current_page
+    var pageIndexs = tasks.page_indexs
+    var pageCount = pageIndexs.length
+    if (currentPage > 1) {
+        getVidesWithPage(currentPage - 1);
+    }else{
+    }
+}
+
+
+//处理逻辑
 function addToProcessButtonClicked() {
   var readbleName = $('#videoToProcess').text()
   var videoName = $('#hashName').text()
@@ -177,6 +238,18 @@ Vue.component('videos', {
             $('#addToProcessModal').modal('show');
 
         }
+    }, 
+});
+
+Vue.component('pageindex', {
+    props: ['p_index', 'current_page'],
+    template: 
+        '<li v-if="p_index == current_page" v-bind:pageIndex="p_index" class="active pageIndexButton" @click="gotoPage(p_index)"><a>{{ p_index }}</a></li>' +
+        '<li v-else v-bind:pageIndex="p_index" class="pageIndexButton" @click="gotoPage(p_index)"><a>{{ p_index }}</a></li>',
+    methods: {
+        gotoPage: function(page) {
+            getVidesWithPage(page)
+        },
     }, 
 });
 

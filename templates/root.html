@@ -6,7 +6,18 @@
 
 </script>
 <div class="container" id="task_page">
-    <div class="row">
+    <div class="text-center">
+
+    <div class="input-group col-md-2" style="height: 30px; float: right;">
+          <input type="text" class="form-control" id="searchInput" placeholder="搜索" searchKey=''>
+            <span class="input-group-btn">
+              <button class="btn btn-primary" id="searchButton" type="button">搜索</button>
+            </span>
+    </div>
+
+
+    </div>
+    <div class="row" style="margin-top: 8px;">
         <div class="col-md-12">
           <table class="table">
               <tr>
@@ -21,6 +32,27 @@
           </table>
         </div>
     </div>
+    
+
+
+    <nav style="width: 100%; text-align: center;">
+      <ul class="pagination">
+        <li id="prePageButton" onClick="javascript:prePageButtonClicked()">
+          <span aria-hidden="true">&laquo;</span>
+        </li>
+        <li is="pageindex" v-bind:current_page=current_page v-for="p_index in page_indexs" v-bind:p_index="p_index"></tr>
+        </pageindex>
+        
+
+        
+        <li id="nextPageButton" onClick="javascript:nextPageButtonClicked()">
+            <span aria-hidden="true">&raquo;</span>
+        </li>
+      </ul>
+    </nav>
+
+
+
     <div id="addToProcessModal" class="modal fade" tabindex="-1" role="dialog">
           <div class="modal-dialog">
             <div class="modal-content">
@@ -77,11 +109,16 @@
       data: {
           message: 'You loaded this page on ' + new Date(),
           videos: [],
+          current_page: 1,
+          page_indexs: [],
+
       }
     })
 
     var all_video = {{ videos|safe }}
     tasks.videos = all_video
+    tasks.current_page = {{ current_page|safe }}
+    tasks.page_indexs = {{ page_indexs|safe }}
 
 
   function methodChage() {
@@ -96,5 +133,17 @@
         $("#durationP").show()
       }
   }
+</script>
+
+<script type="text/javascript">
+  $('#searchInput').on('keypress', function (e) {
+       if(e.which === 13){
+          search()
+       }
+   });
+
+  $("#searchButton").on("click", function(){
+      search();
+  });
 </script>
 {% endblock %}
