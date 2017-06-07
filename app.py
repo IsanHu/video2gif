@@ -1,5 +1,5 @@
-#-*- coding:utf-8 -*-
-#!flask/bin/python
+# -*- coding:utf-8 -*-
+# !flask/bin/python
 
 # Author: Ngo Duy Khanh
 # Email: ngokhanhit@gmail.com
@@ -30,10 +30,14 @@ from moviepy.editor import VideoFileClip
 from flask import jsonify
 
 ## 数据库相关
-from middleware import DATA_PROVIDER
+
+from data_service import DATA_PROVIDER
+
+import process
 
 from Models import Video
 from datetime import datetime
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -56,7 +60,7 @@ bootstrap = Bootstrap(app)
 
 def allowed_file(filename):
     return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def gen_file_name(fName):
@@ -64,12 +68,13 @@ def gen_file_name(fName):
     If file was exist already, rename it and return a new name
     """
     name = fName
-    videos = DATA_PROVIDER.all_videos(DATA_PROVIDER.main_queue_session)
+    videos = DATA_PROVIDER.all_videos()
     for vi in videos:
         if vi.name == fName:
             name = name + "_1"
             break
     return name
+
 
 def create_thumbnail(image):
     try:
@@ -86,6 +91,7 @@ def create_thumbnail(image):
         print traceback.format_exc()
         return False
 
+
 @app.route("/hInfo", methods=['GET'])
 def hInfo():
     # //获取硬件信息
@@ -97,18 +103,11 @@ def hInfo():
 
 @app.route("/root", methods=['GET'])
 def root():
-    videos = DATA_PROVIDER.all_videos(DATA_PROVIDER.main_queue_session, serialize=True)
+    videos = DATA_PROVIDER.all_videos(serialize=True)
     return render_template('root.html', videos=json.dumps(videos))
 
-@app.route("/allvideos/<int:page>", methods=['GET'])
-def allvideos(page):
-    videos = DATA_PROVIDER.all_videos(DATA_PROVIDER.main_queue_session, serialize=True)
-    return render_template('root.html', videos=json.dumps(videos))
 
-@app.route("/test", methods=['GET'])
-def test():
-     video = DATA_PROVIDER.get_video_by_name(DATA_PROVIDER.main_queue_session, 'test', serialize=True)
-     return jsonify({'video': video})
+
 
 @app.route("/upload", methods=['GET', 'POST'])
 def upload():
@@ -139,8 +138,6 @@ def upload():
                 info = {'duration': duration, 'dimention': dimention, 'size': size_str}
                 info_str = json.dumps(info)
 
-
-
                 print "saved path:"
                 print uploaded_file_path
 
@@ -152,9 +149,8 @@ def upload():
                               upload_time=datetime.now(),
                               video_info=info_str)
                 ## 保存成功后, 在数据库中添加记录
-                result = DATA_PROVIDER.add_unprocessed_videos(DATA_PROVIDER.main_queue_session, [video])
-                print result
-                
+                DATA_PROVIDER.add_unprocessed_videos([video])
+
                 # get file size after saving
                 size = os.path.getsize(uploaded_file_path)
 
@@ -165,7 +161,8 @@ def upload():
 
     if request.method == 'GET':
         # get all file in ./data directory
-        files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'],f)) and f not in IGNORED_FILES ]
+        files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if
+                 os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], f)) and f not in IGNORED_FILES]
 
         file_display = []
         files.sort(unprocessedSort)
@@ -176,7 +173,8 @@ def upload():
             file_info['processed'] = False
             file_display.append(file_info)
 
-        processed_files = [f for f in os.listdir(app.config['PROCESSED_FOLDER']) if os.path.isfile(os.path.join(app.config['PROCESSED_FOLDER'],f)) and f not in IGNORED_FILES ]
+        processed_files = [f for f in os.listdir(app.config['PROCESSED_FOLDER']) if
+                           os.path.isfile(os.path.join(app.config['PROCESSED_FOLDER'], f)) and f not in IGNORED_FILES]
         processed_files.sort(processedSort)
         for f in processed_files:
             size = os.path.getsize(os.path.join(app.config['PROCESSED_FOLDER'], f))
@@ -184,7 +182,7 @@ def upload():
             file_info = file_saved.get_file()
             file_info['processed'] = True
 
-            file_name=os.path.splitext(os.path.split(f)[1])[0]
+            file_name = os.path.splitext(os.path.split(f)[1])[0]
             ziped_gif_file_name = file_name + ".zip"
             ziped_gif_path = os.path.join(app.config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
             print ziped_gif_path
@@ -194,7 +192,6 @@ def upload():
                 file_info['ziped_gif_info'] = ziped_gif_saved.get_file()
 
             file_display.append(file_info)
-        
 
         return simplejson.dumps({"files": file_display})
 
@@ -211,6 +208,7 @@ def deleteunprocessed(filename):
         except:
             return simplejson.dumps({filename: 'False'})
 
+
 @app.route("/deleteprocessed/<string:filename>", methods=['DELETE'])
 def deleteprocessed(filename):
     file_path = os.path.join(app.config['PROCESSED_FOLDER'], filename)
@@ -220,6 +218,7 @@ def deleteprocessed(filename):
             return simplejson.dumps({filename: 'True'})
         except:
             return simplejson.dumps({filename: 'False'})
+
 
 @app.route("/deletezipedgif/<string:filename>", methods=['DELETE'])
 def deletezipedgif(filename):
@@ -242,18 +241,21 @@ def get_thumbnail(filename):
 def get_processed_file(filename):
     return send_from_directory(os.path.join(app.config['PROCESSED_FOLDER']), filename=filename)
 
+
 @app.route("/unprocessed/<string:filename>", methods=['GET'])
 def get_unprocessed_file(filename):
     return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER']), filename=filename)
+
 
 @app.route("/zipedgif/<string:filename>", methods=['GET'])
 def get_ziped_gif_file(filename):
     return send_from_directory(os.path.join(app.config['ZIPED_GIF_FOLDER']), filename=filename)
 
+
 @app.route("/gifs/<string:filename>", methods=['GET'])
 def gifs(filename):
     sleep(0.01)
-    videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.main_queue_session, filename)
+    videos = DATA_PROVIDER.get_video_by_hash_name(filename)
     if len(videos) == 0:
         return {'result': 1001, "error_message": "该视频丢失"}
     vi = videos[0]
@@ -298,10 +300,16 @@ def gifs(filename):
                     if os.path.isfile(original_mp4_path):
                         full_size = round(float(os.path.getsize(original_mp4_path)) / 1024.0 / 1024.0, 2)
                     if index < len(segments_array):
-                        gifs.append({'url': path + f, 'name':fName, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags':tags, 'caption': gif_caption[index]['caption'], 'segments': segments_array[index]})
+                        gifs.append(
+                            {'url': path + f, 'name': fName, 'index': index, 'size': size, 'full_size': full_size,
+                             'original_gif_url': original_gif_path + fName, 'tags': tags,
+                             'caption': gif_caption[index]['caption'], 'segments': segments_array[index]})
                     else:
-                        gifs.append({'url': path + f, 'name':fName, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags': tags, 'caption': gif_caption[index]['caption'],
-                                     'segments': ''})
+                        gifs.append(
+                            {'url': path + f, 'name': fName, 'index': index, 'size': size, 'full_size': full_size,
+                             'original_gif_url': original_gif_path + fName, 'tags': tags,
+                             'caption': gif_caption[index]['caption'],
+                             'segments': ''})
                     index += 1
     else:
         if os.path.isdir(gifs_dir):
@@ -314,7 +322,9 @@ def gifs(filename):
                     original_mp4_path = os.path.join(basedir + original_gif_path, fName)
                     if os.path.isfile(original_mp4_path):
                         full_size = round(float(os.path.getsize(original_mp4_path)) / 1024.0 / 1024.0, 2)
-                    gifs.append({'url': path + f, 'name':fName, 'index':index, 'size':size, 'full_size':full_size, 'original_gif_url':original_gif_path + fName, 'tags': tags, 'caption': '', 'segments': ''})
+                    gifs.append({'url': path + f, 'name': fName, 'index': index, 'size': size, 'full_size': full_size,
+                                 'original_gif_url': original_gif_path + fName, 'tags': tags, 'caption': '',
+                                 'segments': ''})
                     index = index + 1
     gifs_str = json.dumps(gifs)
     return render_template('upload_gif.html', gifs=gifs_str, result=1)
@@ -324,16 +334,18 @@ def gifs(filename):
 def index():
     return render_template('index.html', tab='upload')
 
+
 @app.route('/alldata', methods=['GET', 'POST'])
 def alldata():
-    videos = DATA_PROVIDER.all_videos(DATA_PROVIDER.main_queue_session, serialize=True)
+    videos = DATA_PROVIDER.all_videos(serialize=True)
     return render_template('root.html', videos=json.dumps(videos), tab='process')
-    # return render_template('alldata.html', tab='process')
+
 
 @app.route('/getalldata', methods=['GET', 'POST'])
 def getalldata():
     processed_files, unprocessed_files = did_get_all_data()
-    return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files':unprocessed_files})
+    return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files': unprocessed_files})
+
 
 def did_get_all_data():
     # get all file in ./data directory
@@ -384,6 +396,7 @@ def did_get_all_data():
         processed_files.append(file_info)
     return processed_files, unprocessed_files
 
+
 @app.route("/addVideoToProcess", methods=['POST'])
 def addVideoToProcess():
     params = request.form
@@ -397,17 +410,18 @@ def addVideoToProcess():
     return simplejson.dumps(result)
 
 
-
 ## helper
 def md5_name(name):
     m = hashlib.md5()
     m.update(name)
     return m.hexdigest()
 
+
 def sec_2_time(sec):
     m, s = divmod(sec, 60)
     h, m = divmod(m, 60)
     return ("%02d:%02d:%02d" % (h, m, s))
+
 
 def unprocessedSort(x, y):
     stat_x = os.stat(app.config['UPLOAD_FOLDER'] + x)
@@ -419,6 +433,7 @@ def unprocessedSort(x, y):
     else:
         return 0
 
+
 def processedSort(x, y):
     stat_x = os.stat(app.config['PROCESSED_FOLDER'] + x)
     stat_y = os.stat(app.config['PROCESSED_FOLDER'] + y)
@@ -428,6 +443,7 @@ def processedSort(x, y):
         return -1
     else:
         return 0
+
 
 print "app.py 脚本"
 process.start_all_queues()

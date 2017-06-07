@@ -27,8 +27,9 @@ import json
 import time
 from time import sleep
 from datetime import date, datetime
-from middleware import DATA_PROVIDER
+from data_service import DATA_PROVIDER
 from Models import Video
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 config = {}
 config['UPLOAD_FOLDER'] = basedir + '/unprocessedvideos/'
@@ -43,20 +44,7 @@ config['XUNFEI_JAR'] = basedir + '/Lfasr.jar'
 config['XUNFEI_APPID'] = '591c2c4d'
 config['XUNFEI_KEY'] = 'c238e91e995ae7b31d313caba8ce28a5'
 
-# 排队处理中
-# 排队处理中（字幕）
-# 处理中
-# 生成字幕中
-# 生成字幕成功
-# 处理中（字幕）
 
-# status
-# tags
-# caption  标记类型
-# file_name
-# xunfei_id
-
-# videos = {'择天记_时间.mp4': {'status': "处理中"}, '择天记_时间2.mp4': {'status': "排队处理中"}, '择天记_字幕.mp4': {'status': "生成字幕中"}, '择天记_字幕2.mp4': {'status': "排队处理中（字幕）"}, '择天记_字幕3.mp4': {'status': "处理中（字幕）"}}
 videos = {}
 processQueue = Queue.Queue(maxsize=50)
 uploadAudioQueue = Queue.Queue(maxsize=50)
@@ -83,6 +71,7 @@ def get_video_to_process():
         processQueue.task_done()
         item = processQueue.get()
 
+
 def processVideo(video):
     print "要处理的视频类型:"
     print video.split_type
@@ -100,7 +89,7 @@ def process_video_to_generate_gifs(video):
     print "process_video_to_generate_gifs"
     ## 检查状态
     sleep(0.1)
-    videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.caption_queue_session, video.hash_name)
+    videos = DATA_PROVIDER.get_video_by_hash_name(video.hash_name)
     if len(videos) == 0:
         print "dataError: process_video_to_generate_gifs 数据丢失"
         return
@@ -116,7 +105,7 @@ def process_video_to_generate_gifs(video):
     vi.status = 3
     vi.update_time = datetime.now()
     sleep(0.01)
-    DATA_PROVIDER.update_video(DATA_PROVIDER.caption_queue_session, vi)
+    DATA_PROVIDER.update_video(vi)
 
     ## 开始处理
     print "开始处理"
@@ -153,16 +142,15 @@ def process_video_to_generate_gifs(video):
 
     if global_config.config['is_local']:
         print "本地假装开始对 %s 进行评分" % vi.name
-        sleep(60)
+        sleep(30)
         print "本地假装对 %s 进行评分结束" % vi.name
         vi.status = 33
         vi.update_time = datetime.now()
-        DATA_PROVIDER.update_video(DATA_PROVIDER.caption_queue_session, vi)
+        DATA_PROVIDER.update_video(vi)
         return
 
     # Score the segments
     scores = {}
-    
 
     for particalSegments in segmentsArray:
         particalScores = video2gif.get_scores(score_function, particalSegments, video, vi.name, stride=8)
@@ -224,16 +212,15 @@ def process_video_to_generate_gifs(video):
     print cmd1
     os.system(cmd1)
 
-    #把状态更新成已处理
+    # 把状态更新成已处理
     vi.status = 1
     vi.update_time = datetime.now()
     process_info['total_time'] = int(time.time() - process_start)
     vi.process_info = json.dumps(process_info)
     sleep(0.01)
-    DATA_PROVIDER.update_video(DATA_PROVIDER.caption_queue_session, vi)
+    DATA_PROVIDER.update_video(vi)
 
     print("处理无字幕视频用时: %.2fs" % (time.time() - process_start))
-
 
 
 ## 初始化提取 audio 队列
@@ -250,7 +237,7 @@ def did_start_get_audio_queue():
         print "did_start_get_audio_queue"
         sleep(0.1)
         ## 检查状态
-        videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.audio_queue_session,video.hash_name)
+        videos = DATA_PROVIDER.get_video_by_hash_name(video.hash_name)
         if len(videos) == 0:
             print "dataError: did_start_get_audio_queue 数据丢失"
             return
@@ -262,10 +249,10 @@ def did_start_get_audio_queue():
             return
 
         ## 更新video状态
-        vi.status = 4 ## 提取音频中
+        vi.status = 4  ## 提取音频中
         vi.update_time = datetime.now()
         sleep(0.01)
-        DATA_PROVIDER.update_video(DATA_PROVIDER.audio_queue_session, vi)
+        DATA_PROVIDER.update_video(vi)
 
         ## 开始处理
         start = time.time()
@@ -303,7 +290,7 @@ def did_start_get_audio_queue():
                 vi.status = 2
                 vi.update_time = datetime.now()
                 sleep(0.01)
-                DATA_PROVIDER.update_video(DATA_PROVIDER.audio_queue_session, vi)
+                DATA_PROVIDER.update_video(vi)
 
                 getAudioQueue.put(vi)
                 continue
@@ -314,7 +301,7 @@ def did_start_get_audio_queue():
         vi.update_time = datetime.now()
         vi.process_info = json.dumps(process_info)
         sleep(0.01)
-        DATA_PROVIDER.update_video(DATA_PROVIDER.audio_queue_session, vi)
+        DATA_PROVIDER.update_video(vi)
         uploadAudioQueue.put(vi)
 
 
@@ -338,7 +325,7 @@ def did_start_upload_audio_queue():
 
         ## 检查状态
         sleep(0.1)
-        videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.upload_queue_session, video.hash_name)
+        videos = DATA_PROVIDER.get_video_by_hash_name(video.hash_name)
         if len(videos) == 0:
             print "dataError: did_start_upload_audio_queue 数据丢失"
             return
@@ -348,7 +335,7 @@ def did_start_upload_audio_queue():
         vi.status = 6  ## 上传音频中
         vi.update_time = datetime.now()
         sleep(0.01)
-        DATA_PROVIDER.update_video(DATA_PROVIDER.upload_queue_session, vi)
+        DATA_PROVIDER.update_video(vi)
 
         ## 开始处理
         start = time.time()
@@ -360,13 +347,13 @@ def did_start_upload_audio_queue():
             vi.status = 7  ## 上传音频成功
             vi.update_time = datetime.now()
             sleep(0.01)
-            DATA_PROVIDER.update_video(DATA_PROVIDER.upload_queue_session, vi)
+            DATA_PROVIDER.update_video(vi)
             continue
 
         audio_path = os.path.join(config['BOTTLENECK'], vi.hash_name + "." + "mp3")
         print audio_path
         cmd = "java -jar %s 0 %s %s %s" % (
-        config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], audio_path)
+            config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], audio_path)
         print cmd
         try:
             result = json.loads(os.popen(cmd).read())
@@ -378,7 +365,7 @@ def did_start_upload_audio_queue():
             vi.status = 5  ## 提取音频成功
             vi.update_time = datetime.now()
             sleep(0.01)
-            DATA_PROVIDER.update_video(DATA_PROVIDER.upload_queue_session, vi)
+            DATA_PROVIDER.update_video(vi)
 
             uploadAudioQueue.put(vi)
             continue
@@ -394,7 +381,7 @@ def did_start_upload_audio_queue():
             vi.process_info = json.dumps(process_info)
             vi.xunfei_upload_time = datetime.now()
             sleep(0.01)
-            DATA_PROVIDER.update_video(DATA_PROVIDER.upload_queue_session, vi)
+            DATA_PROVIDER.update_video(vi)
         else:
             # 上传失败,重新加入上传音频队列
             print "上传失败"
@@ -402,7 +389,7 @@ def did_start_upload_audio_queue():
             vi.status = 5  ## 提取音频成功
             vi.update_time = datetime.now()
             sleep(0.01)
-            DATA_PROVIDER.update_video(DATA_PROVIDER.upload_queue_session, vi)
+            DATA_PROVIDER.update_video(vi)
             uploadAudioQueue.put(vi)
             continue
 
@@ -427,7 +414,7 @@ def start_get_caption_loop():
 def get_caption_from_xunfei():
     print 'get_caption_from_xunfei'
     sleep(0.1)
-    videos = DATA_PROVIDER.get_all_fetching_caption_videos(DATA_PROVIDER.caption_loop_queue_session)
+    videos = DATA_PROVIDER.get_all_fetching_caption_videos()
     for vi in videos:
 
         ##检查是否是本实例处理的视频
@@ -437,7 +424,7 @@ def get_caption_from_xunfei():
             continue
 
         time_gap = datetime.now() - vi.xunfei_upload_time
-        if time_gap.days > 0 or time_gap.seconds > 480: ##TODO根据视频duration决定等待时间
+        if time_gap.days > 0 or time_gap.seconds > 480:  ##TODO根据视频duration决定等待时间
             print "%s 开始获取字幕, xunfei_id: %s" % (vi.name, vi.xunfei_id)
         else:
             print "尚未到讯飞要求的时间"
@@ -447,11 +434,11 @@ def get_caption_from_xunfei():
         vi.status = 8  ## 获取字幕中
         vi.update_time = datetime.now()
         sleep(0.01)
-        DATA_PROVIDER.update_video(DATA_PROVIDER.caption_loop_queue_session, vi)
+        DATA_PROVIDER.update_video(vi)
 
         xunfei_id = vi.xunfei_id
         cmd = "java -jar %s 1 %s %s %s" % (
-        config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], xunfei_id)
+            config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], xunfei_id)
         print cmd
         try:
             result = json.loads(os.popen(cmd).read())
@@ -466,16 +453,16 @@ def get_caption_from_xunfei():
             vi.status = 7  ## 上传音频成功
             vi.update_time = datetime.now()
             sleep(0.01)
-            DATA_PROVIDER.update_video(DATA_PROVIDER.caption_loop_queue_session, vi)
+            DATA_PROVIDER.update_video(vi)
             continue
 
         print "%s 获取字幕成功, xunfei_id: %s" % (vi.name, xunfei_id)
         ## 更新video状态
         vi.status = 9  ## 获取字幕成功
-        vi.caption= result['data']
+        vi.caption = result['data']
         vi.update_time = datetime.now()
         sleep(0.1)
-        DATA_PROVIDER.update_video(DATA_PROVIDER.caption_loop_queue_session, vi)
+        DATA_PROVIDER.update_video(vi)
 
         # 加入字幕视屏队列
         processQueue.put(vi)
@@ -488,7 +475,7 @@ def process_caption_video_to_generate_gifs(video):
     ## 检查状态
     print("process_caption_video_to_generate_gifs")
     sleep(0.1)
-    videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.caption_queue_session, video.hash_name)
+    videos = DATA_PROVIDER.get_video_by_hash_name(video.hash_name)
     if len(videos) == 0:
         print "dataError: process_caption_video_to_generate_gifs 数据丢失"
         return
@@ -503,7 +490,7 @@ def process_caption_video_to_generate_gifs(video):
     vi.status = 3
     vi.update_time = datetime.now()
     sleep(0.01)
-    DATA_PROVIDER.update_video(DATA_PROVIDER.caption_queue_session, vi)
+    DATA_PROVIDER.update_video(vi)
 
     ## 开始处理
     start = time.time()
@@ -519,7 +506,6 @@ def process_caption_video_to_generate_gifs(video):
     print gif_path
     print ogiginal_gif_path
     print zip_path
-
 
     video = VideoFileClip(video_path)
     info = {}
@@ -545,11 +531,11 @@ def process_caption_video_to_generate_gifs(video):
 
     if global_config.config['is_local']:
         print "本地假装开始对 %s 进行评分" % vi.name
-        sleep(60)
+        sleep(30)
         print "本地假装对 %s 进行评分结束" % vi.name
         vi.status = 33
         vi.update_time = datetime.now()
-        DATA_PROVIDER.update_video(DATA_PROVIDER.no_caption_queue_session, vi)
+        DATA_PROVIDER.update_video(vi)
         return
 
     scores = video2gif.get_scores(score_function, segments, video, vi.name, stride=8)
@@ -615,7 +601,7 @@ def process_caption_video_to_generate_gifs(video):
     vi.caption = json.dumps(info)
     vi.process_info = json.dumps(process_info)
     sleep(0.01)
-    DATA_PROVIDER.update_video(DATA_PROVIDER.caption_queue_session, vi)
+    DATA_PROVIDER.update_video(vi)
     print("处理字幕视频用时: %.2fs" % (time.time() - start))
 
 
@@ -664,14 +650,12 @@ def start_all_queues():
 
 
 def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
-
     split_type = 1
     if caption == "true":
         split_type = 0
 
-
     sleep(0.01)
-    videos = DATA_PROVIDER.get_video_by_hash_name(DATA_PROVIDER.main_queue_session, fileName)
+    videos = DATA_PROVIDER.get_video_by_hash_name(fileName)
     print "video count:"
     print len(videos)
     if len(videos) == 0:
@@ -696,17 +680,13 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
     video.split_type = split_type
     video.update_time = datetime.now()
     sleep(0.01)
-    DATA_PROVIDER.update_video(DATA_PROVIDER.main_queue_session, video)
+    DATA_PROVIDER.update_video(video)
 
     if split_type == 0:
         getAudioQueue.put(video)
     else:
-        processQueue.put(video) ##由于thero在多线程下有问题
+        processQueue.put(video)  ##由于thero在多线程下有问题
 
     print "添加的video"
     print video.name
     return {'result': 0, "video": video.mini_serialize()}
-
-
-
-
