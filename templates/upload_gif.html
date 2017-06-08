@@ -243,7 +243,7 @@
 var domain = "http://mgc.biaoqingmm.com:5003"
     var gifs = {{ gifs|safe }}
     var count = gifs.length 
-    var page_count = Math.ceil(count / 50.0)
+    var page_count = Math.ceil(count / 10.0)
     for (var i = 1; i <= page_count; i++) {
         tasks.page_indexs.push(i)
     }
@@ -273,7 +273,7 @@ var domain = "http://mgc.biaoqingmm.com:5003"
                         gif_info:gif,
                     };
         temp_stickers.push(sticker); 
-        if(i % 50 == 0) {
+        if(i % 10 == 0) {
             tasks.paged_stickers.push({stickers: temp_stickers, download: 0})
             temp_stickers = []
         }               
