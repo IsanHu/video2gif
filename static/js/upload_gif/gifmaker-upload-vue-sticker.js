@@ -518,7 +518,7 @@ function downloadSticker(page, sticker) {
             var temp_sticker = {
                     selected: sticker.selected,
                     textinfo: sticker.textinfo,
-                    name: sticker.name
+                    name: sticker.name,
                     url: sticker.url,
                     original_url: sticker.original_url,
                     hascopyright: sticker.hascopyright,
