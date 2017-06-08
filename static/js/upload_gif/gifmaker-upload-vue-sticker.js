@@ -2,7 +2,8 @@ Vue.component('sticker', {
     props: ['src'],
     template: 
       '<div @click="toggleSelection" class="thumbnail col-xs-5 col-sm-5 col-md-4 col-lg-3" v-bind:class="{\'is-selected\': src.selected}">' +
-          '<img id="sticker" @click="testClick" class="thumbnail sticker" style="width: 100%;margin-bottom:4px" v-bind:src="src.store_url" v-bind:imageid="src.np_id" ></img>' +
+          '<img v-if="src.download_failed" id="sticker" class="thumbnail sticker" style="width: 100%;margin-bottom:4px" v-bind:src="src.store_url" v-bind:imageid="src.np_id" ></img>' +
+          '<img v-else id="sticker" @click="reloadClick(src)" class="thumbnail sticker" style="width: 100%;margin-bottom:4px" v-bind:src="https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3362021887,249398169&amp;fm=26&amp;gp=0.jpg" v-bind:imageid="src.np_id" ></img>' +
           '<dl>' + 
               '<dt>编号：{{src.gif_info.index}}  图片大小：{{src.gif_info.size}}KB</dt>' +
               '<dt v-if="src.hot" style="color:#f0ad4e;font-size:18px;">流行表情(直接上线)</dt>' +
@@ -78,8 +79,8 @@ Vue.component('sticker', {
             
         },
 
-        testClick: function(e) {
-
+        reloadClick: function(sticker) {
+            downloadSticker(tasks.current_page, sticker)
         }
     }
 });
@@ -533,6 +534,7 @@ function downloadSticker(page, sticker) {
                     toptag: sticker.toptag,
                     gif_info:sticker.gif_info,
                     store_url:sticker.store_url,
+                    download_failed: false,
                 };
 
             //检查是否是当前页
@@ -546,6 +548,34 @@ function downloadSticker(page, sticker) {
 
     request.onerror = function(e) {
         console.log("下载失败")
+        index = parseInt(sticker.gif_info['index'])
+            index = index - (50 * (page - 1))
+            console.log("记录的index:")
+            console.log(index)
+
+            var temp_sticker = {
+                    selected: sticker.selected,
+                    textinfo: sticker.textinfo,
+                    name: sticker.name,
+                    url: sticker.url,
+                    original_url: sticker.original_url,
+                    hascopyright: sticker.hascopyright,
+                    copyright: sticker.copyright,
+                    tag: sticker.tag,
+                    np_id: sticker.np_id,
+                    hot: sticker.hot,
+                    toptag: sticker.toptag,
+                    gif_info:sticker.gif_info,
+                    store_url:sticker.store_url,
+                    download_failed: true,
+                };
+
+            //检查是否是当前页
+            if(page == tasks.current_page) {
+                console.log("是当前页，刷新这个cell")
+                Vue.set(tasks.stickers, index, temp_sticker)    
+            }
+            tasks.paged_stickers[page - 1].stickers[index] = temp_sticker
     };
 
     request.send();

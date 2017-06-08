@@ -240,7 +240,7 @@
         <script src="{{ url_for('static', filename='js/upload_gif/gifmaker-upload.js') }} "></script>
     </body>
 <script type="text/javascript">
-var domain = "http://mgc.biaoqingmm.com"
+var domain = "http://mgc.biaoqingmm.com:5003"
     var gifs = {{ gifs|safe }}
     var count = gifs.length 
     var page_count = Math.ceil(count / 50.0)
@@ -272,6 +272,7 @@ var domain = "http://mgc.biaoqingmm.com"
                         hot: false,
                         toptag: [],
                         gif_info:gif,
+                        download_failed:false,
                     };
         temp_stickers.push(sticker); 
         if(i % 50 == 0) {
