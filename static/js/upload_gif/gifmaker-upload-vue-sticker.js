@@ -466,7 +466,7 @@ Vue.component('allsubmit', {
 Vue.component('pageindex', {
     props: ['p_index', 'current_page'],
     template: 
-        '<li v-if="p_index == current_page" v-bind:pageIndex="p_index" class="active pageIndexButton" @click="gotoPage(p_index)"><a>{{ p_index }}</a></li>' +
+        '<li v-if="p_index == current_page" v-bind:pageIndex="p_index" class="active pageIndexButton"><a>{{ p_index }}</a></li>' +
         '<li v-else v-bind:pageIndex="p_index" class="pageIndexButton" @click="gotoPage(p_index)"><a>{{ p_index }}</a></li>',
     methods: {
         gotoPage: function(page) {
@@ -480,7 +480,13 @@ Vue.component('pageindex', {
 function downloadPagedStickers(page) {
     //重置 
     tasks.current_page = page
-    tasks.page_indexs = tasks.page_indexs 
+    new_page_indexs = []
+    for (var i = 1; i <= tasks.page_count; i++) {
+        new_page_indexs.push(i)
+    }
+    tasks.page_indexs = new_page_indexs
+
+
     tasks.stickers = tasks.paged_stickers[page - 1].stickers
     tasks.task_count = tasks.stickers.length
 
@@ -508,6 +514,7 @@ function downloadSticker(page, sticker) {
 
             //检查是否是当前页
             if(page == tasks.current_page) {
+                console.log(sticker)
                 console.log("是当前页，刷新这个cell")
                 Vue.set(tasks.stickers, index, sticker)
             }else{

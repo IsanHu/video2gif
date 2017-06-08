@@ -244,7 +244,7 @@ Vue.component('videos', {
 Vue.component('pageindex', {
     props: ['p_index', 'current_page'],
     template: 
-        '<li v-if="p_index == current_page" v-bind:pageIndex="p_index" class="active pageIndexButton" @click="gotoPage(p_index)"><a>{{ p_index }}</a></li>' +
+        '<li v-if="p_index == current_page" v-bind:pageIndex="p_index" class="active pageIndexButton"><a>{{ p_index }}</a></li>' +
         '<li v-else v-bind:pageIndex="p_index" class="pageIndexButton" @click="gotoPage(p_index)"><a>{{ p_index }}</a></li>',
     methods: {
         gotoPage: function(page) {
