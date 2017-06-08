@@ -511,6 +511,7 @@ function downloadSticker(page, sticker) {
         reader.onload =  function(e){
             sticker.store_url = e.target.result;
             index = parseInt(sticker.gif_info['index'])
+            index = index - (10 * (page - 1))
 
             //检查是否是当前页
             if(page == tasks.current_page) {
