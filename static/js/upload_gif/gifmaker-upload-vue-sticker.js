@@ -510,14 +510,32 @@ function downloadSticker(page, sticker) {
         reader.readAsDataURL(request.response);
         reader.onload =  function(e){
             sticker.store_url = e.target.result;
+
             index = parseInt(sticker.gif_info['index'])
             index = index - (10 * (page - 1))
+            console.log("记录的index:")
+            console.log(index)
 
             //检查是否是当前页
             if(page == tasks.current_page) {
                 console.log("是当前页，刷新这个cell")
-                console.log(index)
-                Vue.set(tasks.stickers, index, sticker)
+
+                real_index = -1
+                for (var i = 0; i < tasks.stickers.length; i++) {
+                    old = tasks.stickers[i]
+                    if(old.np_id == sticker.np_id) {
+                        console.log("找到了")
+                        console.log(i)
+                        real_index = i
+                        break
+                    }
+                }
+                if(real_index >= 0){
+                    Vue.set(tasks.stickers, real_index, sticker)    
+                }else{
+                    console.log("没找到")
+                }
+                
             }else{
                 console.log("不是当前页，不需要刷新这个cell")
             }
