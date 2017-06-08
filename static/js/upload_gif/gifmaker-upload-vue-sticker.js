@@ -2,9 +2,9 @@ Vue.component('sticker', {
     props: ['src'],
     template: 
       '<div @click="toggleSelection" class="thumbnail col-xs-5 col-sm-5 col-md-4 col-lg-3" v-bind:class="{\'is-selected\': src.selected}">' +
-          '<img id="sticker" class="thumbnail sticker" style="width: 100%;margin-bottom:4px" v-bind:src="src.store_url" v-bind:imageid="src.np_id" ></img>' +
+          '<img id="sticker" @click="testClick" class="thumbnail sticker" style="width: 100%;margin-bottom:4px" v-bind:src="src.store_url" v-bind:imageid="src.np_id" ></img>' +
           '<dl>' + 
-              '<dt>编号：{{src.gif_info.name}}  图片大小：{{src.gif_info.size}}KB</dt>' +
+              '<dt>编号：{{src.gif_info.index}}  图片大小：{{src.gif_info.size}}KB</dt>' +
               '<dt v-if="src.hot" style="color:#f0ad4e;font-size:18px;">流行表情(直接上线)</dt>' +
               '<dt>关键字：</dt>' +
               '<dd>' +  
@@ -76,6 +76,10 @@ Vue.component('sticker', {
                 }    
             }
             
+        },
+
+        testClick: function(e) {
+            alert("test")
         }
     }
 });
@@ -511,7 +515,7 @@ function downloadSticker(page, sticker) {
         reader.onload =  function(e){
             sticker.store_url = e.target.result;
             index = parseInt(sticker.gif_info['index'])
-            index = index - (10 * (page - 1))
+            index = index - (50 * (page - 1))
             console.log("记录的index:")
             console.log(index)
 
@@ -535,8 +539,6 @@ function downloadSticker(page, sticker) {
             if(page == tasks.current_page) {
                 console.log("是当前页，刷新这个cell")
                 Vue.set(tasks.stickers, index, temp_sticker)    
-            }else{
-                console.log("不是当前页，不需要刷新这个cell")
             }
             tasks.paged_stickers[page - 1].stickers[index] = temp_sticker
         };
