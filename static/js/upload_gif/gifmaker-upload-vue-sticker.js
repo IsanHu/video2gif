@@ -477,7 +477,6 @@ Vue.component('pageindex', {
 
 
 //下载逻辑
-var domain = "http://mgc.biaoqingmm.com"
 function downloadPagedStickers(page) {
     if(tasks.paged_stickers[page - 1].download == 1) {
         return
