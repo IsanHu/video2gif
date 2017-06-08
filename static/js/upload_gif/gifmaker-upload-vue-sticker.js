@@ -510,37 +510,35 @@ function downloadSticker(page, sticker) {
         reader.readAsDataURL(request.response);
         reader.onload =  function(e){
             sticker.store_url = e.target.result;
-
             index = parseInt(sticker.gif_info['index'])
             index = index - (10 * (page - 1))
             console.log("记录的index:")
             console.log(index)
 
+            var temp_sticker = {
+                    selected: sticker.selected,
+                    textinfo: sticker.textinfo,
+                    name: sticker.name
+                    url: sticker.url,
+                    original_url: sticker.original_url,
+                    hascopyright: sticker.hascopyright,
+                    copyright: sticker.copyright,
+                    tag: sticker.tag,
+                    np_id: sticker.np_id,
+                    hot: sticker.hot,
+                    toptag: sticker.toptag,
+                    gif_info:sticker.gif_info,
+                    store_url:sticker.store_url,
+                };
+
             //检查是否是当前页
             if(page == tasks.current_page) {
                 console.log("是当前页，刷新这个cell")
-
-                real_index = -1
-                for (var i = 0; i < tasks.stickers.length; i++) {
-                    old = tasks.stickers[i]
-                    if(old.np_id == sticker.np_id) {
-                        console.log("找到了")
-                        console.log(i)
-                        real_index = i
-                        break
-                    }
-                }
-                if(real_index >= 0){
-                    console.log("重置")
-                    Vue.set(tasks.stickers, real_index, sticker)    
-                }else{
-                    console.log("没找到")
-                }
-                
+                Vue.set(tasks.stickers, index, temp_sticker)    
             }else{
                 console.log("不是当前页，不需要刷新这个cell")
             }
-            tasks.paged_stickers[page - 1].stickers[index] = sticker
+            tasks.paged_stickers[page - 1].stickers[index] = temp_sticker
         };
     };
 
