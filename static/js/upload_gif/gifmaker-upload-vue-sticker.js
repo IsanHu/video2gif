@@ -4,7 +4,7 @@ Vue.component('sticker', {
       '<div @click="toggleSelection" class="thumbnail col-xs-5 col-sm-5 col-md-4 col-lg-3" v-bind:class="{\'is-selected\': src.selected}">' +
           '<img id="sticker" class="thumbnail sticker" style="width: 100%;margin-bottom:4px" v-bind:src="src.store_url" v-bind:imageid="src.np_id" ></img>' +
           '<dl>' + 
-              '<dt>图片大小：{{src.gif_info.size}}KB</dt>' +
+              '<dt>编号：{{src.gif_info.name}}  图片大小：{{src.gif_info.size}}KB</dt>' +
               '<dt v-if="src.hot" style="color:#f0ad4e;font-size:18px;">流行表情(直接上线)</dt>' +
               '<dt>关键字：</dt>' +
               '<dd>' +  
@@ -531,6 +531,7 @@ function downloadSticker(page, sticker) {
                     }
                 }
                 if(real_index >= 0){
+                    console.log("重置")
                     Vue.set(tasks.stickers, real_index, sticker)    
                 }else{
                     console.log("没找到")
