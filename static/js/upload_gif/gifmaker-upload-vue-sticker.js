@@ -1,7 +1,7 @@
 Vue.component('sticker', {
     props: ['src'],
     template: 
-      '<div @click="toggleSelection" class="thumbnail col-xs-5 col-sm-5 col-md-4 col-lg-3" v-bind:class="{\'is-selected\': src.selected}">' +
+      '<div @click="toggleSelection" class="thumbnail col-xs-5 col-sm-5 col-md-4 col-lg-3" ' +
           '<img id="sticker" class="thumbnail sticker" style="width: 100%;margin-bottom:4px" v-bind:src="src.store_url" v-bind:imageid="src.np_id" ></img>' +
           '<dl>' + 
               '<dt>图片大小：{{src.gif_info.size}}KB</dt>' +
