@@ -2,7 +2,7 @@ Vue.component('sticker', {
     props: ['src'],
     template: 
       '<div @click="toggleSelection" class="thumbnail col-xs-5 col-sm-5 col-md-4 col-lg-3" v-bind:class="{\'is-selected\': src.selected}">' +
-          '<img v-if="src.download_failed" id="sticker" @click="reloadClick(src)" class="thumbnail sticker" style="width: 100%;margin-bottom:4px" src="http://mgc.biaoqingmm.com:5003/static/img/loading.gif" v-bind:imageid="src.np_id" ></img>' +
+          '<img v-if="src.download_failed" id="sticker" @click="reloadClick(src)" class="thumbnail sticker" style="width: 100%;margin-bottom:4px" src="http://mgc.biaoqingmm.com/static/img/reload.png" v-bind:imageid="src.np_id" ></img>' +
           '<img v-else id="sticker" class="thumbnail sticker" style="width: 100%;margin-bottom:4px" v-bind:src="src.store_url" v-bind:imageid="src.np_id" ></img>' +
           '<dl>' + 
               '<dt>编号：{{src.gif_info.index}}  图片大小：{{src.gif_info.size}}KB</dt>' +
