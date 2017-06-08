@@ -1,7 +1,7 @@
 Vue.component('sticker', {
     props: ['src'],
     template: 
-      '<div @click="toggleSelection" class="thumbnail col-xs-5 col-sm-5 col-md-4 col-lg-3" v-bind:class="{\'is-selected\': src.selected}">' +
+      '<div class="thumbnail col-xs-5 col-sm-5 col-md-4 col-lg-3" v-bind:class="{\'is-selected\': src.selected}">' +
           '<img id="sticker" class="thumbnail sticker" style="width: 100%;margin-bottom:4px" v-bind:src="src.store_url" v-bind:imageid="src.np_id" ></img>' +
           '<dl>' + 
               '<dt>图片大小：{{src.gif_info.size}}KB</dt>' +
@@ -22,62 +22,6 @@ Vue.component('sticker', {
               '<dt><a style="float: right" v-bind:href="src.original_url" v-bind:download="src.gif_info.name">下载原图（{{src.gif_info.full_size}}MB）</a></dt>' +
           '</dl>' +
       '</div>',
-    methods: {
-        toggleSelection: function(e) {
-            tasks.selectClick.push(this.src)
-            if (e.shiftKey) {
-                var count = 0
-                var last = tasks.selectClick[tasks.selectClick.length - 2]
-                var current = this.src
-                var start = false
-                var increasing = true
-                for (var i = 0; i < tasks.stickers.length; i++) {
-                    var temp = tasks.stickers[i]
-                    if (!start) {
-                        if (temp == last) {
-                            start = true
-                            continue
-                        }
-                        if (temp == current) {
-                            start = true
-                            increasing = false//倒序
-                        }
-                    } 
-                    if (start) {
-                        if (!increasing) {//倒序
-                            if (temp == last) {
-                                break
-                            }    
-                        }
-                        
-                        temp.selected = !temp.selected
-                        if (temp.selected) {
-                            count++
-                        } else {
-                            count--
-                        }
-                        if (increasing) {//正序
-                            if (temp == current) {
-                                break
-                            }    
-                        }
-                        
-                    }                
-                }
-                tasks.selected_count += count
-                tasks.selectClick = []
-            } else {
-
-                this.src.selected = !this.src.selected;
-                if (this.src.selected) {
-                    tasks.selected_count++
-                } else {
-                    tasks.selected_count--
-                }    
-            }
-            
-        }
-    }
 });
 
 Vue.component('tagedittaghas', {
