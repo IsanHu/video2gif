@@ -478,6 +478,12 @@ Vue.component('pageindex', {
 
 //下载逻辑
 function downloadPagedStickers(page) {
+    //重置 
+    tasks.current_page = page
+    tasks.page_indexs = tasks.page_indexs 
+    tasks.stickers = tasks.paged_stickers[page].stickers
+    tasks.task_count = tasks.stickers.length
+
     if(tasks.paged_stickers[page - 1].download == 1) {
         return
     }
@@ -501,6 +507,7 @@ function downloadSticker(page, sticker) {
 
             //检查是否是当前页
             if(page == tasks.current_page) {
+                console.log("是当前页，刷新这个cell")
                 Vue.set(tasks.stickers, index, sticker)
             }
             tasks.paged_stickers[page - 1].stickers[index] = sticker
@@ -520,14 +527,14 @@ function nextPageButtonClicked() {
     var pageIndexs = tasks.page_indexs
     var pageCount = pageIndexs.length
     if (currentPage < pageCount) {
-        loadStickerWith(currentPage + 1);
+        downloadPagedStickers(currentPage + 1);
     }
 }
 
 function prePageButtonClicked() {
     var currentPage = tasks.current_page
     if (currentPage > 1) {
-        loadStickerWith(currentPage - 1);
+        downloadPagedStickers(currentPage - 1);
     }
 }
 
