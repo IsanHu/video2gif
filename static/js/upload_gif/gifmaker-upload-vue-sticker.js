@@ -481,10 +481,11 @@ function downloadPagedStickers(page) {
     //重置 
     tasks.current_page = page
     tasks.page_indexs = tasks.page_indexs 
-    tasks.stickers = tasks.paged_stickers[page].stickers
+    tasks.stickers = tasks.paged_stickers[page - 1].stickers
     tasks.task_count = tasks.stickers.length
 
     if(tasks.paged_stickers[page - 1].download == 1) {
+        console.log("已下载过，不需要重新下载")
         return
     }
     tasks.paged_stickers[page - 1].download = 1
@@ -509,6 +510,8 @@ function downloadSticker(page, sticker) {
             if(page == tasks.current_page) {
                 console.log("是当前页，刷新这个cell")
                 Vue.set(tasks.stickers, index, sticker)
+            }else{
+                console.log("不是当前页，不需要刷新这个cell")
             }
             tasks.paged_stickers[page - 1].stickers[index] = sticker
         };
