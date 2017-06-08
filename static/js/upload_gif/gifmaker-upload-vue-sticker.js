@@ -463,3 +463,72 @@ Vue.component('allsubmit', {
 });
 
 
+Vue.component('pageindex', {
+    props: ['p_index', 'current_page'],
+    template: 
+        '<li v-if="p_index == current_page" v-bind:pageIndex="p_index" class="active pageIndexButton" @click="gotoPage(p_index)"><a>{{ p_index }}</a></li>' +
+        '<li v-else v-bind:pageIndex="p_index" class="pageIndexButton" @click="gotoPage(p_index)"><a>{{ p_index }}</a></li>',
+    methods: {
+        gotoPage: function(page) {
+            downloadPagedStickers(page)
+        },
+    }, 
+});
+
+
+//下载逻辑
+var domain = "http://mgc.biaoqingmm.com"
+function downloadPagedStickers(page) {
+    if(tasks.paged_stickers[page - 1].download == 1) {
+        return
+    }
+    tasks.paged_stickers[page - 1].download = 1
+    for (var i = 0; i < tasks.paged_stickers[page - 1].stickers.length; i++) {
+        sticker = tasks.paged_stickers[page - 1].stickers[i]
+        downloadSticker(page, sticker)
+    }
+}
+
+function downloadSticker(page, sticker) {
+    var request = new XMLHttpRequest();
+    request.open('GET', sticker.url, true);
+    request.responseType = 'blob';
+    request.onload = function(e) {
+        var reader = new FileReader();
+        reader.readAsDataURL(request.response);
+        reader.onload =  function(e){
+            sticker.store_url = e.target.result;
+            index = parseInt(sticker.gif_info['index'])
+
+            //检查是否是当前页
+            if(page == tasks.current_page) {
+                Vue.set(tasks.stickers, index, sticker)
+            }
+            tasks.paged_stickers[page - 1].stickers[index] = sticker
+        };
+    };
+
+    request.onerror = function(e) {
+        console.log("下载失败")
+    };
+
+    request.send();
+}
+
+//分页逻辑
+function nextPageButtonClicked() {
+    var currentPage = tasks.current_page
+    var pageIndexs = tasks.page_indexs
+    var pageCount = pageIndexs.length
+    if (currentPage < pageCount) {
+        loadStickerWith(currentPage + 1);
+    }
+}
+
+function prePageButtonClicked() {
+    var currentPage = tasks.current_page
+    if (currentPage > 1) {
+        loadStickerWith(currentPage - 1);
+    }
+}
+

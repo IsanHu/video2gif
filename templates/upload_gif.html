@@ -69,6 +69,22 @@
                 </sticker>
             </div>
 
+            <nav style="width: 100%; text-align: center;">
+              <ul class="pagination">
+                <li id="prePageButton" onClick="javascript:prePageButtonClicked()">
+                  <span aria-hidden="true">&laquo;</span>
+                </li>
+                <li is="pageindex" v-bind:current_page=current_page v-for="p_index in page_indexs" v-bind:p_index="p_index"></tr>
+                </pageindex>
+                
+
+                
+                <li id="nextPageButton" onClick="javascript:nextPageButtonClicked()">
+                    <span aria-hidden="true">&raquo;</span>
+                </li>
+              </ul>
+            </nav>
+
 
             <div class="modal fade" id="edit-tag-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -224,72 +240,50 @@
         <script src="{{ url_for('static', filename='js/upload_gif/gifmaker-upload.js') }} "></script>
     </body>
 <script type="text/javascript">
-    var domain = "http://mgc.biaoqingmm.com"
-    function downloadImage(url, tags, info, original_gif, np_id, gif_info) {
-        var request = new XMLHttpRequest();
-        request.open('GET', url, true);
-        request.responseType = 'blob';
-        request.onload = function(e) {
-            var sticker = {
-                        selected: false,
-                        textinfo: "",
-                        original_url: "",
-                        hascopyright: 0,
-                        copyright: "",
-                        tag: [],
-                        np_id: "",
-                        hot: false,
-                        toptag: [],
-                        gif_info:{}
-                    };
-            var reader = new FileReader();
-            reader.readAsDataURL(request.response);
-            reader.onload =  function(e){
-                sticker.store_url = e.target.result;
-                sticker.tag = tags
-                sticker.original_url = original_gif
-                sticker.textinfo = info
-                sticker.np_id = np_id
-                sticker.gif_info = gif_info
-                index = parseInt(gif_info['index'])
-                console.log(index)
-                Vue.set(tasks.stickers, index, sticker)
-                // tasks.stickers.push(sticker);
-                // tasks.task_count = tasks.stickers.length
-            };
-        };
-        request.send();
-    }
 
     var gifs = {{ gifs|safe }}
     var count = gifs.length 
-    for (var i = 0; i < gifs.length; i++) {
-        var sticker = {
-                        selected: false,
-                        textinfo: "",
-                        original_url: "",
-                        hascopyright: 0,
-                        copyright: "",
-                        tag: [],
-                        np_id: "",
-                        hot: false,
-                        toptag: [],
-                        gif_info:{}
-                    };
-        tasks.stickers.push(sticker);
-        tasks.task_count = tasks.stickers.length
+    var page_count = Math.ceil(count / 50.0)
+    for (var i = 1; i <= page_count; i++) {
+        tasks.page_indexs.push(i)
     }
 
-    for (var i = 0; i < gifs.length; i++) {
-        var gif = gifs[i]
+    temp_stickers = []
+    for (var i = 1; i <= gifs.length; i++) {
+
+        var gif = gifs[i-1]
         var url = domain + gif['url']
         tags = gif['tags'].concat(gif['segments'])
         info = gif['caption']
         original_gif = domain + gif['original_gif_url']
         np_id = gif['original_gif_url']
-        console.log(original_gif)
-        downloadImage(url, tags, info, original_gif, np_id, gif)
+
+        var sticker = {
+                        selected: false,
+                        textinfo: info,
+                        name: "",
+                        url: url,
+                        original_url: original_gif,
+                        hascopyright: 0,
+                        copyright: "",
+                        tag: tags,
+                        np_id: np_id,
+                        hot: false,
+                        toptag: [],
+                        gif_info:gif,
+                    };
+        temp_stickers.push(sticker); 
+        if(i % 50 == 0) {
+            tasks.paged_stickers.push({stickers: temp_stickers, download: 0})
+            temp_stickers = []
+        }               
     }
+
+    tasks.stickers = tasks.paged_stickers[0]
+    tasks.task_count = tasks.stickers.length
+    tasks.current_page = 1
+    //下载第一页
+    downloadPagedStickers(1)
     
 </script>
 </html>

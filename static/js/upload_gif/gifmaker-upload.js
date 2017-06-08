@@ -3,6 +3,10 @@ var tasks = new Vue({
     data: {
         //这个属性会被传给sticker-editor
         stickers: [],
+        paged_stickers:[],
+        page_count: 1,
+        current_page: 1,
+        page_indexs: [],
         selectClick: [],
         empty: false,
         task_count: 0,
