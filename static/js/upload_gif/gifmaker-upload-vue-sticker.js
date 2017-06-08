@@ -79,7 +79,7 @@ Vue.component('sticker', {
         },
 
         testClick: function(e) {
-            alert("test")
+
         }
     }
 });
