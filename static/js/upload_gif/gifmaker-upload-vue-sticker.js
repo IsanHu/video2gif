@@ -515,8 +515,8 @@ function downloadSticker(page, sticker) {
 
             //检查是否是当前页
             if(page == tasks.current_page) {
-                console.log(sticker)
                 console.log("是当前页，刷新这个cell")
+                console.log(index)
                 Vue.set(tasks.stickers, index, sticker)
             }else{
                 console.log("不是当前页，不需要刷新这个cell")
