@@ -681,12 +681,12 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
         return {'result': 1002, "error_message": "视频已经在处理了", "video": video.mini_serialize()}
 
     ## 按时间截图的情况下,检测segment的帧数是否能够达到16
-    # if split_type == 1:
-    #     info_dic = json.loads(video.video_info)
-    #     fps = info_dic['fps']
-    #     frames = fps * duration
-    #     if frames < 16:
-    #         return {'result': 1009, "error_message": "该视频帧率为: %.2f, 设置的图片截取时长为: %d秒, 总帧数不足16" % (fps, duration)}
+    if split_type == 1:
+        info_dic = json.loads(video.video_info)
+        fps = info_dic['fps']
+        frames = fps * duration
+        if frames < 16:
+            return {'result': 1009, "error_message": "该视频帧率为: %.2f, 设置的图片截取时长为: %d秒, 总帧数不足16" % (fps, duration)}
 
 
     video.tag = tags
