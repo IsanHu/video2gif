@@ -87,6 +87,7 @@ def is_overlapping(x1, x2, y1, y2):
 
 def process_video_to_generate_gifs(video):
     print "process_video_to_generate_gifs"
+
     ## 检查状态
     sleep(0.1)
     videos = DATA_PROVIDER.get_video_by_hash_name(video.hash_name)
@@ -109,108 +110,119 @@ def process_video_to_generate_gifs(video):
 
     ## 开始处理
     print "开始处理"
-    process_start = time.time()
-    process_info = {}
-    process_info['port'] = global_config.config['port']
+    try:
+        process_start = time.time()
+        process_info = {}
+        process_info['port'] = global_config.config['port']
 
-    video_path = os.path.join(config['UPLOAD_FOLDER'], vi.hash_name + "." + vi.extension)
-    processed_path = os.path.join(config['PROCESSED_FOLDER'], vi.hash_name + "." + vi.extension)
-    gif_path = os.path.join(config['GIF_FOLDER'], vi.hash_name)
-    ogiginal_gif_path = os.path.join(config['ORIGINAL_GIF_FOLDER'], vi.hash_name)
-    zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], vi.hash_name + '.zip')
-    print video_path
-    print processed_path
-    print gif_path
-    print ogiginal_gif_path
-    print zip_path
+        video_path = os.path.join(config['UPLOAD_FOLDER'], vi.hash_name + "." + vi.extension)
+        processed_path = os.path.join(config['PROCESSED_FOLDER'], vi.hash_name + "." + vi.extension)
+        gif_path = os.path.join(config['GIF_FOLDER'], vi.hash_name)
+        ogiginal_gif_path = os.path.join(config['ORIGINAL_GIF_FOLDER'], vi.hash_name)
+        zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], vi.hash_name + '.zip')
+        print video_path
+        print processed_path
+        print gif_path
+        print ogiginal_gif_path
+        print zip_path
 
-    video = VideoFileClip(video_path)
-    segmentsArray = []
-    duration = vi.segment_duration
-    if duration <= 0:
-        duration = clipDuration
-    for videoStart in range(0, duration, 1):
-        particalSegments = [(start, int(start + video.fps * duration)) for start in
-                            range(int(videoStart * video.fps), int(video.duration * video.fps),
-                                  int(video.fps * duration))]
-        print "particalSegments count:"
-        print len(particalSegments)
-        segmentsArray.append(particalSegments)
+        video = VideoFileClip(video_path)
+        segmentsArray = []
+        duration = vi.segment_duration
+        if duration <= 0:
+            duration = clipDuration
+        for videoStart in range(0, duration, 1):
+            particalSegments = [(start, int(start + video.fps * duration)) for start in
+                                range(int(videoStart * video.fps), int(video.duration * video.fps),
+                                      int(video.fps * duration))]
+            print "particalSegments count:"
+            print len(particalSegments)
+            segmentsArray.append(particalSegments)
 
-    print "segments array count:"
-    print len(segmentsArray)
+        print "segments array count:"
+        print len(segmentsArray)
 
-    if global_config.config['is_local']:
-        print "本地假装开始对 %s 进行评分" % vi.name
-        sleep(30)
-        print "本地假装对 %s 进行评分结束" % vi.name
-        vi.status = 33
+        if global_config.config['is_local']:
+            print "本地假装开始对 %s 进行评分" % vi.name
+            sleep(30)
+            print "本地假装对 %s 进行评分结束" % vi.name
+            vi.status = 33
+            vi.update_time = datetime.now()
+            DATA_PROVIDER.update_video(vi)
+            return
+
+        # Score the segments
+        scores = {}
+
+        for particalSegments in segmentsArray:
+            particalScores = video2gif.get_scores(score_function, particalSegments, video, vi.name, stride=8)
+            scores.update(particalScores)
+            print "score count:"
+            print len(scores)
+
+        process_info['segment_count'] = len(scores)
+        process_info['score_time'] = int(time.time() - process_start)
+
+        if not os.path.exists(gif_path):
+            os.mkdir(gif_path)
+
+        if not os.path.exists(ogiginal_gif_path):
+            os.mkdir(ogiginal_gif_path)
+
+        # Generate GIFs from the top scoring segments
+        generate_start_time = time.time()
+        nr = 0
+        totalCount = len(scores)
+        top_k = min(topCount, totalCount)
+        occupiedTime = []
+        height = vi.thumb_height
+        for segment in sorted(scores, key=lambda x: -scores.get(x))[0:totalCount]:
+            if nr >= top_k:
+                break
+
+            overlaping = 0
+
+            for seg in occupiedTime:
+                if is_overlapping(seg[0], seg[1], segment[0], segment[1]):
+                    overlaping = 1
+                    print "skip overlapping"
+                    break
+            if overlaping == 0:
+                occupiedTime.append(segment)
+                clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
+                original_clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
+                out_gif = "%s/%.3d.gif" % (gif_path.decode('utf-8'), nr)
+                origianl_gif = "%s/%.3d.mp4" % (ogiginal_gif_path.decode('utf-8'), nr)
+                ## resize
+                if height > 0:
+                    clip = clip.resize(height=height)
+                else:
+                    clip = clip.resize(width=320)
+                clip.write_gif(out_gif, fps=10, program="ImageMagick", opt="optimizeplus")
+                original_clip.write_videofile(origianl_gif, fps=10, audio=False)
+                nr += 1
+        print("生成图片用时: %.2fs" % (time.time() - generate_start_time))
+        process_info['generate_time'] = int(time.time() - generate_start_time)
+
+        # 压缩原尺寸图片
+        cmd = "zip -rj " + zip_path + " " + ogiginal_gif_path
+        print cmd
+        os.system(cmd)
+
+        # 转移视频
+        cmd1 = 'mv ' + video_path + " " + processed_path
+        print cmd1
+        os.system(cmd1)
+    except (Exception) as e:
+        print "处理失败"
+        print e.message
+        vi.status = 11 ##处理失败
         vi.update_time = datetime.now()
+        process_info['error_message'] = e.message
+        vi.process_info = json.dumps(process_info)
+        sleep(0.01)
         DATA_PROVIDER.update_video(vi)
         return
-
-    # Score the segments
-    scores = {}
-
-    for particalSegments in segmentsArray:
-        particalScores = video2gif.get_scores(score_function, particalSegments, video, vi.name, stride=8)
-        scores.update(particalScores)
-        print "score count:"
-        print len(scores)
-
-    process_info['segment_count'] = len(scores)
-    process_info['score_time'] = int(time.time() - process_start)
-
-    if not os.path.exists(gif_path):
-        os.mkdir(gif_path)
-
-    if not os.path.exists(ogiginal_gif_path):
-        os.mkdir(ogiginal_gif_path)
-
-    # Generate GIFs from the top scoring segments
-    generate_start_time = time.time()
-    nr = 0
-    totalCount = len(scores)
-    top_k = min(topCount, totalCount)
-    occupiedTime = []
-    height = vi.thumb_height
-    for segment in sorted(scores, key=lambda x: -scores.get(x))[0:totalCount]:
-        if nr >= top_k:
-            break
-
-        overlaping = 0
-
-        for seg in occupiedTime:
-            if is_overlapping(seg[0], seg[1], segment[0], segment[1]):
-                overlaping = 1
-                print "skip overlapping"
-                break
-        if overlaping == 0:
-            occupiedTime.append(segment)
-            clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
-            original_clip = video.subclip(segment[0] / float(video.fps), segment[1] / float(video.fps))
-            out_gif = "%s/%.3d.gif" % (gif_path.decode('utf-8'), nr)
-            origianl_gif = "%s/%.3d.mp4" % (ogiginal_gif_path.decode('utf-8'), nr)
-            ## resize
-            if height > 0:
-                clip = clip.resize(height=height)
-            else:
-                clip = clip.resize(width=320)
-            clip.write_gif(out_gif, fps=10, program="ImageMagick", opt="optimizeplus")
-            original_clip.write_videofile(origianl_gif, fps=10, audio=False)
-            nr += 1
-    print("生成图片用时: %.2fs" % (time.time() - generate_start_time))
-    process_info['generate_time'] = int(time.time() - generate_start_time)
-
-    # 压缩原尺寸图片
-    cmd = "zip -rj " + zip_path + " " + ogiginal_gif_path
-    print cmd
-    os.system(cmd)
-
-    # 转移视频
-    cmd1 = 'mv ' + video_path + " " + processed_path
-    print cmd1
-    os.system(cmd1)
 
     # 把状态更新成已处理
     vi.status = 1
@@ -667,6 +679,15 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
     ## 检查video状态
     if video.status != 0:
         return {'result': 1002, "error_message": "视频已经在处理了", "video": video.mini_serialize()}
+
+    ## 按时间截图的情况下,检测segment的帧数是否能够达到16
+    # if split_type == 1:
+    #     info_dic = json.loads(video.video_info)
+    #     fps = info_dic['fps']
+    #     frames = fps * duration
+    #     if frames < 16:
+    #         return {'result': 1009, "error_message": "该视频帧率为: %.2f, 设置的图片截取时长为: %d秒, 总帧数不足16" % (fps, duration)}
+
 
     video.tag = tags
     video.status = 2
