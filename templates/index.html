@@ -40,16 +40,6 @@
         <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
     </form>
 </div>
-<!-- The blueimp Gallery widget -->
-<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter=":even">
-    <div class="slides"></div>
-    <h3 class="title"></h3>
-    <a class="prev">‹</a>
-    <a class="next">›</a>
-    <a class="close">×</a>
-    <a class="play-pause"></a>
-    <ol class="indicator"></ol>
-</div>
 
 {% raw %}
 <!-- The template to display files available for upload -->
@@ -89,13 +79,6 @@
 {% for (var i=0, file; file=o.files[i]; i++) { %}
     <tr class="template-download fade">
         <td>
-            <span class="preview">
-                {% if (file.thumbnailUrl) { %}
-                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}"></a>
-                {% } %}
-            </span>
-        </td>
-        <td>
             <p class="name">
                 {% if (file.url) { %}
                     <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
@@ -108,14 +91,13 @@
             {% } %}
         </td>
         <td>
-            <span class="size">{%=o.formatFileSize(file.size)%}</span>
+            <span class="size">{%= file.size %}</span>
         </td>
         <td>
-            {% if (file.processed) { %}
-                已处理
-            {% } else { %}
-
-            {% } %}
+            <span class="size">{%= file.upload_time %}</span>
+        </td>
+        <td>
+            <span class="size">{%= file.message %}</span>
         </td>
     </tr>
 {% } %}

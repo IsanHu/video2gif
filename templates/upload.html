@@ -75,13 +75,6 @@
 {% for (var i=0, file; file=o.files[i]; i++) { %}
     <tr class="template-download fade">
         <td>
-            <span class="preview">
-                {% if (file.thumbnailUrl) { %}
-                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}"></a>
-                {% } %}
-            </span>
-        </td>
-        <td>
             <p class="name">
                 {% if (file.url) { %}
                     <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
@@ -94,14 +87,13 @@
             {% } %}
         </td>
         <td>
-            <span class="size">{%=o.formatFileSize(file.size)%}</span>
+            <span class="size">{%= file.size %}</span>
         </td>
         <td>
-            {% if (file.processed) { %}
-                已处理
-            {% } else { %}
-
-            {% } %}
+            <span class="size">{%= file.upload_time %}</span>
+        </td>
+        <td>哈哈
+            <span class="size">{%= file.message %}</span>
         </td>
     </tr>
 {% } %}

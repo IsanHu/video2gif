@@ -36,8 +36,8 @@
             // even if the previous action was rejected: 
             always: true,
             // Options taken from the global options map:
-            acceptFileTypes: '@',
-            maxFileSize: '@',
+            acceptFileTypes: /(\.|\/)(mp4|MP4)$/i,
+            maxFileSize: 1*1000*1000*1000,
             minFileSize: '@',
             maxNumberOfFiles: '@',
             disabled: '@disableValidation'
@@ -68,8 +68,8 @@
             // Error and info messages:
             messages: {
                 maxNumberOfFiles: 'Maximum number of files exceeded',
-                acceptFileTypes: 'File type not allowed',
-                maxFileSize: 'File is too large',
+                acceptFileTypes: '只支持mp4',
+                maxFileSize: '上传文件不要超过1G',
                 minFileSize: 'File is too small'
             }
         },

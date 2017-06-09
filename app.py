@@ -17,7 +17,6 @@ from flask_bootstrap import Bootstrap
 from werkzeug import secure_filename
 import requests
 
-from lib.upload_file import uploadfile, processedfile, zipedgiffile
 import sys
 from sys import argv
 import process
@@ -28,7 +27,7 @@ from time import sleep
 import hashlib
 from moviepy.editor import VideoFileClip
 from flask import jsonify
-
+from datetime import datetime
 ## 数据库相关
 
 from data_service import DATA_PROVIDER
@@ -73,23 +72,9 @@ def gen_file_name(fName):
         if vi.name == fName:
             name = name + "_1"
             break
+    print "上传的文件的名称: %s" % name
     return name
 
-
-def create_thumbnail(image):
-    try:
-        base_width = 80
-        img = Image.open(os.path.join(app.config['UPLOAD_FOLDER'], image))
-        w_percent = (base_width / float(img.size[0]))
-        h_size = int((float(img.size[1]) * float(w_percent)))
-        img = img.resize((base_width, h_size), PIL.Image.ANTIALIAS)
-        img.save(os.path.join(app.config['THUMBNAIL_FOLDER'], image))
-
-        return True
-
-    except:
-        print traceback.format_exc()
-        return False
 
 
 @app.route("/hInfo", methods=['GET'])
@@ -102,18 +87,25 @@ def hInfo():
 
 
 
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    return render_template('index.html', tab='upload')
 
 @app.route("/upload", methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
         files = request.files['file']
-
+        upload_info_dic= {}
         if files:
             filename = files.filename.encode('utf-8')
-
+            upload_info_dic['name'] = filename
             mime_type = files.content_type
+            upload_info_dic['type'] = mime_type
+            upload_info_dic['upload_time'] = str(datetime.now())
+            upload_info_dic['message'] = ""
             if not allowed_file(filename):
-                result = uploadfile(name=filename, type=mime_type, size=0, not_allowed_msg="请上传MP4文件")
+                upload_info_dic['error'] = "请上传MP4文件"
+                upload_info_dic['size'] = ""
             else:
                 # save file to disk
                 fName = filename.rsplit('.', 1)[0]
@@ -122,15 +114,23 @@ def upload():
                 hash_name = md5_name(fName)
 
                 uploaded_file_path = os.path.join(app.config['UPLOAD_FOLDER'], hash_name + "." + extension)
-                files.save(uploaded_file_path)
-
-                video_clip = VideoFileClip(uploaded_file_path)
-                duration = sec_2_time(video_clip.duration)
-                dimention = "%d*%d" % (video_clip.size[0], video_clip.size[1])
-                size = round(float(os.path.getsize(uploaded_file_path)) / 1024.0 / 1024.0, 2)
-                size_str = "%.2f M" % size
-                info = {'duration': duration, 'dimention': dimention, 'size': size_str}
-                info_str = json.dumps(info)
+                try:
+                    files.save(uploaded_file_path)
+                    video_clip = VideoFileClip(uploaded_file_path)
+                    duration = sec_2_time(video_clip.duration)
+                    dimention = "%d*%d" % (video_clip.size[0], video_clip.size[1])
+                    size = round(float(os.path.getsize(uploaded_file_path)) / 1024.0 / 1024.0, 2)
+                    size_str = "%.2f M" % size
+                    info = {'duration': duration, 'dimention': dimention, 'size': size_str}
+                    info_str = json.dumps(info)
+                    upload_info_dic['size'] = size_str
+                    upload_info_dic['message'] = "上传成功"
+                except (Exception) as e:
+                    upload_info_dic['size'] = ""
+                    upload_info_dic['error'] = e.message
+                    print "%s上传文件完成后,处理失败" % filename
+                    print e.message
+                    return simplejson.dumps({"files": [upload_info_dic]})
 
                 print "saved path:"
                 print uploaded_file_path
@@ -145,107 +145,29 @@ def upload():
                 ## 保存成功后, 在数据库中添加记录
                 DATA_PROVIDER.add_unprocessed_videos([video])
 
-                # get file size after saving
-                size = os.path.getsize(uploaded_file_path)
-
                 # return json for js call back
-                result = uploadfile(name=fName, type=mime_type, size=size)
-
-            return simplejson.dumps({"files": [result.get_file()]})
+        return simplejson.dumps({"files": [upload_info_dic]})
 
     if request.method == 'GET':
-        # get all file in ./data directory
-        files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if
-                 os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], f)) and f not in IGNORED_FILES]
-
-        file_display = []
-        files.sort(unprocessedSort)
-        for f in files:
-            size = os.path.getsize(os.path.join(app.config['UPLOAD_FOLDER'], f))
-            file_saved = uploadfile(name=f, size=size)
-            file_info = file_saved.get_file()
-            file_info['processed'] = False
-            file_display.append(file_info)
-
-        processed_files = [f for f in os.listdir(app.config['PROCESSED_FOLDER']) if
-                           os.path.isfile(os.path.join(app.config['PROCESSED_FOLDER'], f)) and f not in IGNORED_FILES]
-        processed_files.sort(processedSort)
-        for f in processed_files:
-            size = os.path.getsize(os.path.join(app.config['PROCESSED_FOLDER'], f))
-            file_saved = processedfile(name=f, size=size)
-            file_info = file_saved.get_file()
-            file_info['processed'] = True
-
-            file_name = os.path.splitext(os.path.split(f)[1])[0]
-            ziped_gif_file_name = file_name + ".zip"
-            ziped_gif_path = os.path.join(app.config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
-            print ziped_gif_path
-            if os.path.isfile(ziped_gif_path):
-                ziped_gif_size = os.path.getsize(ziped_gif_path)
-                ziped_gif_saved = zipedgiffile(name=ziped_gif_file_name, size=ziped_gif_size)
-                file_info['ziped_gif_info'] = ziped_gif_saved.get_file()
-
-            file_display.append(file_info)
-
-        return simplejson.dumps({"files": file_display})
+        return simplejson.dumps({"files": []})
 
     return redirect(url_for('index'))
 
+@app.route('/alldata', methods=['GET', 'POST'])
+def alldata():
+    videos, page_indexs, current_page = DATA_PROVIDER.videos_at_page(1, serialize=True)
+    return render_template('alldata.html', videos=json.dumps(videos), page_indexs=page_indexs, current_page = current_page, tab='process')
 
-@app.route("/deleteunprocessed/<string:filename>", methods=['DELETE'])
-def deleteunprocessed(filename):
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    if os.path.exists(file_path):
-        try:
-            os.remove(file_path)
-            return simplejson.dumps({filename: 'True'})
-        except:
-            return simplejson.dumps({filename: 'False'})
-
-
-@app.route("/deleteprocessed/<string:filename>", methods=['DELETE'])
-def deleteprocessed(filename):
-    file_path = os.path.join(app.config['PROCESSED_FOLDER'], filename)
-    if os.path.exists(file_path):
-        try:
-            os.remove(file_path)
-            return simplejson.dumps({filename: 'True'})
-        except:
-            return simplejson.dumps({filename: 'False'})
+@app.route("/videos", methods=['POST'])
+def get_videos_at_page():
+    params = request.form
+    key = params['key'].encode('utf-8')
+    page = int(params['page'])
+    videos, page_indexs, current_page = DATA_PROVIDER.videos_at_page(page, key=key, serialize=True)
+    return simplejson.dumps({"videos":videos, "page_indexs":page_indexs, "current_page": current_page})
 
 
-@app.route("/deletezipedgif/<string:filename>", methods=['DELETE'])
-def deletezipedgif(filename):
-    file_path = os.path.join(app.config['ZIPED_GIF_FOLDER'], filename)
-    if os.path.exists(file_path):
-        try:
-            os.remove(file_path)
-            return simplejson.dumps({filename: 'True'})
-        except:
-            return simplejson.dumps({filename: 'False'})
-
-
-# serve static files
-@app.route("/thumbnail/<string:filename>", methods=['GET'])
-def get_thumbnail(filename):
-    return send_from_directory(app.config['THUMBNAIL_FOLDER'], filename=filename)
-
-
-@app.route("/processed/<string:filename>", methods=['GET'])
-def get_processed_file(filename):
-    return send_from_directory(os.path.join(app.config['PROCESSED_FOLDER']), filename=filename)
-
-
-@app.route("/unprocessed/<string:filename>", methods=['GET'])
-def get_unprocessed_file(filename):
-    return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER']), filename=filename)
-
-
-@app.route("/zipedgif/<string:filename>", methods=['GET'])
-def get_ziped_gif_file(filename):
-    return send_from_directory(os.path.join(app.config['ZIPED_GIF_FOLDER']), filename=filename)
-
-
+## 查看视频生成的gif
 @app.route("/gifs/<string:filename>", methods=['GET'])
 def gifs(filename):
     sleep(0.01)
@@ -324,79 +246,15 @@ def gifs(filename):
     return render_template('upload_gif.html', gifs=gifs_str, result=1)
 
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    return render_template('index.html', tab='upload')
+## 删除
 
 
-@app.route('/alldata', methods=['GET', 'POST'])
-def alldata():
-    videos, page_indexs, current_page = DATA_PROVIDER.videos_at_page(1, serialize=True)
-    return render_template('root.html', videos=json.dumps(videos), page_indexs=page_indexs, current_page = current_page, tab='process')
-
-@app.route("/videos", methods=['POST'])
-def get_videos_at_page():
-    params = request.form
-    key = params['key'].encode('utf-8')
-    page = int(params['page'])
-    videos, page_indexs, current_page = DATA_PROVIDER.videos_at_page(page, key=key, serialize=True)
-    return simplejson.dumps({"videos":videos, "page_indexs":page_indexs, "current_page": current_page})
+## 下载zip
+@app.route("/zipedgif/<string:filename>", methods=['GET'])
+def get_ziped_gif_file(filename):
+    return send_from_directory(os.path.join(app.config['ZIPED_GIF_FOLDER']), filename=filename)
 
 
-@app.route('/getalldata', methods=['GET', 'POST'])
-def getalldata():
-    processed_files, unprocessed_files = did_get_all_data()
-    return simplejson.dumps({"processed_files": processed_files, 'unprocessed_files': unprocessed_files})
-
-
-def did_get_all_data():
-    # get all file in ./data directory
-    files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if
-             os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], f)) and f not in IGNORED_FILES]
-    file_display = []
-    unprocessed_files = []
-    files.sort(unprocessedSort)
-    for f in files:
-        size = round(float(os.path.getsize(os.path.join(app.config['UPLOAD_FOLDER'], f))) / 1024.0 / 1024.0, 2)
-        file_saved = uploadfile(name=f, size=size)
-        file_info = file_saved.get_file()
-        file_name = os.path.splitext(os.path.split(f)[1])[0]
-        status, op = process.get_file_status_info(file_name)
-        file_info['status'] = status
-        if op != "":
-            file_info['op'] = op
-        unprocessed_files.append(file_info)
-
-    processed_files = []
-    processed = [f for f in os.listdir(app.config['PROCESSED_FOLDER']) if
-                 os.path.isfile(os.path.join(app.config['PROCESSED_FOLDER'], f)) and f not in IGNORED_FILES]
-    processed.sort(processedSort)
-    for f in processed:
-        size = round(float(os.path.getsize(os.path.join(app.config['PROCESSED_FOLDER'], f))) / 1024.0 / 1024.0, 2)
-        file_saved = processedfile(name=f, size=size)
-        file_info = file_saved.get_file()
-
-        file_name = os.path.splitext(os.path.split(f)[1])[0]
-        ziped_gif_file_name = file_name + ".zip"
-        ziped_gif_path = os.path.join(app.config['ZIPED_GIF_FOLDER'], ziped_gif_file_name)
-
-        if os.path.isfile(ziped_gif_path):
-            ziped_gif_size = round(float(os.path.getsize(ziped_gif_path)) / 1024.0 / 1024.0, 2)
-            ziped_gif_saved = zipedgiffile(name=ziped_gif_file_name, size=ziped_gif_size)
-            file_info['ziped_gif_info'] = ziped_gif_saved.get_file()
-
-        # gif图片目录
-        gifs_dir = app.config['GIF_FOLDER'] + file_name
-        gif_count = 0
-        if os.path.isdir(gifs_dir):
-            file_info['gifs_dir'] = "gifs/%s" % file_name
-            for f in os.listdir(gifs_dir):
-                if f.rsplit(".", 1)[1].lower() == "gif":
-                    gif_count += 1
-        file_info['gif_count'] = gif_count
-
-        processed_files.append(file_info)
-    return processed_files, unprocessed_files
 
 
 @app.route("/addVideoToProcess", methods=['POST'])
@@ -425,31 +283,9 @@ def sec_2_time(sec):
     return ("%02d:%02d:%02d" % (h, m, s))
 
 
-def unprocessedSort(x, y):
-    stat_x = os.stat(app.config['UPLOAD_FOLDER'] + x)
-    stat_y = os.stat(app.config['UPLOAD_FOLDER'] + y)
-    if stat_x.st_ctime < stat_y.st_ctime:
-        return 1
-    elif stat_x.st_ctime > stat_y.st_ctime:
-        return -1
-    else:
-        return 0
-
-
-def processedSort(x, y):
-    stat_x = os.stat(app.config['PROCESSED_FOLDER'] + x)
-    stat_y = os.stat(app.config['PROCESSED_FOLDER'] + y)
-    if stat_x.st_ctime < stat_y.st_ctime:
-        return 1
-    elif stat_x.st_ctime > stat_y.st_ctime:
-        return -1
-    else:
-        return 0
-
-
 print "app.py 脚本"
 process.start_all_queues()
 
 if __name__ == '__main__':
     global_config.config['port'] = argv[1]
-    app.run(host='0.0.0.0', port=global_config.config['port'])
+    app.run(host='0.0.0.0', port=5000, debug=global_config.config['is_local'])

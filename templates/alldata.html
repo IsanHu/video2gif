@@ -3,76 +3,63 @@
 
 {% block page_content %}
 <script type="text/javascript">
-function addToProcessButtonClicked() {
-  var videoName = $('#videoToProcess').text()
-  var tagString = $("#tag").val().trim();
-  var tags = $("#tag").val().trim().split("\n");
-  captionChecked = $("#captionCheckbox").prop('checked')
 
-  duration = 0
-  isChinese = false
-  if (captionChecked == true) {
-    isChinese = $("#chinese").prop('checked')
-  }else{
-    var duration_str = $("#duration").val()
-    duration = parseInt(duration_str)
-      if (isNaN(duration) || duration < 1 || duration > 5) {
-        alert("请填写符合要求的时间间隔")
-        return
-      }
-  }
-
-  var height = 0
-  height_str = $("#img-height").val()
-  if (height_str != "") {
-      height = parseInt(height_str)
-      if (isNaN(height) || height < 200 || height > 500) {
-        alert("请填写符合要求的高度")
-        return
-      }
-  }
-  
-  addToProcess(videoName, height, JSON.stringify(tags), captionChecked, isChinese, duration, function(data){
-      $('#addToProcessModal').modal('hide');
-      tasks.processedData = data['processed_files']
-      tasks.unprocessedData = data['unprocessed_files']
-  })
-
-}
 </script>
 <div class="container" id="task_page">
-    <div class="row">
-        <div id="left" class="col-md-5">
-          <table class="table" id="unprocessed">
+    <div class="text-center">
+
+    <div class="input-group col-md-2" style="height: 30px; float: right;">
+          <input type="text" class="form-control" id="searchInput" placeholder="搜索" searchKey=''>
+            <span class="input-group-btn">
+              <button class="btn btn-primary" id="searchButton" type="button">搜索</button>
+            </span>
+    </div>
+
+
+    </div>
+    <div class="row" style="margin-top: 8px;">
+        <div class="col-md-12">
+          <table class="table">
               <tr>
-                <th>视频</th>
-                <th>视频大小</th>
-                <th>状态</th>
+                <th>视频名称</th>
+                <th>视频信息</th>
+                <th>文件大小</th>
+                <th>上传时间</th>
                 <th>操作</th>
               </tr>
-              <tr is="unprocessedtr" v-for="data in unprocessedData" v-bind:data="data"></tr>
-              </unprocessedtr>
-          </table>
-        </div>
-        <div id="right" class="col-md-6 col-md-offset-1">
-          <table class="table" id="processed">
-              <tr>
-                <th>视频</th>
-                <th>视频大小</th>
-                <th>图片</th>
-                <th>原尺寸图片</th>
-              </tr>
-              <tr is="processedtr" v-for="data in processedData" v-bind:data="data"></tr>
-              </processedtr>
+              <tr is="videos" v-for="data in videos" v-bind:data="data"></tr>
+              </videos>
           </table>
         </div>
     </div>
+    
+
+
+    <nav style="width: 100%; text-align: center;">
+      <ul class="pagination">
+        <li id="prePageButton" onClick="javascript:prePageButtonClicked()">
+          <span aria-hidden="true">&laquo;</span>
+        </li>
+        <li is="pageindex" v-bind:current_page=current_page v-for="p_index in page_indexs" v-bind:p_index="p_index"></tr>
+        </pageindex>
+        
+
+        
+        <li id="nextPageButton" onClick="javascript:nextPageButtonClicked()">
+            <span aria-hidden="true">&raquo;</span>
+        </li>
+      </ul>
+    </nav>
+
+
+
     <div id="addToProcessModal" class="modal fade" tabindex="-1" role="dialog">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 id="videoToProcess" class="modal-title"></h4>
+                <p id="hashName" hidden="true"></p>
               </div>
               <div class="modal-body">
               <div class="radio">
@@ -113,45 +100,26 @@ function addToProcessButtonClicked() {
   </div>
 {% endblock %}
 
+
 {% block scripts %}
 
 <script type="text/javascript">
-function videoList(callback) {
-        var params = {
-        
-        };
-        url = "/getalldata"
-        $.ajax({
-            type: "GET",
-            data: params,
-            url: url,
-            success: function(data) {
-                waitingDialog.hide();
-                console.log("成功");
-                callback(data);
-            },
-            error: function(data) {
-                waitingDialog.hide();
-            },
-            dataType: "json"
-        });
-    }
-
     var tasks = new Vue({
     el: '#task_page',
       data: {
           message: 'You loaded this page on ' + new Date(),
-          processedData: [],
-          unprocessedData: [],
+          videos: [],
+          current_page: 1,
+          page_indexs: [],
+
       }
     })
 
-  waitingDialog.show('处理中...');
-  videoList(function(data){
-      console.log(data['processed_files'])
-      tasks.processedData = data['processed_files']
-      tasks.unprocessedData = data['unprocessed_files']
-  })
+    var all_video = {{ videos|safe }}
+    tasks.videos = all_video
+    tasks.current_page = {{ current_page|safe }}
+    tasks.page_indexs = {{ page_indexs|safe }}
+
 
   function methodChage() {
       captionChecked = $("#captionCheckbox").prop('checked')
@@ -165,5 +133,17 @@ function videoList(callback) {
         $("#durationP").show()
       }
   }
+</script>
+
+<script type="text/javascript">
+  $('#searchInput').on('keypress', function (e) {
+       if(e.which === 13){
+          search()
+       }
+   });
+
+  $("#searchButton").on("click", function(){
+      search();
+  });
 </script>
 {% endblock %}
