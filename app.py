@@ -289,4 +289,4 @@ process.start_all_queues()
 
 if __name__ == '__main__':
     global_config.config['port'] = argv[1]
-    app.run(host='0.0.0.0', port=5000, debug=global_config.config['is_local'])
+    app.run(host='0.0.0.0', port=global_config.config['port'])
