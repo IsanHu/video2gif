@@ -505,106 +505,119 @@ def process_caption_video_to_generate_gifs(video):
     DATA_PROVIDER.update_video(vi)
 
     ## 开始处理
-    start = time.time()
-    process_info = json.loads(vi.process_info)
+    print "开始处理"
+    try:
+        start = time.time()
+        process_info = json.loads(vi.process_info)
 
-    video_path = os.path.join(config['UPLOAD_FOLDER'], vi.hash_name + "." + vi.extension)
-    processed_path = os.path.join(config['PROCESSED_FOLDER'], vi.hash_name + "." + vi.extension)
-    gif_path = os.path.join(config['GIF_FOLDER'], vi.hash_name)
-    ogiginal_gif_path = os.path.join(config['ORIGINAL_GIF_FOLDER'], vi.hash_name)
-    zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], vi.hash_name + '.zip')
-    print video_path
-    print processed_path
-    print gif_path
-    print ogiginal_gif_path
-    print zip_path
+        video_path = os.path.join(config['UPLOAD_FOLDER'], vi.hash_name + "." + vi.extension)
+        processed_path = os.path.join(config['PROCESSED_FOLDER'], vi.hash_name + "." + vi.extension)
+        gif_path = os.path.join(config['GIF_FOLDER'], vi.hash_name)
+        ogiginal_gif_path = os.path.join(config['ORIGINAL_GIF_FOLDER'], vi.hash_name)
+        zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], vi.hash_name + '.zip')
+        print video_path
+        print processed_path
+        print gif_path
+        print ogiginal_gif_path
+        print zip_path
 
-    video = VideoFileClip(video_path)
-    info = {}
+        video = VideoFileClip(video_path)
+        info = {}
 
-    captions = json.loads(vi.caption)
-    info['caption'] = captions
-    segments = []
-    fps = video.fps
-    for ca in captions:
-        bg = int(ca['bg'])
-        ed = int(ca['ed'])
-        start_frame = int(float(bg) / float(1000) * fps)
-        end_frame = int(float(ed) / float(1000) * fps)
+        captions = json.loads(vi.caption)
+        info['caption'] = captions
+        segments = []
+        fps = video.fps
+        for ca in captions:
+            bg = int(ca['bg'])
+            ed = int(ca['ed'])
+            start_frame = int(float(bg) / float(1000) * fps)
+            end_frame = int(float(ed) / float(1000) * fps)
 
-        duration = float(ed - bg) / 1000.0
-        if duration > 5:
-            print "大于5秒"
-            continue
-        if end_frame - 16 > start_frame:
-            segments.append((start_frame, end_frame, ca['onebest']))
-        else:
-            print "不足16帧"
+            duration = float(ed - bg) / 1000.0
+            if duration > 5:
+                print "大于5秒"
+                continue
+            if end_frame - 16 > start_frame:
+                segments.append((start_frame, end_frame, ca['onebest']))
+            else:
+                print "不足16帧"
 
-    if global_config.config['is_local']:
-        print "本地假装开始对 %s 进行评分" % vi.name
-        sleep(30)
-        print "本地假装对 %s 进行评分结束" % vi.name
-        vi.status = 33
+        if global_config.config['is_local']:
+            print "本地假装开始对 %s 进行评分" % vi.name
+            sleep(30)
+            print "本地假装对 %s 进行评分结束" % vi.name
+            vi.status = 33
+            vi.update_time = datetime.now()
+            DATA_PROVIDER.update_video(vi)
+            return
+
+        scores = video2gif.get_scores(score_function, segments, video, vi.name, stride=8)
+        count = len(scores)
+        print "segment count:"
+        print count
+        process_info['segment_count'] = len(scores)
+        process_info['score_time'] = int(time.time() - start)
+
+        if not os.path.exists(gif_path):
+            os.mkdir(gif_path)
+        if not os.path.exists(ogiginal_gif_path):
+            os.mkdir(ogiginal_gif_path)
+
+        # Generate GIFs from the top scoring segments
+
+        generate_start_time = time.time()
+        nr = 0
+        top_k = min(topCount, count)
+        result = []
+        height = vi.thumb_height
+        print height
+        for segment in sorted(scores, key=lambda x: -scores.get(x))[0:count]:
+            if nr >= top_k:
+                break
+            print segment[0] / float(fps)
+            print segment[1] / float(fps)
+            original_clip = video.subclip(segment[0] / float(fps), segment[1] / float(fps))
+            clip = video.subclip(segment[0] / float(fps), segment[1] / float(fps))
+            out_gif = "%s/%.3d.gif" % (gif_path.decode('utf-8'), nr)
+            original_gif = "%s/%.3d.mp4" % (ogiginal_gif_path.decode('utf-8'), nr)
+            gif_name = "%.3d.gif" % nr
+            ## resize
+            if height > 0:
+                clip = clip.resize(height=height)
+            else:
+                clip = clip.resize(width=320)
+            clip.write_gif(out_gif, fps=10, program="ImageMagick", opt="optimizeplus")
+            original_clip.write_videofile(original_gif, fps=10, audio=False)
+            result.append({"gif": gif_name, 'caption': segment[2]})
+            nr += 1
+
+        process_info['generate_time'] = int(time.time() - generate_start_time)
+
+        info['gif_caption'] = result
+        print "处理带字幕的视频完成完成"
+
+        # 压缩原尺寸图片
+        cmd = "zip -rj " + zip_path + " " + ogiginal_gif_path
+        print cmd
+        os.system(cmd)
+
+        print '准备转移视频'
+        # 转移视频
+        cmd1 = 'mv ' + video_path + " " + processed_path
+        print cmd1
+        os.system(cmd1)
+
+    except (Exception) as e:
+        print "处理失败"
+        print e.message
+        vi.status = 11 ##处理失败
         vi.update_time = datetime.now()
+        process_info['error_message'] = e.message
+        vi.process_info = json.dumps(process_info)
+        sleep(0.01)
         DATA_PROVIDER.update_video(vi)
         return
-
-    scores = video2gif.get_scores(score_function, segments, video, vi.name, stride=8)
-    count = len(scores)
-    print "segment count:"
-    print count
-    process_info['segment_count'] = len(scores)
-    process_info['score_time'] = int(time.time() - start)
-
-    if not os.path.exists(gif_path):
-        os.mkdir(gif_path)
-    if not os.path.exists(ogiginal_gif_path):
-        os.mkdir(ogiginal_gif_path)
-
-    # Generate GIFs from the top scoring segments
-
-    generate_start_time = time.time()
-    nr = 0
-    top_k = min(topCount, count)
-    result = []
-    height = vi.thumb_height
-    print height
-    for segment in sorted(scores, key=lambda x: -scores.get(x))[0:count]:
-        if nr >= top_k:
-            break
-        print segment[0] / float(fps)
-        print segment[1] / float(fps)
-        original_clip = video.subclip(segment[0] / float(fps), segment[1] / float(fps))
-        clip = video.subclip(segment[0] / float(fps), segment[1] / float(fps))
-        out_gif = "%s/%.3d.gif" % (gif_path.decode('utf-8'), nr)
-        original_gif = "%s/%.3d.mp4" % (ogiginal_gif_path.decode('utf-8'), nr)
-        gif_name = "%.3d.gif" % nr
-        ## resize
-        if height > 0:
-            clip = clip.resize(height=height)
-        else:
-            clip = clip.resize(width=320)
-        clip.write_gif(out_gif, fps=10, program="ImageMagick", opt="optimizeplus")
-        original_clip.write_videofile(original_gif, fps=10, audio=False)
-        result.append({"gif": gif_name, 'caption': segment[2]})
-        nr += 1
-
-    process_info['generate_time'] = int(time.time() - generate_start_time)
-
-    info['gif_caption'] = result
-    print "处理带字幕的视频完成完成"
-
-    # 压缩原尺寸图片
-    cmd = "zip -rj " + zip_path + " " + ogiginal_gif_path
-    print cmd
-    os.system(cmd)
-
-    print '准备转移视频'
-    # 转移视频
-    cmd1 = 'mv ' + video_path + " " + processed_path
-    print cmd1
-    os.system(cmd1)
 
     process_info['total_time'] = int(time.time() - start)
     ## 更新video状态
