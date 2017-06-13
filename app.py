@@ -37,13 +37,12 @@ import process
 from Models import Video
 from datetime import datetime
 
-from routes import init_route, processUpload
 
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 app = Flask(__name__)
-init_route(app)
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['UPLOAD_FOLDER'] = basedir + '/unprocessedvideos/'
 app.config['PROCESSED_FOLDER'] = basedir + '/processedvideos/'
@@ -77,12 +76,6 @@ def gen_file_name(fName):
             break
     print "上传的文件的名称: %s" % name
     return name
-
-
-@app.route('/classify/upload', methods=['POST'])
-def upload():
-    files = request.files
-    return processUpload(files)
 
 @app.route("/hInfo", methods=['GET'])
 def hInfo():
