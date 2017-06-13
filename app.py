@@ -37,6 +37,8 @@ import process
 from Models import Video
 from datetime import datetime
 
+from routes import init_route, processUpload
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -81,7 +83,7 @@ def gen_file_name(fName):
 def upload():
     files = request.files
     return processUpload(files)
-    
+
 @app.route("/hInfo", methods=['GET'])
 def hInfo():
     # //获取硬件信息
