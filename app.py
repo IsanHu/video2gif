@@ -41,6 +41,7 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 app = Flask(__name__)
+init_route(app)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['UPLOAD_FOLDER'] = basedir + '/unprocessedvideos/'
 app.config['PROCESSED_FOLDER'] = basedir + '/processedvideos/'
@@ -76,7 +77,11 @@ def gen_file_name(fName):
     return name
 
 
-
+@app.route('/classify/upload', methods=['POST'])
+def upload():
+    files = request.files
+    return processUpload(files)
+    
 @app.route("/hInfo", methods=['GET'])
 def hInfo():
     # //获取硬件信息
