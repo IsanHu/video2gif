@@ -128,7 +128,7 @@ def upload():
                     upload_info_dic['message'] = "上传成功"
                 except (Exception) as e:
                     upload_info_dic['size'] = ""
-                    upload_info_dic['error'] = e.message
+                    upload_info_dic['error'] = "处理失败: %s" % e.message
                     print "%s上传文件完成后,处理失败" % filename
                     print e.message
                     return simplejson.dumps({"files": [upload_info_dic]})
