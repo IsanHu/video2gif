@@ -294,8 +294,9 @@ def did_start_get_audio_queue():
                 video = VideoFileClip(video_path)
                 clip = video.subclip(0)
                 clip.audio.write_audiofile(audio_path, bitrate="128k")
-            except:
-                print "%s提取音频失败" % vi.hash_name
+            except (Exception) as e:
+                print "%s提取音频失败" % vi.name
+                print e.message
                 if os.path.isfile(audio_path):
                     os.remove(audio_path)
                 # 重新加入提取音频队列
