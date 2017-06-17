@@ -156,7 +156,7 @@ class Video(Model):
             "is_chinese": self.is_chinese,
             "xunfei_id": self.xunfei_id,
             "xunfei_upload_time": str(self.xunfei_upload_time),
-            "process_info":self.process_info
+            "process_info":self.readable_process_info()
         }
 
 
@@ -182,7 +182,7 @@ class Video(Model):
                 "segment_duration": self.segment_duration,
                 "is_chinese": self.is_chinese,
                 "xunfei_id": self.xunfei_id,
-                "process_info":self.process_info
+                "process_info":self.readable_process_info()
             }
         return {
             "id": self.id,
@@ -200,7 +200,7 @@ class Video(Model):
             "segment_duration": self.segment_duration,
             "is_chinese": self.is_chinese,
             "xunfei_id": self.xunfei_id,
-            "process_info":self.process_info
+            "process_info":self.readable_process_info()
         }
 
     def status_info(self):
@@ -230,5 +230,16 @@ class Video(Model):
         gif_info['gif_count'] = gif_count
         print gif_info
         return gif_info
+
+    def readable_process_info(self):
+        info_str = ""
+        info = self.process_info
+        if info is not None and info != "":
+            info_dic = json.loads(self.process_info)
+            for (key, value) in info_dic.items():
+                info_str = info_str + key + ": " + value + "\n"
+
+        return info_str
+
 
 
