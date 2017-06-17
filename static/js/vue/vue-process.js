@@ -148,7 +148,7 @@ function addToProcess(readbleName, videoName, height, tags, captionChecked, isCh
 // 删除
 function deleteButtonClicked() {
   var readbleName = $('#videoToDeleteName').text().trim()
-  var videoName = $('#hashName').text()
+  var videoName = $('#videoToDeleteHashName').text()
   var confirmName = $("#confirmInput").val().trim()
   if(confirmName == readbleName){
       waitingDialog.show("删除" + readbleName + " .....");
