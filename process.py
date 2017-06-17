@@ -768,7 +768,7 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
     print "添加的video"
     print video.name
     ## 检查video状态
-    if video.status != and  video.status != 11 :
+    if video.status != 0 and  video.status != 11 :
         return {'result': 1002, "error_message": "视频已经在处理了", "video": video.mini_serialize()}
 
     ## 按时间截图的情况下,检测segment的帧数是否能够达到16
