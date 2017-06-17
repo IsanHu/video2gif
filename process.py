@@ -785,6 +785,9 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
     print "添加的video"
     print video.name
     ## 检查video状态
+    if video.status == 12:
+        return {'result': 1002, "error_message": "视频正在删除中", "video": video.mini_serialize()}
+
     if video.status != 0 and  video.status != 11 :
         return {'result': 1002, "error_message": "视频已经在处理了", "video": video.mini_serialize()}
 
@@ -819,3 +822,80 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
     print "添加的video"
     print video.name
     return {'result': 0, "video": video.mini_serialize()}
+
+def delete_video(fileName):
+    sleep(0.01)
+    videos = DATA_PROVIDER.get_video_by_hash_name(fileName)
+    print "video count:"
+    print len(videos)
+    if len(videos) == 0:
+        return {'result': 1001, "error_message": "该视频丢失"}
+
+    video = videos[0]
+    print "将要删除的video:"
+    print video.name
+    ## 检查video状态
+    if video.status != 0 and video.status != 11 and video.status != 1:
+        return {'result': 1002, "error_message": "视频正在处理中, 不能删除", "video": video.mini_serialize()}
+
+    if video.status == 12:
+        return {'result': 1002, "error_message": "该视频正在删除中", "video": video.mini_serialize()}
+
+    ## 将视频状态更新成删除中
+    video.status = 12
+    video.update_time = datetime.now()
+    sleep(0.01)
+    DATA_PROVIDER.update_video(video)
+
+    ##开始删除
+    video_path = os.path.join(config['UPLOAD_FOLDER'], video.hash_name + "." + video.extension)
+    processed_path = os.path.join(config['PROCESSED_FOLDER'], video.hash_name + "." + video.extension)
+    gif_path = os.path.join(config['GIF_FOLDER'], video.hash_name)
+    ogiginal_gif_path = os.path.join(config['ORIGINAL_GIF_FOLDER'], video.hash_name)
+    zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], video.hash_name + '.zip')
+    audio_path = os.path.join(config['BOTTLENECK'], video.hash_name + "." + "mp3")
+    print video_path
+    print processed_path
+    print gif_path
+    print ogiginal_gif_path
+    print zip_path
+    print audio_path
+
+    try:
+        if os.path.isfile(audio_path):
+            os.remove(audio_path)
+
+        if os.path.isfile(zip_path):
+            os.remove(zip_path)
+
+        if os.path.isdir(gif_path):
+            os.removedirs(gif_path)
+
+        if os.path.isdir(ogiginal_gif_path):
+            os.removedirs(ogiginal_gif_path)
+
+        if os.path.isfile(processed_path):
+            os.remove(processed_path)
+
+        if os.path.isfile(video_path):
+            os.remove(video_path)
+
+    except (Exception) as e:
+        print "%s删除失败" % video.name
+        video.status = 13
+        video.update_time = datetime.now()
+        sleep(0.01)
+        DATA_PROVIDER.update_video(video)
+        return {'result': 1002, "error_message": "视频删除失败", "video": video.mini_serialize()}
+
+    print "%s删除成功" % video.name
+    video.status = -1
+    video.update_time = datetime.now()
+    sleep(0.01)
+    DATA_PROVIDER.update_video(video)
+    return {'result': 0, "video": video.mini_serialize()}
+
+
+
+
+

@@ -248,7 +248,12 @@ def gifs(filename):
 
 
 ## 删除
-
+@app.route("/delete_video", methods=['POST'])
+def deleteVideo(filename):
+    params = request.form
+    videoName = params['videoName'].encode('utf-8')
+    result = process.delete_video(videoName)
+    return simplejson.dumps(result)
 
 ## 下载zip
 @app.route("/zipedgif/<string:filename>", methods=['GET'])

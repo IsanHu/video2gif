@@ -96,6 +96,27 @@
             </div>
           </div>
         </div>
+
+
+        <div id="deleteModal" class="modal fade" tabindex="-1" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 id="videoToDelete" class="modal-title"></h4>
+                <p id="videoToDeleteHashName" hidden="true"></p>
+                <p id="videoToDeleteName" hidden="true"></p>
+              </div>
+              <div class="modal-body">
+                <p>请确认你要删除的资源：</p>
+                <input type="" name="" id="confirmInput">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="deleteButton" onClick="javascript:deleteButtonClicked()">删除</button>
+              </div>
+            </div>
+          </div>
+        </div>
     
   </div>
 {% endblock %}

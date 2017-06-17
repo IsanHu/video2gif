@@ -145,57 +145,55 @@ function addToProcess(readbleName, videoName, height, tags, captionChecked, isCh
   }
 
 
-
-Vue.component('unprocessedtr', {
-    props: ['data'],
-    template: 
-        '<tr>'+
-          '<td>' +
-          '<p>' +
-          '<a v-bind:href="data.url" v-bind:download="data.name">{{data.name}}</a>' +
-          '</p>' + '</td>' + 
-          '<td><span class="size">{{data.size}}M</span></td>' +
-          '<td>{{data.status}}</td>' +
-
-          '<td>' +
-          '<p v-if="data.op">' +
-          '<button @click="process(data)">{{data.op}}</button>' + 
-          '</p>' +
-          '</td>' +
-        '</tr>',
-
-    methods: {
-        process: function(data) {
-           console.log(data.size)
-           if (data.op == "处理") {
-              $('#videoToProcess').text(data.name)
-              $('#addToProcessModal').modal('show');
-           }
-        }
-    }, 
-});
-
-Vue.component('processedtr', {
-    props: ['data'],
-    template: 
-        '<tr>'+
-          '<td>' +
-          '<p>' +
-          '<a v-bind:href="data.url" v-bind:download="data.name">{{data.name}}</a>' +
-          '</p>' + '</td>' + 
-          '<td><span class="size">{{data.size}}M</span></td>' +
-          '<td>' +
-          '<p v-if="data.gifs_dir">' +
-          '<a v-bind:href="data.gifs_dir" target="_blank">{{data.gif_count}}张</a>' +
-          '</p>' + '</td>' +
-          '<td>' +
-          '<p v-if="data.ziped_gif_info">' +
-          '<a v-bind:href="data.ziped_gif_info.url" target="_blank">原尺寸图{{data.ziped_gif_info.size}}M</a>' +
-          '</p>' + '</td>' +
-
-        '</tr>',
-});
-
+// 删除
+function deleteButtonClicked() {
+  var readbleName = $('#videoToDeleteName').text().trim()
+  var videoName = $('#hashName').text()
+  var confirmName = $("#confirmInput").val().trim()
+  if(confirmName == readbleName){
+      waitingDialog.show("删除" + readbleName + " .....");
+      var params = {
+        "videoName": videoName,
+      };
+      console.log(params)
+      url = "/delete_video"
+      $.ajax({
+          type: "POST",
+          data: params,
+          url: url,
+          success: function(data) {
+              waitingDialog.hide();
+              $('#deleteModal').modal('hide');
+              if(data['result'] == 0) {
+                   
+              }else{
+                alert(data['error_message'])
+              }
+             video = data['video']
+             if(video) {
+                 index = -1
+                 for (var i = 0; i < tasks.videos.length; i++) {
+                     vi = tasks.videos[i]
+                     if (vi['id'] == video['id']) {
+                          index = i
+                          break
+                      }
+                 }
+                 if (index >= 0) {
+                    Vue.set(tasks.videos, index, video)
+                 }
+             }
+          },
+          error: function(data) {
+              waitingDialog.hide();
+          },
+          dataType: "json"
+      });
+  }else{
+    alert("请确认要删除的资源")
+    return
+  }
+}
 
 Vue.component('videos', {
     props: ['data'],
@@ -208,6 +206,8 @@ Vue.component('videos', {
           '<td>' +
              '<p v-if="data.status == 0">' +
                 '<button class="btn btn-default" @click="processVideo">处理</button>' +
+                '&nbsp &nbsp' +
+                '<button class="btn btn-danger" style="float: right;" @click="deleteProcessed">删除</button>' +
           '</p>' +
 
           '<p v-else-if="data.status == 1">' +
@@ -222,6 +222,11 @@ Vue.component('videos', {
               '&nbsp &nbsp' +
               '<button class="btn btn-default" @click="processVideo">重新处理</button>' +
           '</p>' +
+          '<p v-else-if="data.status == 13">' +
+              '<span>{{data.status_info}}</span>' + 
+              '&nbsp &nbsp' +
+              '<button class="btn btn-danger" style="float: right;" @click="deleteProcessed">重新删除</button>' +
+          '</p>' +
           '<p v-else>' +
               '{{data.status_info}}' + 
           '</p>' +
@@ -230,9 +235,12 @@ Vue.component('videos', {
 
     methods: {
         deleteProcessed: function() {
-            console.log("删除已经处理过的")
             console.log(this.data.name)
-
+            $('#videoToDelete').text(this.data.name)
+            $('#videoToDeleteName').text(this.data.name)
+            $('#videoToDeleteHashName').text(this.data.hash_name)
+            $('#confirmInput').text("")
+            $('#deleteModal').modal('show');
         },
 
         processVideo: function() {
