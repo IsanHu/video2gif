@@ -416,14 +416,24 @@ def did_start_upload_audio_queue():
             print "上传失败"
             print vi.name
             print e.message
-            ## 更新video状态
-            vi.status = 5  ## 提取音频成功
+
+
+            vi.status = 11
             vi.update_time = datetime.now()
+            process_info['error_message'] = "上传音频失败: %s" % e.message
             sleep(0.01)
             DATA_PROVIDER.update_video(vi)
-
-            uploadAudioQueue.put(vi)
             continue
+
+
+            ## 更新video状态
+            # vi.status = 5  ## 提取音频成功
+            # vi.update_time = datetime.now()
+            # sleep(0.01)
+            # DATA_PROVIDER.update_video(vi)
+            #
+            # uploadAudioQueue.put(vi)
+            # continue
 
         print result
         if result['ok'] == 0:
@@ -440,13 +450,22 @@ def did_start_upload_audio_queue():
         else:
             # 上传失败,重新加入上传音频队列
             print "上传失败"
-            ## 更新video状态
-            vi.status = 5  ## 提取音频成功
+
+            vi.status = 11
             vi.update_time = datetime.now()
+            process_info['error_message'] = "上传音频失败: %s" % e.message
             sleep(0.01)
             DATA_PROVIDER.update_video(vi)
-            uploadAudioQueue.put(vi)
             continue
+
+
+            ## 更新video状态
+            # vi.status = 5  ## 提取音频成功
+            # vi.update_time = datetime.now()
+            # sleep(0.01)
+            # DATA_PROVIDER.update_video(vi)
+            # uploadAudioQueue.put(vi)
+            # continue
 
         print("上传音频用时: %.2fs" % (time.time() - start))
 
