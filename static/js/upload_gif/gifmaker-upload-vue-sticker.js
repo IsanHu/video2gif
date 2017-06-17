@@ -5,22 +5,22 @@ Vue.component('sticker', {
           '<img v-if="src.download_failed" id="sticker" @click="reloadClick(src)" class="thumbnail sticker" style="width: 100%;margin-bottom:4px" src="http://mgc.biaoqingmm.com/static/img/reload.png" v-bind:imageid="src.np_id" ></img>' +
           '<img v-else id="sticker" class="thumbnail sticker" style="width: 100%;margin-bottom:4px" v-bind:src="src.store_url" v-bind:imageid="src.np_id" ></img>' +
           '<dl>' + 
-              '<dt>编号：{{src.gif_info.index}}  图片大小：{{src.gif_info.size}}KB</dt>' +
+              '<dt>编号：${src.gif_info.index}  图片大小：${src.gif_info.size}KB</dt>' +
               '<dt v-if="src.hot" style="color:#f0ad4e;font-size:18px;">流行表情(直接上线)</dt>' +
               '<dt>关键字：</dt>' +
               '<dd>' +  
-                  '<span v-for="tag in src.tag" style="padding-right: 10px;">{{tag}}</span>' +
+                  '<span v-for="tag in src.tag" style="padding-right: 10px;">${tag}</span>' +
               '</dd>' +
               '<dt>文案：</dt>' +
-              '<dd >{{src.textinfo}}</dd>' +
+              '<dd >${src.textinfo}</dd>' +
               
               '<dt v-if="src.toptag.length>0">置顶关键字：</dt>' + 
               '<dd>' +
-                    '<span v-for="tag in src.toptag" style="padding-right: 10px;">{{tag}}</span>' +
+                    '<span v-for="tag in src.toptag" style="padding-right: 10px;">${tag}</span>' +
               '</dd>' +
               '<dt>版权：</dt>' +
-              '<dd>{{src.copyright}}</dd>' + 
-              '<dt><a style="float: right" v-bind:href="src.original_url" v-bind:download="src.gif_info.name">下载原图（{{src.gif_info.full_size}}MB）</a></dt>' +
+              '<dd>${src.copyright}</dd>' + 
+              '<dt><a style="float: right" v-bind:href="src.original_url" v-bind:download="src.gif_info.name">下载原图（${src.gif_info.full_size}MB）</a></dt>' +
           '</dl>' +
       '</div>',
     methods: {
@@ -90,7 +90,7 @@ Vue.component('tagedittaghas', {
     template: 
         '<div class="input-group" style="display: inline-block;margin: 5px">' +
             '<span class="input-group-btn" >' +
-                  '<div class="btn btn-default" style="top: 1px">{{tag}}</div>' +
+                  '<div class="btn btn-default" style="top: 1px">${tag}</div>' +
             '</span>' +
             '<span class="input-group-btn">' +
                   '<button @click="toggleTopEdit" class="btn btn-default" style="top: 1px" type="button" >置顶</button>' +
@@ -123,7 +123,7 @@ Vue.component('tagedittagadd', {
     template: 
         '<div class="input-group" style="display: inline-block;margin: 5px">' +
             '<span class="input-group-btn" >' +
-                  '<div class="btn btn-success" style="top: 1px">{{tag}}</div>' +
+                  '<div class="btn btn-success" style="top: 1px">${tag}</div>' +
             '</span>' +
             '<span class="input-group-btn">' +
                   '<button @click="toggleTopEdit" class="btn btn-success" style="top: 1px" type="button" >置顶</button>' +
@@ -153,7 +153,7 @@ Vue.component('tagedittagdelete', {
     template: 
         '<div class="input-group" style="display: inline-block;margin: 5px">' +
             '<span class="input-group-btn" >' +
-                  '<div class="btn btn-danger" style="top: 1px">{{tag}}</div>' +
+                  '<div class="btn btn-danger" style="top: 1px">${tag}</div>' +
             '</span>' +
             '<span class="input-group-btn">' +
                   '<button @click="removeButtonClick" class="btn btn-danger glyphicon glyphicon-remove" style="top: 1px" type="button" ></button>' +
@@ -325,7 +325,7 @@ Vue.component('taggrouptaghas', {
     template: 
         '<div class="input-group" style="display: inline-block;margin: 5px">' +
             '<span class="input-group-btn" >' +
-                  '<div class="btn btn-default" style="top: 1px">{{tag}}</div>' +
+                  '<div class="btn btn-default" style="top: 1px">${tag}</div>' +
             '</span>' +
             '<span class="input-group-btn">' +
                   '<button @click="toggleTopEdit" class="btn btn-default glyphicon glyphicon-ok" style="top: 1px" type="button" ></button>' +
@@ -343,7 +343,7 @@ Vue.component('taggrouptophas', {
     template: 
         '<div class="input-group" style="display: inline-block;margin: 5px">' +
             '<span class="input-group-btn" >' +
-                  '<div class="btn btn-warning" style="top: 1px">{{tag}}</div>' +
+                  '<div class="btn btn-warning" style="top: 1px">${tag}</div>' +
             '</span>' +
             '<span class="input-group-btn">' +
                   '<button @click="toggleTopEditDelete" class="btn btn-default" style="top: 1px" type="button" >去除置顶</button>' +
@@ -361,7 +361,7 @@ Vue.component('taggrouptopdelete', {
     template: 
         '<div class="input-group" style="display: inline-block;margin: 5px">' +
             '<span class="input-group-btn" >' +
-                  '<div class="btn btn-danger" style="top: 1px">{{tag}}</div>' +
+                  '<div class="btn btn-danger" style="top: 1px">${tag}</div>' +
             '</span>' +
             '<span class="input-group-btn">' +
                   '<button @click="toggleTopEditDelete" class="btn btn-danger glyphicon glyphicon-remove" style="top: 1px" type="button" ></button>' +
@@ -385,7 +385,7 @@ Vue.component('taggrouptopadd', {
     template: 
         '<div class="input-group" style="display: inline-block;margin: 5px">' +
             '<span class="input-group-btn" >' +
-                  '<div class="btn btn-warning" style="top: 1px">{{tag}}</div>' +
+                  '<div class="btn btn-warning" style="top: 1px">${tag}</div>' +
             '</span>' +
             '<span class="input-group-btn">' +
                   '<button @click="toggleAddToTop" class="btn btn-warning glyphicon glyphicon-remove" style="top: 1px" type="button" ></button>' +
@@ -471,8 +471,8 @@ Vue.component('allsubmit', {
 Vue.component('pageindex', {
     props: ['p_index', 'current_page'],
     template: 
-        '<li v-if="p_index == current_page" v-bind:pageIndex="p_index" class="active pageIndexButton"><a>{{ p_index }}</a></li>' +
-        '<li v-else v-bind:pageIndex="p_index" class="pageIndexButton" @click="gotoPage(p_index)"><a>{{ p_index }}</a></li>',
+        '<li v-if="p_index == current_page" v-bind:pageIndex="p_index" class="active pageIndexButton"><a>${ p_index }</a></li>' +
+        '<li v-else v-bind:pageIndex="p_index" class="pageIndexButton" @click="gotoPage(p_index)"><a>${ p_index }</a></li>',
     methods: {
         gotoPage: function(page) {
             downloadPagedStickers(page)

@@ -1,4 +1,5 @@
 var tasks = new Vue({
+    delimiters: ['${', '}'],
     el: '#main',
     data: {
         //这个属性会被传给sticker-editor
