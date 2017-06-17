@@ -218,11 +218,12 @@ Vue.component('videos', {
               '<button class="btn btn-danger" style="float: right;" @click="deleteProcessed">删除</button>' +
           '</p>' +
           '<p v-else-if="data.status == 11" v-bind:title="data.process_info">' +
-              '{{data.status_info}}' + 
+              '<span>{{data.status_info}}</span>' + 
+              '&nbsp &nbsp' +
+              '<button class="btn btn-default" @click="processVideo">重新处理</button>' +
           '</p>' +
           '<p v-else>' +
-              '<span>{{data.status_info}}</span>' + 
-              '<button class="btn btn-default" @click="processVideo">重新处理</button>' +
+              '{{data.status_info}}' + 
           '</p>' +
           '</td>' +
         '</tr>',
