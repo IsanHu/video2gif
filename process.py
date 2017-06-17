@@ -110,6 +110,7 @@ def process_video_to_generate_gifs(video):
 
     ## 开始处理
     print "开始处理"
+    print vi.name
     try:
         process_start = time.time()
         process_info = {}
@@ -150,16 +151,40 @@ def process_video_to_generate_gifs(video):
             vi.update_time = datetime.now()
             DATA_PROVIDER.update_video(vi)
             return
+    except (Exception) as e:
+        print "处理失败"
+        print "分割视频失败"
+        print vi.name
+        print e.message
+        vi.status = 11  ##处理失败
+        vi.update_time = datetime.now()
+        process_info['error_message'] = "分割视频失败: %s" % e.message
+        vi.process_info = json.dumps(process_info)
+        sleep(0.01)
+        DATA_PROVIDER.update_video(vi)
+        return
 
+    try:
         # Score the segments
         scores = {}
-
         for particalSegments in segmentsArray:
             particalScores = video2gif.get_scores(score_function, particalSegments, video, vi.name, stride=8)
             scores.update(particalScores)
             print "score count:"
             print len(scores)
+    except (Exception) as e:
+        print "处理失败"
+        print "评分失败"
+        print e.message
+        vi.status = 11  ##处理失败
+        vi.update_time = datetime.now()
+        process_info['error_message'] = "评分失败: %s" % e.message
+        vi.process_info = json.dumps(process_info)
+        sleep(0.01)
+        DATA_PROVIDER.update_video(vi)
+        return
 
+    try:
         process_info['segment_count'] = len(scores)
         process_info['score_time'] = int(time.time() - process_start)
 
@@ -215,10 +240,12 @@ def process_video_to_generate_gifs(video):
         os.system(cmd1)
     except (Exception) as e:
         print "处理失败"
+        print "生成图片失败"
+        print vi.name
         print e.message
         vi.status = 11 ##处理失败
         vi.update_time = datetime.now()
-        process_info['error_message'] = e.message
+        process_info['error_message'] = "生成图片失败: %s" % e.message
         vi.process_info = json.dumps(process_info)
         sleep(0.01)
         DATA_PROVIDER.update_video(vi)
@@ -247,18 +274,31 @@ def did_start_get_audio_queue():
     print 'did_start_get_audio_queue'
     for video in get_video_to_audio_path():
         print "did_start_get_audio_queue"
+
+        process_info = {}
+        process_info['port'] = global_config.config['port']
         sleep(0.1)
         ## 检查状态
         videos = DATA_PROVIDER.get_video_by_hash_name(video.hash_name)
         if len(videos) == 0:
             print "dataError: did_start_get_audio_queue 数据丢失"
-            return
+            continue
 
         vi = videos[0]
         if vi.status != 2:
             print "dataError: did_start_get_audio_queue 数据状态不是'排队等待处理中'"
             print vi.status
-            return
+            continue
+
+        if vi.xunfei_id is not None and vi.xunfei_id != "":
+            print "%s 之前已经上传过音频了" % vi.name
+            vi.status = 7  ## 上传音频成功
+            vi.update_time = datetime.now()
+            vi.process_info = json.dumps(process_info)
+            sleep(0.01)
+            DATA_PROVIDER.update_video(vi)
+            continue
+
 
         ## 更新video状态
         vi.status = 4  ## 提取音频中
@@ -268,8 +308,7 @@ def did_start_get_audio_queue():
 
         ## 开始处理
         start = time.time()
-        process_info = {}
-        process_info['port'] = global_config.config['port']
+
         # 先检查audio_path是否有文件了
         # 如果有检查audio的时长跟video的时长是否一样，不一样的话删除audio，重新提取audio
         video_path = os.path.join(config['UPLOAD_FOLDER'], vi.hash_name + "." + vi.extension)
@@ -297,15 +336,16 @@ def did_start_get_audio_queue():
             except (Exception) as e:
                 print "%s提取音频失败" % vi.name
                 print e.message
-                if os.path.isfile(audio_path):
-                    os.remove(audio_path)
-                # 重新加入提取音频队列
-                vi.status = 2
+                vi.status = 11  ##处理失败
                 vi.update_time = datetime.now()
+                process_info['error_message'] = "提取音频失败: %s" % e.message
+                vi.process_info = json.dumps(process_info)
                 sleep(0.01)
                 DATA_PROVIDER.update_video(vi)
 
-                getAudioQueue.put(vi)
+                if os.path.isfile(audio_path):
+                    os.remove(audio_path)
+
                 continue
         print("提取音频用时: %.2fs" % (time.time() - start))
         process_info['extract_audio_time'] = int(time.time() - start)
@@ -341,7 +381,7 @@ def did_start_upload_audio_queue():
         videos = DATA_PROVIDER.get_video_by_hash_name(video.hash_name)
         if len(videos) == 0:
             print "dataError: did_start_upload_audio_queue 数据丢失"
-            return
+            continue
 
         vi = videos[0]
         ## 更新video状态
@@ -371,9 +411,11 @@ def did_start_upload_audio_queue():
         try:
             result = json.loads(os.popen(cmd).read())
             print result
-        except:
+        except (Exception) as e:
             # 上传失败,重新加入上传音频队列
             print "上传失败"
+            print vi.name
+            print e.message
             ## 更新video状态
             vi.status = 5  ## 提取音频成功
             vi.update_time = datetime.now()
@@ -455,9 +497,14 @@ def get_caption_from_xunfei():
         print cmd
         try:
             result = json.loads(os.popen(cmd).read())
-        except (AssertionError) as e:
-            print "抓到exception"
+        except (Exception) as e:
+            print "获取字幕失败"
+            print vi.name
             print e.message
+            vi.status = 7  ## 上传音频成功
+            vi.update_time = datetime.now()
+            sleep(0.01)
+            DATA_PROVIDER.update_video(vi)
             continue
 
         if result['ok'] != 0:
@@ -553,12 +600,40 @@ def process_caption_video_to_generate_gifs(video):
             DATA_PROVIDER.update_video(vi)
             return
 
+    except (Exception) as e:
+        print "处理失败"
+        print "分割视频失败"
+        print vi.name
+        print e.message
+        vi.status = 11  ##处理失败
+        vi.update_time = datetime.now()
+        process_info['error_message'] = "分割视频失败: %s" % e.message
+        vi.process_info = json.dumps(process_info)
+        sleep(0.01)
+        DATA_PROVIDER.update_video(vi)
+        return
+
+    try:
         scores = video2gif.get_scores(score_function, segments, video, vi.name, stride=8)
         count = len(scores)
         print "segment count:"
         print count
         process_info['segment_count'] = len(scores)
         process_info['score_time'] = int(time.time() - start)
+
+    except (Exception) as e:
+        print "处理失败"
+        print "评分失败"
+        print e.message
+        vi.status = 11  ##处理失败
+        vi.update_time = datetime.now()
+        process_info['error_message'] = "评分失败: %s" % e.message
+        vi.process_info = json.dumps(process_info)
+        sleep(0.01)
+        DATA_PROVIDER.update_video(vi)
+        return
+
+    try:
 
         if not os.path.exists(gif_path):
             os.mkdir(gif_path)
@@ -611,10 +686,12 @@ def process_caption_video_to_generate_gifs(video):
 
     except (Exception) as e:
         print "处理失败"
+        print "生成图片失败"
+        print vi.name
         print e.message
         vi.status = 11 ##处理失败
         vi.update_time = datetime.now()
-        process_info['error_message'] = e.message
+        process_info['error_message'] = "生成图片失败: %s" % e.message
         vi.process_info = json.dumps(process_info)
         sleep(0.01)
         DATA_PROVIDER.update_video(vi)
@@ -691,7 +768,7 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
     print "添加的video"
     print video.name
     ## 检查video状态
-    if video.status != 0:
+    if video.status != 0 or video.status != 11 :
         return {'result': 1002, "error_message": "视频已经在处理了", "video": video.mini_serialize()}
 
     ## 按时间截图的情况下,检测segment的帧数是否能够达到16
