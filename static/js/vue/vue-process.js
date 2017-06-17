@@ -239,7 +239,7 @@ Vue.component('videos', {
             $('#videoToDelete').text(this.data.name)
             $('#videoToDeleteName').text(this.data.name)
             $('#videoToDeleteHashName').text(this.data.hash_name)
-            $('#confirmInput').text("")
+            $('#confirmInput').val("")
             $('#deleteModal').modal('show');
         },
 
