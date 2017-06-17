@@ -201,28 +201,28 @@ Vue.component('videos', {
     props: ['data'],
     template: 
         '<tr>'+
-          '<td>{{data.name}}</td>'+
+          '<td v-bind:title="data.process_info">{{data.name}}</td>'+
           '<td>{{data.video_info.dimention}}({{data.video_info.duration}})</td>'+
           '<td>{{data.video_info.size}}</td>'+
           '<td>{{data.upload_time}}</td>'+
           '<td>' +
-             '<p v-if="data.status == 0" v-bind:title="data.process_info">' +
+             '<p v-if="data.status == 0">' +
                 '<button class="btn btn-default" @click="processVideo">处理</button>' +
           '</p>' +
 
-          '<p v-else-if="data.status == 1" v-bind:title="data.process_info">' +
+          '<p v-else-if="data.status == 1">' +
               '<a v-bind:href="data.gif_info.gifs_dir" target="_blank">{{data.gif_info.gif_count}}张</a>' + 
               '&nbsp &nbsp' +
               '<a v-bind:href="data.ziped_gif_info.download_url" target="_blank">原尺寸图{{data.ziped_gif_info.size}}</a>' +
               '&nbsp &nbsp' +
               '<button class="btn btn-danger" style="float: right;" @click="deleteProcessed">删除</button>' +
           '</p>' +
-          '<p v-else-if="data.status == 11" v-bind:title="data.process_info">' +
+          '<p v-else-if="data.status == 11">' +
               '<span>{{data.status_info}}</span>' + 
               '&nbsp &nbsp' +
               '<button class="btn btn-default" @click="processVideo">重新处理</button>' +
           '</p>' +
-          '<p v-else v-bind:title="data.process_info">' +
+          '<p v-else>' +
               '{{data.status_info}}' + 
           '</p>' +
           '</td>' +
