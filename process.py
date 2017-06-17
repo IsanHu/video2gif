@@ -854,30 +854,30 @@ def delete_video(fileName):
     ogiginal_gif_path = os.path.join(config['ORIGINAL_GIF_FOLDER'], video.hash_name)
     zip_path = os.path.join(config['ZIPED_GIF_FOLDER'], video.hash_name + '.zip')
     audio_path = os.path.join(config['BOTTLENECK'], video.hash_name + "." + "mp3")
-    print video_path
-    print processed_path
-    print gif_path
-    print ogiginal_gif_path
-    print zip_path
-    print audio_path
 
     try:
         if os.path.isfile(audio_path):
+            print "删除%s" % audio_path
             os.remove(audio_path)
 
         if os.path.isfile(zip_path):
+            print "删除%s" % zip_path
             os.remove(zip_path)
 
         if os.path.isdir(gif_path):
+            print "删除%s" % gif_path
             os.rmdir(gif_path)
 
         if os.path.isdir(ogiginal_gif_path):
+            print "删除%s" % ogiginal_gif_path
             os.rmdir(ogiginal_gif_path)
 
         if os.path.isfile(processed_path):
+            print "删除%s" % processed_path
             os.remove(processed_path)
 
         if os.path.isfile(video_path):
+            print "删除%s" % video_path
             os.remove(video_path)
 
     except (Exception) as e:
