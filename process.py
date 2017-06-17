@@ -410,7 +410,6 @@ def did_start_upload_audio_queue():
         print cmd
         try:
             rawResult = os.popen(cmd).read()
-            print rawResult
         except (Exception) as e:
             print "上传操作失败"
             print vi.name
@@ -424,7 +423,7 @@ def did_start_upload_audio_queue():
             DATA_PROVIDER.update_video(vi)
             continue
         try:
-            result = json.loads(os.popen(cmd).read())
+            result = json.loads(rawResult)
             print result
         except (Exception) as e:
             print "上传后解析返回结果失败"
@@ -433,7 +432,7 @@ def did_start_upload_audio_queue():
 
             vi.status = 11
             vi.update_time = datetime.now()
-            process_info['error_message'] = "上传后解析返回结果失败: %s" % e.message
+            process_info['error_message'] = "上传后解析返回结果失败: %s, %s" % (e.message, rawResult)
             vi.process_info = json.dumps(process_info)
             sleep(0.01)
             DATA_PROVIDER.update_video(vi)
