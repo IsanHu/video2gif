@@ -410,6 +410,8 @@ def did_start_upload_audio_queue():
         print cmd
         try:
             rawResult = os.popen(cmd).read()
+            print "rawResult==========:"
+            print rawResult
         except (Exception) as e:
             print "上传操作失败"
             print vi.name
