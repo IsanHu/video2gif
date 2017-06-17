@@ -826,8 +826,6 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
 def delete_video(fileName):
     sleep(0.01)
     videos = DATA_PROVIDER.get_video_by_hash_name(fileName)
-    print "video count:"
-    print len(videos)
     if len(videos) == 0:
         return {'result': 1001, "error_message": "该视频丢失"}
 
@@ -866,11 +864,15 @@ def delete_video(fileName):
 
         if os.path.isdir(gif_path):
             print "删除%s" % gif_path
-            os.rmdir(gif_path)
+            cmd = "rm - rf " + gif_path
+            print cmd
+            os.system(cmd)
 
         if os.path.isdir(ogiginal_gif_path):
             print "删除%s" % ogiginal_gif_path
-            os.rmdir(ogiginal_gif_path)
+            cmd = "rm - rf " + ogiginal_gif_path
+            print cmd
+            os.system(cmd)
 
         if os.path.isfile(processed_path):
             print "删除%s" % processed_path
