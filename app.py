@@ -249,9 +249,10 @@ def gifs(filename):
 
 ## 删除
 @app.route("/delete_video", methods=['POST'])
-def deleteVideo(filename):
+def deleteVideo():
     params = request.form
     videoName = params['videoName'].encode('utf-8')
+    print "删除: %s" % videoName
     result = process.delete_video(videoName)
     return simplejson.dumps(result)
 
