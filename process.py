@@ -864,13 +864,13 @@ def delete_video(fileName):
 
         if os.path.isdir(gif_path):
             print "删除%s" % gif_path
-            cmd = "rm - rf " + gif_path
+            cmd = "rm -rf " + gif_path
             print cmd
             os.system(cmd)
 
         if os.path.isdir(ogiginal_gif_path):
             print "删除%s" % ogiginal_gif_path
-            cmd = "rm - rf " + ogiginal_gif_path
+            cmd = "rm -rf " + ogiginal_gif_path
             print cmd
             os.system(cmd)
 
