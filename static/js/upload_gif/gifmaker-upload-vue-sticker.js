@@ -484,6 +484,12 @@ Vue.component('pageindex', {
 //下载逻辑
 function downloadPagedStickers(page) {
     //重置 
+    for (var i = 0; i < tasks.stickers.length; i++) {
+        var img = tasks.stickers[i]
+        img.selected = false
+    }
+    tasks.selected_count = 0
+
     tasks.current_page = page
     new_page_indexs = []
     for (var i = 1; i <= tasks.page_count; i++) {
