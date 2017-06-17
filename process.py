@@ -508,13 +508,30 @@ def get_caption_from_xunfei():
             continue
 
         if result['ok'] != 0:
-            print result
-            ## 更新video状态
-            vi.status = 7  ## 上传音频成功
-            vi.update_time = datetime.now()
-            sleep(0.01)
-            DATA_PROVIDER.update_video(vi)
-            continue
+            {u'failed': u'Task failed, please contact us.', u'err_no': 26201, u'ok': -1}
+            if result['err_no'] != 0:
+                print "转写失败"
+                print result
+                vi.status = 11  ##处理失败
+                vi.xunfei_id = ""
+                vi.update_time = datetime.now()
+                process_info['error_message'] = "讯飞转写失败: %d %s" % (result['err_no'], result['failed'])
+                vi.process_info = json.dumps(process_info)
+                sleep(0.01)
+                DATA_PROVIDER.update_video(vi)
+                ##删除音频
+                audio_path = os.path.join(config['BOTTLENECK'], vi.hash_name + "." + "mp3")
+                if os.path.isfile(audio_path):
+                    os.remove(audio_path)
+                continue
+            else:
+                print result
+                ## 更新video状态
+                vi.status = 7  ## 上传音频成功
+                vi.update_time = datetime.now()
+                sleep(0.01)
+                DATA_PROVIDER.update_video(vi)
+                continue
 
         print "%s 获取字幕成功, xunfei_id: %s" % (vi.name, xunfei_id)
         ## 更新video状态
