@@ -869,10 +869,10 @@ def delete_video(fileName):
             os.remove(zip_path)
 
         if os.path.isdir(gif_path):
-            os.removedirs(gif_path)
+            os.rmdir(gif_path)
 
         if os.path.isdir(ogiginal_gif_path):
-            os.removedirs(ogiginal_gif_path)
+            os.rmdir(ogiginal_gif_path)
 
         if os.path.isfile(processed_path):
             os.remove(processed_path)
@@ -881,7 +881,7 @@ def delete_video(fileName):
             os.remove(video_path)
 
     except (Exception) as e:
-        print "%s删除失败" % video.name
+        print "%s删除失败: %s" % (video.name, e.message)
         video.status = 13
         video.update_time = datetime.now()
         sleep(0.01)
