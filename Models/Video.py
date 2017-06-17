@@ -237,7 +237,7 @@ class Video(Model):
         if info is not None and info != "":
             info_dic = json.loads(self.process_info)
             for (key, value) in info_dic.items():
-                info_str = info_str + key + ": " + value + "\n"
+                info_str = info_str + key + ": " + str(value) + "\n"
 
         return info_str
 
