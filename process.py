@@ -409,31 +409,35 @@ def did_start_upload_audio_queue():
             config['XUNFEI_JAR'], config['XUNFEI_APPID'], config['XUNFEI_KEY'], audio_path)
         print cmd
         try:
-            result = json.loads(os.popen(cmd).read())
-            print result
+            rawResult = os.popen(cmd).read()
+            print rawResult
         except (Exception) as e:
-            # 上传失败,重新加入上传音频队列
-            print "上传失败"
+            print "上传操作失败"
             print vi.name
             print e.message
 
-
             vi.status = 11
             vi.update_time = datetime.now()
-            process_info['error_message'] = "上传音频失败: %s" % e.message
+            process_info['error_message'] = "上传操作失败: %s" % e.message
+            vi.process_info = json.dumps(process_info)
             sleep(0.01)
             DATA_PROVIDER.update_video(vi)
             continue
+        try:
+            result = json.loads(os.popen(cmd).read())
+            print result
+        except (Exception) as e:
+            print "上传后解析返回结果失败"
+            print vi.name
+            print e.message
 
-
-            ## 更新video状态
-            # vi.status = 5  ## 提取音频成功
-            # vi.update_time = datetime.now()
-            # sleep(0.01)
-            # DATA_PROVIDER.update_video(vi)
-            #
-            # uploadAudioQueue.put(vi)
-            # continue
+            vi.status = 11
+            vi.update_time = datetime.now()
+            process_info['error_message'] = "上传后解析返回结果失败: %s" % e.message
+            vi.process_info = json.dumps(process_info)
+            sleep(0.01)
+            DATA_PROVIDER.update_video(vi)
+            continue
 
         print result
         if result['ok'] == 0:
@@ -448,24 +452,13 @@ def did_start_upload_audio_queue():
             sleep(0.01)
             DATA_PROVIDER.update_video(vi)
         else:
-            # 上传失败,重新加入上传音频队列
-            print "上传失败"
-
+            print "上传音频后,讯飞返回失败结果"
             vi.status = 11
             vi.update_time = datetime.now()
-            process_info['error_message'] = "上传音频失败: %s" % e.message
+            process_info['error_message'] = "上传音频后,讯飞返回失败结果: %s" % json.dumps(result)
             sleep(0.01)
             DATA_PROVIDER.update_video(vi)
             continue
-
-
-            ## 更新video状态
-            # vi.status = 5  ## 提取音频成功
-            # vi.update_time = datetime.now()
-            # sleep(0.01)
-            # DATA_PROVIDER.update_video(vi)
-            # uploadAudioQueue.put(vi)
-            # continue
 
         print("上传音频用时: %.2fs" % (time.time() - start))
 
