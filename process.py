@@ -835,7 +835,7 @@ def delete_video(fileName):
     print "将要删除的video:"
     print video.name
     ## 检查video状态
-    if video.status != 0 and video.status != 11 and video.status != 1:
+    if video.status != 0 and video.status != 11 and video.status != 13 and video.status != 1:
         return {'result': 1002, "error_message": "视频正在处理中, 不能删除", "video": video.mini_serialize()}
 
     if video.status == 12:
