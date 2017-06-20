@@ -56,7 +56,7 @@ function getVidesWithPage(page) {
       }
 
       console.log(params)
-      url = "/images"
+      url = "/categoryimages/images"
       $.ajax({
           type: "POST",
           data: params,
@@ -361,7 +361,7 @@ $(document).ready(function(){
       };
 
       console.log(params)
-      url = "/confirm_images"
+      url = "/categoryimages/confirm_images"
       $.ajax({
           type: "POST",
           data: params,
@@ -418,7 +418,7 @@ $(document).ready(function(){
       };
 
       console.log(params)
-      url = "/remove_images"
+      url = "/categoryimages/remove_images"
       $.ajax({
           type: "POST",
           data: params,
