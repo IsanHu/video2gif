@@ -5,7 +5,7 @@ wget https://data.vision.ee.ethz.ch/gyglim/C3D/c3d_model.pkl -P ./data -nc
 ```
 
 ## 依赖
-- python 2.7， 依赖包：./requorements
+- python 2.7， 依赖包：./requirements
 - [theano](http://deeplearning.net/software/theano/install_ubuntu.html)(相当于tensorflow的一个计算框架，最好按照文档中推荐的方式安装) 
 - [cuda](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/#axzz4VZnqTJ2A)
 - [cuDNN](https://developer.nvidia.com/cudnn)
