@@ -1,6 +1,8 @@
 # MGC
 ## 下载仓库中缺少的大文件
+```
 wget https://data.vision.ee.ethz.ch/gyglim/C3D/c3d_model.pkl -P ./data -nc
+```
 
 ## 依赖
 - python 2.7， 依赖包：./requorements
@@ -28,11 +30,11 @@ CREATE TABLE `video` (
   `is_chinese` tinyint(1) NOT NULL DEFAULT '0' COMMENT '视频音频是否是中文， 0：是；1：不是',
   `xunfei_id` text,
   `xunfei_upload_time` datetime DEFAULT NULL COMMENT '音频上传成功时间',
-  `process_info` text COMMENT '处理过程中记录',
+  `process_info` text COMMENT '处理过程记录',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10630 DEFAULT CHARSET=utf8mb4;
 ```
 
 ## 运行
-配置./global_config中的 config['db_engine']（数据库地址）及 config['port']（服务端口）
+配置./global_config中的 config['db_engine']（数据库地址）及 config['port']（服务端口）   
 python ./app.py
