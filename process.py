@@ -787,6 +787,11 @@ def add_video_to_process(fileName, height, tags, caption, isChinese, duration):
     if caption == "true":
         split_type = 0
 
+    ## 临时关掉字幕方式分割视频片段
+    if split_type == 0:
+        return {'result': 1004, "error_message": "音频转写服务时间已用光,暂时关闭字幕方式截取视频片段"}
+
+
     sleep(0.01)
     videos = DATA_PROVIDER.get_video_by_hash_name(fileName)
     print "video count:"
