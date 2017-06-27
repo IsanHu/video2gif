@@ -521,7 +521,6 @@ def get_caption_from_xunfei():
             continue
 
         if result['ok'] != 0:
-            {u'failed': u'Task failed, please contact us.', u'err_no': 26201, u'ok': -1}
             if result['err_no'] != 0:
                 print "转写失败"
                 print result
